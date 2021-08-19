@@ -1,0 +1,239 @@
+package cn.wecuit.backen.controller;
+
+import cn.wecuit.backen.exception.BaseException;
+import cn.wecuit.backen.utils.CCUtil;
+import cn.wecuit.backen.utils.HTTP.HttpUtil2;
+import cn.wecuit.backen.utils.HTTP.HttpUtilEntity;
+import cn.wecuit.backen.utils.JsonUtil;
+import cn.wecuit.backen.utils.RSAUtils;
+import org.apache.hc.core5.http.ParseException;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.annotation.Resource;
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+/**
+ * @Author jiyec
+ * @Date 2021/8/5 20:10
+ * @Version 1.0
+ **/
+@RestController
+@RequestMapping("/Jszx")
+public class JszxController {
+    @Resource
+    HttpServletRequest request;
+
+    @RequestMapping("/getCheckInListV2")
+    public Map<String, Object> getCheckInListV2() throws IOException, ParseException {
+        String cookie = request.getParameter("cookie");
+        Map<String, String> headers = new HashMap<>();
+        headers.put("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.0 Safari/537.36 Edg/84.0.521.0");
+        headers.put("Cookie", cookie);
+
+        HttpUtil2 http = new HttpUtil2(new HashMap<String, Object>() {{
+            put("redirection", 0);
+        }});
+        HttpUtilEntity resp = http.doGetEntity("http://jszx-jxpt.cuit.edu.cn/Jxgl/Xs/netks/sj.asp?jkdk=Y", headers, "gb2312");
+        if(resp.getStatusCode() != 200)
+            throw new BaseException(20401, "计算中心还未登录");
+
+        String html = resp.getBody();
+        Map<String, List<Map<String, String>>> checkInList = CCUtil.parseCheckInList(html);
+        return new HashMap<String, Object>(){{
+            put("code", 200);
+            put("list", checkInList);
+        }};
+    }
+
+    @RequestMapping("/loginRSAv1")
+    public Map<String, Object> loginRSAv1(@RequestBody Map<String, String> uInfo) throws Exception {
+
+        String userId = uInfo.get("userId");
+        if(userId.length() > 15)
+            userId = RSAUtils.decryptRSAByPriKey(userId);
+        String userPass = RSAUtils.decryptRSAByPriKey(uInfo.get("userPass"));
+
+        // 登录操作
+        String loginCookie = CCUtil.login(userId, userPass);
+
+        // 响应体
+        Map<String, Object> ret = new HashMap<>();
+        ret.put("code", 200);
+        ret.put("cookie", loginCookie);
+        return ret;
+    }
+
+    @RequestMapping("/getCheckInEditV2")
+    public Map<String, Object> getCheckInEditV2() throws IOException, ParseException {
+        String cookie = request.getParameter("cookie");
+        String link = request.getParameter("link");
+
+        HttpUtil2 http = new HttpUtil2(new HashMap<String, Object>() {{
+            put("redirection", 0);
+        }});
+        String reqUrl = "http://jszx-jxpt.cuit.edu.cn/Jxgl/Xs/netks/sjDb.asp?" + link;
+        Map<String, String> headers = new HashMap<>();
+        headers.put("cookie", cookie);
+        HttpUtilEntity httpUtilEntity = http.doGetEntity(reqUrl, headers);
+        String location = httpUtilEntity.getHeaders().get("Location");
+        httpUtilEntity = http.doGetEntity("http://jszx-jxpt.cuit.edu.cn/Jxgl/Xs/netks/" + location, headers, "GB2312");
+        if(302 == httpUtilEntity.getStatusCode())throw new BaseException(20401, "未登录");
+
+        String html = httpUtilEntity.getBody();
+        Map<String, Object> form = CCUtil.parseCheckInContent(html);
+        return new HashMap<String, Object>(){{
+            put("code", 200);
+            put("form", form);
+        }};
+    }
+
+    @PostMapping("/doCheckInV3")
+    public Map<String, Object> doCheckInV3(@RequestBody Map<String, Object> postMap) throws IOException, ParseException {
+
+        String cookie = (String)postMap.get("JSZXCookie");
+
+        Map<String, String> form = (LinkedHashMap<String, String>)postMap.get("form");
+        form = CCUtil.genPostBody(form, "?" + (String)postMap.get("link"));
+
+        Map<String, String> headers = new HashMap<>();
+        headers.put("cookie", cookie);
+        headers.put("referer", "http://jszx-jxpt.cuit.edu.cn/");
+
+        HttpUtil2 http = new HttpUtil2(new HashMap<String, Object>() {{
+            put("redirection", 0);
+        }});
+        String url = "http://jszx-jxpt.cuit.edu.cn/Jxgl/Xs/netks/editSjRs.asp";
+        HttpUtilEntity httpUtilEntity = http.doPostEntity(url, form, headers, "GB2312");
+        if(200 != httpUtilEntity.getStatusCode())throw new BaseException(20401, "未登录");
+
+        String html = httpUtilEntity.getBody();
+        Pattern compile = Pattern.compile(">打卡时间：(.*?)</");
+        Matcher matcher = compile.matcher(html);
+        StringBuilder time = new StringBuilder();
+        if(matcher.find()){
+            time.append(matcher.group(1));
+        }
+
+        if(html.contains("提交打卡成功！")) {
+            Map<String, Object> newForm = CCUtil.parseCheckInContent(html);
+            return new HashMap<String, Object>(){{
+                put("code", 200);
+                put("error", time.toString());
+                put("form", newForm);
+            }};
+        }else{
+            return new HashMap<String, Object>(){{
+                put("code", 201);
+                put("error", "失败了╮(╯▽╰)╭");
+            }};
+        }
+    }
+
+    @RequestMapping("/office_prepare")
+    public Map<String, Object> office_prepare() throws IOException, ParseException {
+        Map<String, String> headers = new HashMap<String, String>(){{
+            put("referer", "http://login.cuit.edu.cn:81/Login/xLogin/Login.asp");
+        }};
+        HttpUtil2 http = new HttpUtil2();
+        String html = http.doGet2("http://login.cuit.edu.cn:81/Login/xLogin/Login.asp", headers);
+        Pattern compile = Pattern.compile("<input type=\"hidden\" name=\"codeKey\" value=\"(\\d+)\"");
+        Matcher matcher = compile.matcher(html);
+        String codeKey = "";
+        if(matcher.find())
+            codeKey = matcher.group(1);
+
+        compile = Pattern.compile("<span style=\"color:#0000FF;\">(.*?)</span");
+        matcher = compile.matcher(html);
+        String syncTime = "";
+        if(matcher.find())
+            syncTime = matcher.group(1);
+        Map<String, String> cookieMap = http.getCookie();
+        StringBuilder cookie = new StringBuilder();
+        cookieMap.forEach((k,v)->{
+            cookie.append(k + "=" + v + ";");
+        });
+
+        String finalCodeKey = codeKey;
+        String finalSyncTime = syncTime;
+        return new HashMap<String, Object>(){{
+            put("code", 200);
+            put("cookie", cookie.toString());
+            put("codeKey", finalCodeKey);
+            put("syncTime", finalSyncTime);
+        }};
+    }
+
+    @RequestMapping("/office_getCaptcha")
+    public Map<String, Object> office_getCaptcha() throws IOException {
+        String cookie = request.getParameter("cookie");
+        String codeKey = request.getParameter("codeKey");
+
+        HashMap<String, String> headers = new HashMap<String, String>(){{
+            put("cookie", cookie);
+            put("referer", "http://login.cuit.edu.cn:81/Login/xLogin/Login.asp");
+        }};
+        HttpUtil2 http = new HttpUtil2();
+        byte[] body = http.getContent("http://login.cuit.edu.cn:81/Login/xLogin/yzmDvCode.asp?k=" + codeKey, null, headers, "UTF-8");
+
+        ServletContext servletContext = request.getServletContext();
+        String OCR_SERVER = servletContext.getInitParameter("OCR_SERVER");
+        String s = http.doFilePost(OCR_SERVER, body);
+        Map<String, String> map = JsonUtil.string2Obj(s, Map.class);
+
+        return new HashMap<String, Object>(){{
+            put("code", 200);
+            put("base64img", "data:image/png;base64, " + new String(Base64.getEncoder().encode(body)));
+            put("imgCode", map.get("result"));
+        }};
+    }
+
+    @RequestMapping("/office_query")
+    public Map<String, Object> office_query() throws IOException, ParseException {
+        String cookie = request.getParameter("cookie");
+        String codeKey = request.getParameter("codeKey");
+        String captcha = request.getParameter("captcha");
+        String nickname = request.getParameter("nickname");
+        String email = request.getParameter("email");
+
+        Map<String, String> headers = new HashMap<String, String>(){{
+            put("cookie", cookie);
+            put("referer", "http://login.cuit.edu.cn:81/Login/xLogin/Login.asp");
+        }};
+        Map<String, String> param = new LinkedHashMap<String, String>(){{
+            put("WinW", "1304");
+            put("WinH", "768");
+            put("txtId", nickname);
+            put("txtMM", email);
+            put("verifycode", captcha);
+            put("codeKey", codeKey);
+            put("Login", "Check");
+            put("IbtnEnter.x", "8");
+            put("IbtnEnter.y", "26");
+        }};
+
+        HttpUtil2 http = new HttpUtil2();
+        String html = http.doPost("http://login.cuit.edu.cn:81/Login/xLogin/Login.asp", param, headers, "GB2312");
+        Pattern compile = Pattern.compile("class=user_main_z(.*?)</span");
+        Matcher matcher = compile.matcher(html);
+
+        StringBuilder result = new StringBuilder();
+
+        if(matcher.find()){
+            result.append(matcher.group(1));
+        }
+        String msg = result.substring(result.lastIndexOf(">") + 1);
+
+        return new HashMap<String, Object>(){{
+            put("code", 200);
+            put("result", msg);
+        }};
+    }
+}
