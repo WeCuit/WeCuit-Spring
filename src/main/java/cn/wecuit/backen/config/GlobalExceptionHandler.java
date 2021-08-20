@@ -3,6 +3,7 @@ package cn.wecuit.backen.config;
 import cn.wecuit.backen.bean.ResponseData;
 import cn.wecuit.backen.exception.BaseException;
 import org.apache.hc.core5.http.NoHttpResponseException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -34,6 +35,12 @@ public class GlobalExceptionHandler {
             return new ResponseData(){{
                 setCode(exception.getCode());
                 setError(exception.getMessage());
+            }};
+        }else if(e instanceof DuplicateKeyException){
+            DuplicateKeyException exception = (DuplicateKeyException) e;
+            return new ResponseData(){{
+                setCode(500);
+                setError("数据已存在！");
             }};
         }
         return new ResponseData(){{
