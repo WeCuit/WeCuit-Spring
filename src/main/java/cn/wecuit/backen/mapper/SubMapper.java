@@ -9,6 +9,7 @@ import java.math.BigInteger;
  * @Date 2021/5/14 10:39
  * @Version 1.0
  **/
+@Mapper
 public interface SubMapper {
 
     @Select("SELECT sub_id FROM wc_sub WHERE user_id=#{uid} AND tpl_id=#{tplId}")

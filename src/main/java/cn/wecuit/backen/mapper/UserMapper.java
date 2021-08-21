@@ -10,6 +10,7 @@ import java.util.Map;
  * @Date 2021/5/15 10:00
  * @Version 1.0
  **/
+@Mapper
 public interface UserMapper {
 
     // 根据openid或sid 查询 userid
