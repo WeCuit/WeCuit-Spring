@@ -109,7 +109,7 @@ public class CardController {
             response.setData(map);
         } else {
             response.setCode(Integer.parseInt(code));
-            response.setError((String) map.get("Msg"));
+            response.setMsg((String) map.get("Msg"));
         }
         return response;
     }

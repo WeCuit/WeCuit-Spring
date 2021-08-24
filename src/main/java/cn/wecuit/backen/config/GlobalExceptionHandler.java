@@ -24,7 +24,7 @@ public class GlobalExceptionHandler {
         e.printStackTrace();
         return new ResponseData(){{
             setCode(601);
-            setError(e.getMessage());
+            setMsg(e.getMessage());
         }};
     }
     @ExceptionHandler({RuntimeException.class}) //@ExceptionHandler 该注解声明异常处理方法
@@ -34,18 +34,18 @@ public class GlobalExceptionHandler {
             BaseException exception = (BaseException) e;
             return new ResponseData(){{
                 setCode(exception.getCode());
-                setError(exception.getMessage());
+                setMsg(exception.getMessage());
             }};
         }else if(e instanceof DuplicateKeyException){
             DuplicateKeyException exception = (DuplicateKeyException) e;
             return new ResponseData(){{
                 setCode(500);
-                setError("数据已存在！");
+                setMsg("数据已存在！");
             }};
         }
         return new ResponseData(){{
             setCode(501);
-            setError(e.getMessage());
+            setMsg(e.getMessage());
         }};
     }
     /**
@@ -60,7 +60,7 @@ public class GlobalExceptionHandler {
     public ResponseData defaultErrorHandler(HttpServletResponse response, Exception e) throws Exception {
         e.printStackTrace();
         ResponseData r = new ResponseData();
-        r.setError(e.getMessage());
+        r.setMsg(e.getMessage());
         if (e instanceof org.springframework.web.servlet.NoHandlerFoundException) {
             response.setStatus(404);
             r.setCode(404);

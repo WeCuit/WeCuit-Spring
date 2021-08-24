@@ -17,6 +17,5 @@ import lombok.NoArgsConstructor;
 public class ResponseData {
     private Integer code;       // 响应状态码
     private String msg;         // 响应信息
-    private String error;       // 异常信息
     private Object data;        // 响应数据
 }

@@ -104,7 +104,7 @@ public class JwglController {
             response.setCode(200);
         }else{
             response.setCode(401);
-            response.setError("未登录");
+            response.setMsg("未登录");
         }
         return response;
     }
