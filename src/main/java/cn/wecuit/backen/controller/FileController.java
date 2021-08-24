@@ -39,7 +39,7 @@ public class FileController {
         String link = request.getParameter("link");
         String page = request.getParameter("page");
         ServletContext servletContext = request.getServletContext();
-        // 缓冲坏大小
+        // 缓冲块大小
         final int chunkSize = 1024 * 5;
 
         // 编码文件名
