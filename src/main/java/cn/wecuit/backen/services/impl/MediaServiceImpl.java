@@ -22,6 +22,13 @@ public class MediaServiceImpl implements MediaService {
     MediaMapper mediaMapper;
 
     @Override
+    public boolean store(Media media) {
+        media.setId(null);
+        int insert = mediaMapper.insert(media);
+        return insert == 1;
+    }
+
+    @Override
     public Map<String, Object> list(int page, int limit) {
         Page<Map<String, Object>> mapPage = mediaMapper.selectMapsPage(new Page<>(page, limit), null);
 

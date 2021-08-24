@@ -1,8 +1,11 @@
 package cn.wecuit.backen.controller;
 
+import cn.wecuit.backen.bean.Media;
 import cn.wecuit.backen.bean.ResponseData;
 import cn.wecuit.backen.exception.BaseException;
+import cn.wecuit.backen.mapper.MediaMapper;
 import cn.wecuit.backen.services.FileService;
+import cn.wecuit.backen.services.MediaService;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -34,6 +37,8 @@ public class MediaController {
     private String BASE_UPLOAD_PATH;
     @Resource
     FileService fileService;
+    @Resource
+    MediaService mediaService;
 
     @PutMapping("/upload")
     public ResponseData upload(@RequestPart MultipartFile file, @RequestParam String id){
@@ -49,12 +54,20 @@ public class MediaController {
         SimpleDateFormat sdf2 = new SimpleDateFormat("/yyyy/MM");
         String filename = sdf1.format(now);
         String fileDir = sdf2.format(now);
-        String filePath = BASE_UPLOAD_PATH + fileDir + "/" + filename + "." + suffix;
+        String storePath = fileDir + "/" + filename + "." + suffix;
+        String filePath = BASE_UPLOAD_PATH + storePath;
 
         try {
             File storeFile = new File(filePath);
             storeFile.mkdirs();
             file.transferTo(storeFile);
+            boolean store = mediaService.store(new Media() {{
+                setPath(storePath);
+            }});
+            if(!store){
+                storeFile.delete();
+                throw new BaseException(500, "文件数据存储失败");
+            }
         } catch (IOException e) {
             e.printStackTrace();
             throw new BaseException(500, "文件存储失败！");
@@ -66,8 +79,8 @@ public class MediaController {
         }};
     }
 
-    @GetMapping("/list")
-    public ResponseData list(@RequestParam(required = false,defaultValue = "0") int start,
+    @GetMapping("/localList")
+    public ResponseData localList(@RequestParam(required = false,defaultValue = "0") int start,
                              @RequestParam(required = false, defaultValue = "9") int end){
         // File path = new File(BASE_UPLOAD_PATH);
 
@@ -79,6 +92,17 @@ public class MediaController {
             setCode(200);
             setMsg("success");
             setData(ret);
+        }};
+    }
+
+    @GetMapping("/list")
+    public ResponseData list(@RequestParam(required = false, defaultValue = "1") int page,
+                             @RequestParam(required = false, defaultValue = "10") int limit){
+        if(page <= 0)page = 1;
+        Map<String, Object> listData = mediaService.list(page, limit);
+        return new ResponseData(){{
+            setCode(200);
+            setData(listData);
         }};
     }
 
