@@ -10,4 +10,5 @@ import cn.wecuit.backen.bean.Option;
 public interface OptionService {
     Object getValueByName(String name);
     boolean updateValueByName(Option option);
+    boolean addNew(Option option);
 }

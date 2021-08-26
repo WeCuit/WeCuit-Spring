@@ -22,5 +22,5 @@ public class Option implements Serializable {
     private Long id;
     private String name;            // 选项名
     @TableField(typeHandler = JacksonTypeHandler.class)
-    private String value;           // 选项值
+    private Object value;           // 选项值
 }

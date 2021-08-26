@@ -25,14 +25,23 @@ public class OptionServiceImpl implements OptionService {
             eq("name", name);
             select("value");
         }});
+        if(option == null)return null;
         return option.getValue();
     }
 
     @Override
     public boolean updateValueByName(Option option) {
+        option.setId(null);
         int update = optionMapper.update(option, new UpdateWrapper<Option>() {{
             eq("name", option.getName());
         }});
         return update == 1;
+    }
+
+    @Override
+    public boolean addNew(Option option) {
+        option.setId(null);
+        int insert = optionMapper.insert(option);
+        return insert == 1;
     }
 }

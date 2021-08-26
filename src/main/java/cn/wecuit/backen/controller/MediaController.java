@@ -3,7 +3,6 @@ package cn.wecuit.backen.controller;
 import cn.wecuit.backen.bean.Media;
 import cn.wecuit.backen.bean.ResponseData;
 import cn.wecuit.backen.exception.BaseException;
-import cn.wecuit.backen.mapper.MediaMapper;
 import cn.wecuit.backen.services.FileService;
 import cn.wecuit.backen.services.MediaService;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -17,7 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -33,15 +31,15 @@ import java.util.*;
 @RequestMapping("/media")
 public class MediaController {
 
-    @Value("${wecuit.data-path}/upload")
-    private String BASE_UPLOAD_PATH;
+    @Value("${wecuit.data-path}")
+    private String BASE_STORE_PATH;
     @Resource
     FileService fileService;
     @Resource
     MediaService mediaService;
 
-    @PutMapping("/upload")
-    public ResponseData upload(@RequestPart MultipartFile file, @RequestParam String id){
+    @PostMapping("/upload")
+    public ResponseData upload(@RequestPart MultipartFile file){
 
         // TODO:文件类型限制
 
@@ -54,8 +52,8 @@ public class MediaController {
         SimpleDateFormat sdf2 = new SimpleDateFormat("/yyyy/MM");
         String filename = sdf1.format(now);
         String fileDir = sdf2.format(now);
-        String storePath = fileDir + "/" + filename + "." + suffix;
-        String filePath = BASE_UPLOAD_PATH + storePath;
+        String storePath = "/upload" + fileDir + "/" + filename + "." + suffix;
+        String filePath = BASE_STORE_PATH + storePath;
 
         try {
             File storeFile = new File(filePath);
@@ -87,7 +85,7 @@ public class MediaController {
         if(start < 0)start = 0;
         if(end < 0) end = 10;
 
-        Map<String, Object> ret = fileService.scanAllFile(BASE_UPLOAD_PATH, start, end);
+        Map<String, Object> ret = fileService.scanAllFile(BASE_STORE_PATH, start, end);
         return new ResponseData(){{
             setCode(200);
             setMsg("success");
