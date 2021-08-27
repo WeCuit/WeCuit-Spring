@@ -1,52 +1,51 @@
 package cn.wecuit.backen.config;
 
-import cn.wecuit.backen.bean.ResponseData;
+import cn.wecuit.backen.response.BaseResponse;
+import cn.wecuit.backen.response.ResponseCode;
+import cn.wecuit.backen.response.ResponseResult;
 import cn.wecuit.backen.exception.BaseException;
-import org.apache.hc.core5.http.NoHttpResponseException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
+ * 异常处理器
+ *
  * @Author jiyec
  * @Date 2021/7/28 18:02
  * @Version 1.0
  **/
-@RestControllerAdvice //@RestControllerAdvice 该注解定义全局异常处理类
+//@RestControllerAdvice 该注解定义全局异常处理类
+@ResponseBody
+@RestControllerAdvice(annotations = BaseResponse.class)
 public class GlobalExceptionHandler {
-    @ExceptionHandler({IOException.class}) //@ExceptionHandler 该注解声明异常处理方法
-    public ResponseData baseException(IOException e) throws Exception {
+    @ExceptionHandler({IOException.class})
+    public ResponseResult handleIOException(IOException e){
         e.printStackTrace();
-        return new ResponseData(){{
-            setCode(601);
-            setMsg(e.getMessage());
-        }};
+        return new ResponseResult(ResponseCode.SERVICE_ERROR.getCode(), ResponseCode.SERVICE_ERROR.getMsg(), null);
     }
-    @ExceptionHandler({RuntimeException.class}) //@ExceptionHandler 该注解声明异常处理方法
-    public ResponseData defaultErrorHandler(RuntimeException e) throws Exception {
+
+    @ExceptionHandler({BaseException.class})
+    public ResponseResult handleBaseException(BaseException e){
         e.printStackTrace();
-        if(e instanceof BaseException){
-            BaseException exception = (BaseException) e;
-            return new ResponseData(){{
-                setCode(exception.getCode());
-                setMsg(exception.getMessage());
-            }};
-        }else if(e instanceof DuplicateKeyException){
-            DuplicateKeyException exception = (DuplicateKeyException) e;
-            return new ResponseData(){{
-                setCode(500);
-                setMsg("数据已存在！");
-            }};
-        }
-        return new ResponseData(){{
-            setCode(501);
-            setMsg(e.getMessage());
-        }};
+        ResponseCode code = e.getCode2();
+        return new ResponseResult(code.getCode(), code.getMsg(), null);
+    }
+
+    @ExceptionHandler({DuplicateKeyException.class})
+    public ResponseResult handleDuplicateKeyException(DuplicateKeyException e){
+        e.printStackTrace();
+        return new ResponseResult(ResponseCode.RESOURCE_ALREADY_EXIST.getCode(), ResponseCode.RESOURCE_ALREADY_EXIST.getMsg(), null);
+    }
+
+    @ExceptionHandler({RuntimeException.class})
+    public ResponseResult handleRuntimeException(RuntimeException e) {
+        e.printStackTrace();
+        return new ResponseResult(ResponseCode.SERVICE_ERROR.getCode(), ResponseCode.SERVICE_ERROR.getMsg(), null);
     }
     /**
      * 系统异常处理，比如：404,500
@@ -57,18 +56,14 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler({Exception.class})
     @ResponseBody
-    public ResponseData defaultErrorHandler(HttpServletResponse response, Exception e) throws Exception {
+    public ResponseResult handleException(HttpServletResponse response, Exception e){
         e.printStackTrace();
-        ResponseData r = new ResponseData();
-        r.setMsg(e.getMessage());
         if (e instanceof org.springframework.web.servlet.NoHandlerFoundException) {
             response.setStatus(404);
-            r.setCode(404);
+            return new ResponseResult(ResponseCode.NO_HANDLER_FOUND.getCode(), ResponseCode.NO_HANDLER_FOUND.getMsg(), null);
         } else {
             response.setStatus(500);
-            r.setCode(500);
+            return new ResponseResult(ResponseCode.SERVICE_ERROR.getCode(), ResponseCode.SERVICE_ERROR.getMsg(), null);
         }
-        r.setData(null);
-        return r;
     }
 }

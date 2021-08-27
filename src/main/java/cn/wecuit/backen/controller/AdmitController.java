@@ -1,6 +1,6 @@
 package cn.wecuit.backen.controller;
 
-import cn.wecuit.backen.bean.ResponseData;
+import cn.wecuit.backen.response.ResponseResult;
 import cn.wecuit.backen.exception.BaseException;
 import cn.wecuit.backen.utils.HTTP.HttpUtil2;
 import org.apache.hc.core5.http.ParseException;
@@ -26,7 +26,7 @@ import java.util.Map;
 @RequestMapping("/Admit")
 public class AdmitController {
     @PostMapping("/query")
-    public ResponseData query(@RequestBody Map<String, String> d){
+    public ResponseResult query(@RequestBody Map<String, String> d){
         HttpUtil2 httpUtil2 = new HttpUtil2();
         try {
             String html = httpUtil2.doPost("http://zjc.cuit.edu.cn/Zs/LqXsCx.asp", d, "GB2312");
@@ -49,7 +49,7 @@ public class AdmitController {
                     put("lowest", lowest.asString());
                 }});
             }
-            return new ResponseData(){{
+            return new ResponseResult(){{
                 setCode(200);
                 setData(new HashMap<String, Object>(){{
                     put("result", result);

@@ -1,6 +1,6 @@
 package cn.wecuit.backen.controller;
 
-import cn.wecuit.backen.bean.ResponseData;
+import cn.wecuit.backen.response.ResponseResult;
 import cn.wecuit.backen.exception.BaseException;
 import cn.wecuit.backen.utils.HTTP.HttpUtil;
 import cn.wecuit.backen.utils.HexUtil;
@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
@@ -39,7 +38,7 @@ public class ToolController {
      * @throws Exception
      */
     @RequestMapping("/captchaDecodeV2")
-    public ResponseData captchaDecodeV2Action() throws Exception {
+    public ResponseResult captchaDecodeV2Action() throws Exception {
         // 获取POST 原始数据流
         ServletInputStream is = request.getInputStream();
         if(request.getContentLength() <= 0)throw new BaseException(20500, "请求异常");
@@ -66,7 +65,7 @@ public class ToolController {
 
         String s = HttpUtil.doFilePost(OCR_SERVER, data);
 
-        return new ResponseData(){{
+        return new ResponseResult(){{
             setCode(200);
             setData(JsonUtil.string2Obj(s, Map.class));
         }};

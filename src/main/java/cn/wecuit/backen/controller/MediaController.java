@@ -1,7 +1,7 @@
 package cn.wecuit.backen.controller;
 
 import cn.wecuit.backen.bean.Media;
-import cn.wecuit.backen.bean.ResponseData;
+import cn.wecuit.backen.response.ResponseResult;
 import cn.wecuit.backen.exception.BaseException;
 import cn.wecuit.backen.services.FileService;
 import cn.wecuit.backen.services.MediaService;
@@ -39,7 +39,7 @@ public class MediaController {
     MediaService mediaService;
 
     @PostMapping("/upload")
-    public ResponseData upload(@RequestPart MultipartFile file){
+    public ResponseResult upload(@RequestPart MultipartFile file){
 
         // TODO:文件类型限制
 
@@ -71,22 +71,22 @@ public class MediaController {
             throw new BaseException(500, "文件存储失败！");
         }
 
-        return new ResponseData(){{
+        return new ResponseResult(){{
             setCode(200);
             setMsg("success");
         }};
     }
 
     @GetMapping("/localList")
-    public ResponseData localList(@RequestParam(required = false,defaultValue = "0") int start,
-                             @RequestParam(required = false, defaultValue = "9") int end){
+    public ResponseResult localList(@RequestParam(required = false,defaultValue = "0") int start,
+                                    @RequestParam(required = false, defaultValue = "9") int end){
         // File path = new File(BASE_UPLOAD_PATH);
 
         if(start < 0)start = 0;
         if(end < 0) end = 10;
 
         Map<String, Object> ret = fileService.scanAllFile(BASE_STORE_PATH, start, end);
-        return new ResponseData(){{
+        return new ResponseResult(){{
             setCode(200);
             setMsg("success");
             setData(ret);
@@ -94,11 +94,11 @@ public class MediaController {
     }
 
     @GetMapping("/list")
-    public ResponseData list(@RequestParam(required = false, defaultValue = "1") int page,
-                             @RequestParam(required = false, defaultValue = "10") int limit){
+    public ResponseResult list(@RequestParam(required = false, defaultValue = "1") int page,
+                               @RequestParam(required = false, defaultValue = "10") int limit){
         if(page <= 0)page = 1;
         Map<String, Object> listData = mediaService.list(page, limit);
-        return new ResponseData(){{
+        return new ResponseResult(){{
             setCode(200);
             setData(listData);
         }};

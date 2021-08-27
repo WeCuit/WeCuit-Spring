@@ -1,6 +1,6 @@
 package cn.wecuit.backen.controller;
 
-import cn.wecuit.backen.bean.ResponseData;
+import cn.wecuit.backen.response.ResponseResult;
 import cn.wecuit.backen.exception.BaseException;
 import cn.wecuit.backen.utils.HTTP.HttpUtil2;
 import cn.wecuit.backen.utils.HTTP.HttpUtilEntity;
@@ -10,7 +10,6 @@ import cn.wecuit.backen.utils.JwglUtil;
 import org.apache.hc.core5.http.ParseException;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
@@ -33,7 +32,7 @@ public class JwglController {
     HttpServletRequest request;
 
     @RequestMapping("/login")
-    public ResponseData login(@RequestBody Map<String, String> data) throws IOException, ParseException {
+    public ResponseResult login(@RequestBody Map<String, String> data) throws IOException, ParseException {
 
         String cookie = data.get("cookie");
         // 数据获取及准备
@@ -78,14 +77,14 @@ public class JwglController {
 
         // Map<String, String> tmp_cookie = http.getCookie();
 
-        return new ResponseData(){{
+        return new ResponseResult(){{
             setCode(200);
             setData(retCookie);
         }};
     }
 
     @RequestMapping("/loginCheck")
-    public ResponseData loginCheck() throws IOException, ParseException {
+    public ResponseResult loginCheck() throws IOException, ParseException {
         String cookie = request.getParameter("cookie");
         Map<String, String> headers = new HashMap<>();
         headers.put("Content-Type", "application/x-www-form-urlencoded");
@@ -99,7 +98,7 @@ public class JwglController {
         }});
         HttpUtilEntity resp = http.doGetEntity(home_url, headers);
 
-        ResponseData response = new ResponseData();
+        ResponseResult response = new ResponseResult();
         if(200 == resp.getStatusCode()){
             response.setCode(200);
         }else{
@@ -110,7 +109,7 @@ public class JwglController {
     }
 
     @RequestMapping("/getGradeTableV2")
-    public ResponseData getGradeTableV2(@RequestBody Map<String, String> data) throws IOException, ParseException {
+    public ResponseResult getGradeTableV2(@RequestBody Map<String, String> data) throws IOException, ParseException {
         String cookie = data.get("cookie");
         Map<String, String> headers = new HashMap<>();
         headers.put("cookie", cookie);
@@ -145,7 +144,7 @@ public class JwglController {
             put("point", totalList.get(3));
         }};
 
-        return new ResponseData(){{
+        return new ResponseResult(){{
             setCode(200);
             setData(new HashMap<String, Object>(){{
                 put("grade", parseGradeTable.get("v1"));
@@ -155,7 +154,7 @@ public class JwglController {
     }
 
     @RequestMapping("/getExamOption")
-    public ResponseData getExamOption(@RequestBody Map<String, String> d) throws IOException, ParseException {
+    public ResponseResult getExamOption(@RequestBody Map<String, String> d) throws IOException, ParseException {
         String cookie = d.get("cookie");
 
         Pattern compile = Pattern.compile("semester.id=(\\d+);");
@@ -248,7 +247,7 @@ public class JwglController {
 
 
         String finalSemester1 = semester;
-        return new ResponseData(){{
+        return new ResponseResult(){{
             setCode(200);
             setData(new HashMap<String, Object>(){{
                 put("semesterCalendar", map);
@@ -259,7 +258,7 @@ public class JwglController {
     }
 
     @RequestMapping("/getExamTable")
-    public ResponseData getExamTable(@RequestBody Map<String, String> d) throws IOException, ParseException {
+    public ResponseResult getExamTable(@RequestBody Map<String, String> d) throws IOException, ParseException {
 
         String cookie = d.get("cookie");
         String batchId = d.get("batchId");
@@ -311,7 +310,7 @@ public class JwglController {
             i++;
         }
 
-        return new ResponseData(){{
+        return new ResponseResult(){{
             setCode(200);
             setData(table);
         }};
@@ -319,7 +318,7 @@ public class JwglController {
 
     private static final Pattern courseOption = Pattern.compile("<option value=\"(.*?)\">(.*?)</option>");
     @RequestMapping("/getCourseOption")
-    public ResponseData getCourseOption(@RequestBody Map<String, String> d) throws IOException, ParseException {
+    public ResponseResult getCourseOption(@RequestBody Map<String, String> d) throws IOException, ParseException {
         String cookie = d.get("cookie");
         HttpUtil2 http = new HttpUtil2(new HashMap<String, Object>(){{
             put("redirection", 0);
@@ -363,7 +362,7 @@ public class JwglController {
         httpUtilEntity = http.doPostEntity(url, p, header);
         Map<String, Object> semester = JwglUtil.parseTermList(httpUtilEntity.getBody());
 
-        return new ResponseData(){{
+        return new ResponseResult(){{
             setCode(200);
             setData(new HashMap<String, Object>(){{
                 put("courseType", courseType);
@@ -375,7 +374,7 @@ public class JwglController {
 
     private static Pattern courseTableP = Pattern.compile("if\\(jQuery\\(\"#courseTableType\"\\)\\.val\\(\\)==\"std\"\\)\\{.*?form\\.addInput\\(form,\"ids\",\"(\\d+)\".*?form\\.addInput\\(form,\"ids\",\"(\\d+)\"");
     @RequestMapping("/getCourseTableV2")
-    public ResponseData getCourseTableV2(@RequestBody Map<String, Object> d) throws IOException, ParseException {
+    public ResponseResult getCourseTableV2(@RequestBody Map<String, Object> d) throws IOException, ParseException {
         String cookie = (String)d.get("cookie");
         String courseType = (String)d.get("courseType");
         HttpUtil2 http = new HttpUtil2(new HashMap<String, Object>() {{
@@ -413,7 +412,7 @@ public class JwglController {
         String position = info.contains("航空港")?"hkg":"lq";
 
         // 获取一学期开始时间
-        return new ResponseData(){{
+        return new ResponseResult(){{
             setCode(200);
             setData(new HashMap<String, Object>(){{
                 put("location", position);

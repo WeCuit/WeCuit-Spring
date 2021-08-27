@@ -1,8 +1,7 @@
 package cn.wecuit.backen.controller;
 
-import cn.wecuit.backen.bean.ResponseData;
+import cn.wecuit.backen.response.ResponseResult;
 import cn.wecuit.backen.utils.HTTP.HttpUtil2;
-import cn.wecuit.backen.utils.JsonUtil;
 import cn.wecuit.backen.utils.JwcUtil;
 import org.apache.hc.core5.http.ParseException;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,7 +27,7 @@ public class JwcController {
 
 
     @GetMapping("/labAll")
-    public ResponseData labAll() throws IOException, ParseException {
+    public ResponseResult labAll() throws IOException, ParseException {
         Map<String, String[]> parameterMap = request.getParameterMap();
         Map<String, String> parameter = new HashMap<>();
         parameterMap.forEach((k, v)->{
@@ -43,7 +42,7 @@ public class JwcController {
         //数据解析
         Map<String, Object> ret = JwcUtil.LAB_ListHtml2json(html);
 
-        return new ResponseData(){{
+        return new ResponseResult(){{
             setCode(200);
             setData(ret);
         }};

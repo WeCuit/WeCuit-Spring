@@ -1,4 +1,4 @@
-package cn.wecuit.backen.bean;
+package cn.wecuit.backen.config;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -10,9 +10,9 @@ import org.springframework.stereotype.Component;
  * @Date 2021/8/5 9:21
  * @Version 1.0
  **/
+@Data
 @Component
 @EnableConfigurationProperties
-@Data
 @ConfigurationProperties(prefix = "wecuit")
 public class WecuitConfig {
     private Robot robot;

@@ -1,15 +1,13 @@
 package cn.wecuit.backen.controller;
 
-import cn.wecuit.backen.bean.ResponseData;
+import cn.wecuit.backen.response.ResponseResult;
 import cn.wecuit.backen.exception.BaseException;
-import cn.wecuit.backen.utils.ApiUtil;
 import cn.wecuit.backen.utils.CardUtil;
 import cn.wecuit.backen.utils.HTTP.HttpUtil2;
 import cn.wecuit.backen.utils.HTTP.HttpUtilEntity;
 import cn.wecuit.backen.utils.JsonUtil;
 import cn.wecuit.backen.utils.URLUtil;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
-import io.swagger.annotations.Api;
 import org.apache.hc.core5.http.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -41,7 +39,7 @@ public class CardController {
     HttpServletResponse response;
 
     @PostMapping("/login")
-    public ResponseData login(@RequestBody Map<String, String> d) throws IOException, ParseException {
+    public ResponseResult login(@RequestBody Map<String, String> d) throws IOException, ParseException {
         String cookie = d.get("cookie");
 
         Map<String, String> headers = new HashMap<>();
@@ -78,7 +76,7 @@ public class CardController {
         idNo = new String(decode);
 
         String finalIdNo = idNo;
-        return new ResponseData() {{
+        return new ResponseResult() {{
             setCode(200);
             setData(new HashMap<String, String>() {{
                 put("AccNum", finalIdNo);
@@ -87,7 +85,7 @@ public class CardController {
     }
 
     @PostMapping("/getAccWallet")
-    public ResponseData getAccWallet(@RequestBody Map<String, String> d) throws NoSuchAlgorithmException, IOException, ParseException {
+    public ResponseResult getAccWallet(@RequestBody Map<String, String> d) throws NoSuchAlgorithmException, IOException, ParseException {
         String accNum = d.get("AccNum");
         Map<String, String> param = new LinkedHashMap<>();
         param.put("AccNum", accNum);
@@ -100,7 +98,7 @@ public class CardController {
         }});
         String result = http.doGet("http://ykt.cuit.edu.cn:12490/QueryAccWallet.aspx", param);
 
-        ResponseData response = new ResponseData();
+        ResponseResult response = new ResponseResult();
 
         Map map = JsonUtil.string2Obj(result, Map.class);
         String code = (String) map.get("Code");
@@ -115,7 +113,7 @@ public class CardController {
     }
 
     @PostMapping("/getDealRec")
-    public ResponseData getDealRec(@RequestBody Map<String, String> d) throws IOException, ParseException, NoSuchAlgorithmException {
+    public ResponseResult getDealRec(@RequestBody Map<String, String> d) throws IOException, ParseException, NoSuchAlgorithmException {
         Map<String, String> sign = CardUtil.genSign(d, "DealRec");
         d.put("ContentType", "json");
         d.putAll(sign);
@@ -125,7 +123,7 @@ public class CardController {
         }});
         String result = http.doGet("http://ykt.cuit.edu.cn:12490/QueryDealRec.aspx", d);
 
-        ResponseData response = new ResponseData();
+        ResponseResult response = new ResponseResult();
         Map map = JsonUtil.string2Obj(result, Map.class);
         String code = (String)map.get("Code");
         if("1".equals(code)){
