@@ -1,5 +1,7 @@
 package cn.wecuit.backen.bean;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,6 +17,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @TableName("wc_menus")
 public class Menu {
+    @TableId(type = IdType.AUTO)
     private Long id;                // 菜单ID
     private String name;            // 菜单名
     private String path;            // 菜单路径

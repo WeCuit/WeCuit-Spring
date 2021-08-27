@@ -1,5 +1,7 @@
 package cn.wecuit.backen.bean;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,6 +19,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @TableName("wc_users")
 public class User implements Serializable {
+    @TableId(type = IdType.AUTO)
     private Long id;                    // 系统用户ID
     private String stuId;               // 学号
     private String stuPass;             // 学生密码

@@ -21,7 +21,7 @@ import java.io.IOException;
  **/
 //@RestControllerAdvice 该注解定义全局异常处理类
 @ResponseBody
-@RestControllerAdvice(annotations = BaseResponse.class)
+@RestControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler({IOException.class})
     public ResponseResult handleIOException(IOException e){
