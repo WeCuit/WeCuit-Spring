@@ -1,5 +1,6 @@
 package cn.wecuit.backen.bean;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,4 +18,6 @@ import lombok.NoArgsConstructor;
 public class RoleMenu {
     private Long roleId;                // 角色ID
     private Long menuId;                // 菜单ID
+    @TableField(exist = false)
+    private Integer type;               // 1.增加 2.删除
 }

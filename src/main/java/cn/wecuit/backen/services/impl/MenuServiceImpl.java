@@ -2,7 +2,6 @@ package cn.wecuit.backen.services.impl;
 
 import cn.wecuit.backen.bean.Menu;
 import cn.wecuit.backen.mapper.MenuMapper;
-import cn.wecuit.backen.response.BaseResponse;
 import cn.wecuit.backen.services.MenuService;
 import org.springframework.stereotype.Service;
 

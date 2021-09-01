@@ -3,9 +3,12 @@ package cn.wecuit.backen.bean;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 /**
  * @Author jiyec
@@ -15,10 +18,13 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@TableName("wc_roles")
+@TableName(value = "wc_roles", autoResultMap = true)
 public class Role {
+    @ApiModelProperty(value = "角色ID")
     @TableId(type = IdType.AUTO)
-    private Long id;                // 角色ID
-    private String mark;            // 角色标记
-    private String name;            // 角色名
+    private Long id;
+    @ApiModelProperty(name = "角色标记")
+    private String mark;
+    @ApiModelProperty(name = "角色名")
+    private String name;
 }
