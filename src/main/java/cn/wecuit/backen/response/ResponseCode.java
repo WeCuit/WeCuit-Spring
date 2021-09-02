@@ -18,6 +18,7 @@ public enum ResponseCode {
      */
     RESOURCES_NOT_EXIST(404, "资源不存在"),
     SERVICE_ERROR(500, "服务器异常"),
+    METHOD_NOT_SUPPORTED(405, "不支持的请求方式"),
     NO_HANDLER_FOUND(404, "未找到处理器"),
     RESOURCE_ALREADY_EXIST(501, "资源已存在");
 

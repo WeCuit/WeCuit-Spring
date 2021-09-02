@@ -3,9 +3,11 @@ package cn.wecuit.backen.controller;
 import cn.wecuit.backen.bean.Menu;
 import cn.wecuit.backen.bean.Role;
 import cn.wecuit.backen.bean.RoleMenu;
+import cn.wecuit.backen.response.BaseResponse;
 import cn.wecuit.backen.services.MenuService;
 import cn.wecuit.backen.services.RoleMenuService;
 import cn.wecuit.backen.services.RoleService;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -24,6 +26,7 @@ import java.util.stream.Collectors;
  * @Version 1.0
  **/
 
+@BaseResponse
 @Api(value = "授权管理", tags = {"授权操作接口"})
 @ApiOperation(value = "授权管理")
 @ApiSupport(author = "jiyecafe@gmail.com")
@@ -44,6 +47,7 @@ public class AuthController {
     public List<Role> listRole(){
         return roleService.list();
     }
+
     @ApiOperation(value = "添加角色")
     @PostMapping("/roles")
     public Map<String, Object> addRole(@RequestBody Role role){
@@ -52,6 +56,7 @@ public class AuthController {
             put("result", add);
         }};
     }
+
     @ApiOperation(value = "删除角色")
     @DeleteMapping("/roles/{id}")
     public Map<String, Object> deleteRole(@PathVariable long id){
@@ -60,6 +65,7 @@ public class AuthController {
             put("result", delete);
         }};
     }
+
     @ApiOperation(value = "修改角色信息")
     @PatchMapping("/roles/{id}")
     public Map<String, Object> modifyRole(@PathVariable long id, @RequestBody Role role){
@@ -70,14 +76,26 @@ public class AuthController {
         }};
     }
 
+    @ApiOperation(value = "获取角色拥有的菜单")
+    @GetMapping("/roles/menus")
+    public List<RoleMenu> listRoleMenu(@RequestParam long role_id){
+        return roleMenuService.list(new QueryWrapper<RoleMenu>() {{
+            eq("role_id", role_id);
+        }});
+    }
+
     @PatchMapping("/roles/menus")
     public Map<String, Object> modifyRoleMenu(@RequestBody List<RoleMenu> list){
-        boolean add = roleMenuService.saveBatch(list.stream().filter(e -> e.getType() == 1).collect(Collectors.toList()));
-        boolean delete = roleMenuService.removeList(list.stream().filter(e -> e.getType() == 2).collect(Collectors.toList()));
-
+        boolean add = true, delete = true;
+        List<RoleMenu> addList = list.stream().filter(e -> e.getType() == 1).collect(Collectors.toList());
+        List<RoleMenu> deleteList = list.stream().filter(e -> e.getType() == 2).collect(Collectors.toList());
+        if(addList.size() > 0)add = roleMenuService.saveBatch(addList);
+        if(deleteList.size() > 0)delete = roleMenuService.removeList(deleteList);
+        boolean finalAdd = add;
+        boolean finalDelete = delete;
         return new HashMap<String, Object>(){{
-            put("add", add);
-            put("delete", delete);
+            put("add", finalAdd);
+            put("delete", finalDelete);
         }};
     }
 
@@ -97,7 +115,6 @@ public class AuthController {
 
     @PostMapping("/menus")
     public Map<String, Object> addMenu(@RequestBody Menu menu){
-
         boolean add = menuService.add(menu);
         return new HashMap<String,Object>(){{
             put("result", add);
