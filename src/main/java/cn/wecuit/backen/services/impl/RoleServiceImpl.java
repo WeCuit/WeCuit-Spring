@@ -1,9 +1,13 @@
 package cn.wecuit.backen.services.impl;
 
 import cn.wecuit.backen.bean.Role;
+import cn.wecuit.backen.bean.RoleMenu;
+import cn.wecuit.backen.bean.UserRole;
 import cn.wecuit.backen.mapper.RoleMapper;
 import cn.wecuit.backen.mapper.RoleMenuMapper;
+import cn.wecuit.backen.mapper.UserRoleMapper;
 import cn.wecuit.backen.services.RoleService;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -21,6 +25,8 @@ public class RoleServiceImpl implements RoleService {
     RoleMapper roleMapper;
     @Resource
     RoleMenuMapper roleMenuMapper;
+    @Resource
+    UserRoleMapper userRoleMapper;
 
     @Override
     public List<Role> list() {
@@ -35,6 +41,12 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public boolean delete(long id) {
+        roleMenuMapper.delete(new QueryWrapper<RoleMenu>(){{
+            eq("role_id", id);
+        }});
+        userRoleMapper.delete(new QueryWrapper<UserRole>(){{
+            eq("role_id", id);
+        }});
         return 1 == roleMapper.deleteById(id);
     }
 

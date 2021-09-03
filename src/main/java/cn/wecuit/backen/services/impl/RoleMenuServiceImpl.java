@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -16,6 +17,7 @@ import java.util.List;
  **/
 @Service
 public class RoleMenuServiceImpl extends ServiceImpl<RoleMenuMapper, RoleMenu> implements RoleMenuService {
+
     @Override
     public boolean removeList(List<RoleMenu> list) {
         return this.remove(new QueryWrapper<RoleMenu>(){{
@@ -23,5 +25,10 @@ public class RoleMenuServiceImpl extends ServiceImpl<RoleMenuMapper, RoleMenu> i
                 or().eq("role_id", roleMenu.getRoleId()).eq("menu_id", roleMenu.getMenuId());
             }
         }});
+    }
+
+    @Override
+    public List<Long> selectRoleMenus(long roleId) {
+        return this.getBaseMapper().selectRoleMenus(roleId);
     }
 }

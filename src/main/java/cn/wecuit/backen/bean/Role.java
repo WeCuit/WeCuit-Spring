@@ -23,8 +23,10 @@ public class Role {
     @ApiModelProperty(value = "角色ID")
     @TableId(type = IdType.AUTO)
     private Long id;
-    @ApiModelProperty(name = "角色标记")
-    private String mark;
     @ApiModelProperty(name = "角色名")
     private String name;
+    @ApiModelProperty(name = "角色备注")
+    private String remark;
+    @ApiModelProperty(name = "角色状态")
+    private Integer state;
 }

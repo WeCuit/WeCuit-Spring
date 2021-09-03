@@ -7,6 +7,7 @@ import cn.wecuit.backen.response.BaseResponse;
 import cn.wecuit.backen.services.MenuService;
 import cn.wecuit.backen.services.RoleMenuService;
 import cn.wecuit.backen.services.RoleService;
+import cn.wecuit.backen.services.UserRoleService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
@@ -35,10 +36,8 @@ import java.util.stream.Collectors;
 public class AuthController {
     @Resource
     MenuService menuService;
-
     @Resource
     RoleService roleService;
-
     @Autowired
     RoleMenuService roleMenuService;
 
@@ -78,10 +77,11 @@ public class AuthController {
 
     @ApiOperation(value = "获取角色拥有的菜单")
     @GetMapping("/roles/menus")
-    public List<RoleMenu> listRoleMenu(@RequestParam long role_id){
-        return roleMenuService.list(new QueryWrapper<RoleMenu>() {{
-            eq("role_id", role_id);
-        }});
+    public Map<String, Object> listRoleMenu(@RequestParam long role_id){
+        List<Long> list = roleMenuService.selectRoleMenus(role_id);
+        return new HashMap<String, Object>(){{
+            put("authedRoutes", list);
+        }};
     }
 
     @PatchMapping("/roles/menus")

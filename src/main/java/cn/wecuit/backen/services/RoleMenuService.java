@@ -12,4 +12,5 @@ import java.util.List;
  **/
 public interface RoleMenuService  extends IService<RoleMenu>  {
     boolean removeList(List<RoleMenu> list);
+    List<Long> selectRoleMenus(long roleId);
 }
