@@ -1,5 +1,7 @@
 package cn.wecuit.backen.mapper;
 
+import cn.wecuit.backen.bean.User;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.*;
 
 import java.math.BigInteger;
@@ -11,7 +13,7 @@ import java.util.Map;
  * @Version 1.0
  **/
 @Mapper
-public interface UserMapper {
+public interface UserMapper extends BaseMapper<User> {
 
     // 根据openid或sid 查询 userid
     @Select("SELECT user_id FROM wc_users WHERE `user_sid`=#{sid};")
