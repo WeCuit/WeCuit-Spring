@@ -14,6 +14,8 @@ import java.util.List;
  **/
 @Mapper
 public interface RoleMenuMapper extends BaseMapper<RoleMenu> {
-    @Select("SELECT menu_id FROM wc_role_menu LEFT JOIN wc_menus ON menu_id=wc_menus.id WHERE role_id=#{roleId}")
-    List<Long> selectRoleMenus(long roleId);
+    @Select("SELECT menu_id FROM wc_role_menu WHERE role_id=#{roleId}")
+    List<Long> selectRoleMenusId(long roleId);
+    @Select("SELECT path FROM wc_role_menu LEFT JOIN wc_menus ON menu_id=wc_menus.id WHERE role_id=#{roleId}")
+    List<Object> selectRoleMenusPath(long roleId);
 }
