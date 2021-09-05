@@ -22,6 +22,8 @@ import java.io.InputStream;
 public class InitAction implements ApplicationRunner {
     @Value("${wecuit.rsa.pri}")
     private String RSA_PRI_KEY;
+    @Value("${wecuit.rsa.pub}")
+    private String RSA_PUB_KEY;
     @Autowired
     ResourceLoader resourceLoader;
 
@@ -29,8 +31,11 @@ public class InitAction implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
         Resource resource = resourceLoader.getResource(RSA_PRI_KEY);
         InputStream inputStream = resource.getInputStream();
-        String s = FileUtil.ReadFile(inputStream);
-        RSAUtils.init(s, null);
+        String s1 = FileUtil.ReadFile(inputStream);
+        resource = resourceLoader.getResource(RSA_PUB_KEY);
+        inputStream = resource.getInputStream();
+        String s2 = FileUtil.ReadFile(inputStream);
+        RSAUtils.init(s1, s2);
         // TaskUtil.start();
     }
 }

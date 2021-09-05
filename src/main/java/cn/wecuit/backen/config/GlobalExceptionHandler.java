@@ -36,7 +36,10 @@ public class GlobalExceptionHandler {
     public ResponseResult handleBaseException(BaseException e) {
         e.printStackTrace();
         ResponseCode code = e.getCode2();
-        return new ResponseResult(code.getCode(), code.getMsg(), null);
+        if (code != null)
+            return new ResponseResult(code.getCode(), code.getMsg(), null);
+        else
+            return new ResponseResult(e.getCode(), e.getMessage(), null);
     }
 
     @ExceptionHandler({DuplicateKeyException.class})

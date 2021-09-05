@@ -20,7 +20,12 @@ public enum ResponseCode {
     SERVICE_ERROR(500, "服务器异常"),
     METHOD_NOT_SUPPORTED(405, "不支持的请求方式"),
     NO_HANDLER_FOUND(404, "未找到处理器"),
-    RESOURCE_ALREADY_EXIST(501, "资源已存在");
+    RESOURCE_ALREADY_EXIST(501, "资源已存在"),
+    /**
+     * 用户
+     */
+    USER_NOT_EXIST(1404, "用户不存在"),
+    USER_PASS_WRONG(401, "用户密码错误");
 
     private final int code;
     private final String msg;

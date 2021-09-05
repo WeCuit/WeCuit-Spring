@@ -18,7 +18,6 @@
         <mp.version>3.4.3.1</mp.version>
         <swagger.version>3.0.3</swagger.version>
         <mirai.version>2.7.0</mirai.version>
-        <shiro.version>1.8.0</shiro.version>
     </properties>
     <dependencies>
         <dependency>
@@ -117,6 +116,13 @@
             <artifactId>knife4j-spring-boot-starter</artifactId>
             <!--在引用时请在maven中央仓库搜索3.X最新版本号-->
             <version>${swagger.version}</version>
+        </dependency>
+
+        <!-- Sa-Token 权限认证, 在线文档：http://sa-token.dev33.cn/ -->
+        <dependency>
+            <groupId>cn.dev33</groupId>
+            <artifactId>sa-token-spring-boot-starter</artifactId>
+            <version>1.26.0</version>
         </dependency>
 
     </dependencies>

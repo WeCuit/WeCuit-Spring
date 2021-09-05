@@ -1,13 +1,13 @@
 package cn.wecuit.backen.controller;
 
+import cn.dev33.satoken.stp.StpUtil;
 import cn.wecuit.backen.bean.Menu;
 import cn.wecuit.backen.bean.Role;
 import cn.wecuit.backen.bean.RoleMenu;
+import cn.wecuit.backen.bean.User;
+import cn.wecuit.backen.exception.BaseException;
 import cn.wecuit.backen.response.BaseResponse;
-import cn.wecuit.backen.services.MenuService;
-import cn.wecuit.backen.services.RoleMenuService;
-import cn.wecuit.backen.services.RoleService;
-import cn.wecuit.backen.services.UserRoleService;
+import cn.wecuit.backen.services.*;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
@@ -40,6 +40,26 @@ public class AuthController {
     RoleService roleService;
     @Autowired
     RoleMenuService roleMenuService;
+    @Resource
+    AuthService authService;
+
+    @ApiOperation(value = "用户登录")
+    @PostMapping("/login")
+    public Map<String, Object> login(@RequestBody User user){
+        String[] login = authService.login(user);
+        return new HashMap<String, Object>(){{
+            put("auth", login);
+        }};
+    }
+
+    @ApiOperation(value = "用户注销")
+    @GetMapping("/logout")
+    public Map<String, Object> logout(){
+        StpUtil.logout();
+        return new HashMap<String, Object>(){{
+            put("result", true);
+        }};
+    }
 
     @ApiOperation(value = "获取角色列表")
     @GetMapping("/roles")
