@@ -1,5 +1,6 @@
 package cn.wecuit.backen.config;
 
+import cn.dev33.satoken.exception.NotLoginException;
 import cn.wecuit.backen.response.BaseResponse;
 import cn.wecuit.backen.response.ResponseCode;
 import cn.wecuit.backen.response.ResponseResult;
@@ -48,10 +49,15 @@ public class GlobalExceptionHandler {
         return new ResponseResult(ResponseCode.RESOURCE_ALREADY_EXIST.getCode(), ResponseCode.RESOURCE_ALREADY_EXIST.getMsg(), null);
     }
 
+    @ExceptionHandler({NotLoginException.class})
+    public ResponseResult handleRuntimeException(NotLoginException e) {
+        e.printStackTrace();
+        return new ResponseResult(ResponseCode.USER_NOT_LOGIN.getCode(), e.getMessage(), null);
+    }
     @ExceptionHandler({RuntimeException.class})
     public ResponseResult handleRuntimeException(RuntimeException e) {
         e.printStackTrace();
-        return new ResponseResult(ResponseCode.SERVICE_ERROR.getCode(), ResponseCode.SERVICE_ERROR.getMsg(), null);
+        return new ResponseResult(ResponseCode.SERVICE_ERROR.getCode(), e.getMessage(), null);
     }
 
     @ExceptionHandler({HttpRequestMethodNotSupportedException.class})

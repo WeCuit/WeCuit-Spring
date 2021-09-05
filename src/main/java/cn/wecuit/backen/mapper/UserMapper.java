@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.*;
 
 import java.math.BigInteger;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -31,4 +32,8 @@ public interface UserMapper extends BaseMapper<User> {
 
     @Delete("DELETE FROM wc_users WHERE `${client}id`=#{openid}")
     int delUser(@Param("client")String client, @Param("openid")String openid);
+
+    @Select("SELECT path from wc_user_role a LEFT JOIN wc_roles b ON a.role_id=b.id LEFT JOIN wc_role_menu c ON b.id=c.role_id LEFT JOIN wc_menus d ON c.menu_id=d.id WHERE a.user_id=#{userId}")
+    List<String> getUserMenuPath(long userId);
+
 }

@@ -25,6 +25,7 @@ public enum ResponseCode {
      * 用户
      */
     USER_NOT_EXIST(1404, "用户不存在"),
+    USER_NOT_LOGIN(1401, "用户未登录"),
     USER_PASS_WRONG(401, "用户密码错误");
 
     private final int code;

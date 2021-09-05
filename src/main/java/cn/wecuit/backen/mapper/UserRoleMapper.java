@@ -9,7 +9,12 @@ package cn.wecuit.backen.mapper;
 import cn.wecuit.backen.bean.UserRole;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
+
+import java.util.List;
 
 @Mapper
 public interface UserRoleMapper extends BaseMapper<UserRole> {
+    @Select("SELECT name from wc_user_role a LEFT JOIN ON wc_roles b a.role_id=b.id WHERE user_id=#{userId}")
+    List<String> getRoleByUserId(long userId);
 }
