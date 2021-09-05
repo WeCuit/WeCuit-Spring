@@ -34,3 +34,4 @@ build/
 
 /src/**/application.yml
 /src/main/resources
+/WeCuit/

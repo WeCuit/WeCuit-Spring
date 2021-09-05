@@ -1,0 +1,75 @@
+version: "2"
+services:
+  nginx:
+    container_name: server_nginx
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    #    image: nginx:stable-alpine
+    volumes:
+      - ./nginx/html:/usr/share/nginx/html
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/cert:/etc/nginx/cert
+    ports:
+      - 80:80
+      - 443:443
+
+      #    depends_on:
+      #      - db
+      #      - tomcat
+      #    links:
+      #      - tomcat
+  #      - db
+  #      - ocr
+  #    networks:
+  #      - wecuit-net
+
+  #  后端
+  spring:
+    container_name: server_spring
+    #    build: .
+    image: tomcat:jdk8-openjdk-slim
+    ports:
+      - 8085:8080
+    #     restart: always
+    volumes:
+      - ./../target:/app
+    environment:
+      TZ: "Asia/Shanghai"
+    entrypoint:
+      - java
+      - -jar
+      - /app/app.jar
+  #    networks:
+  #      - wecuit-net
+
+  #  数据库
+  db:
+    container_name: db_mysql
+    image: mysql:5.7.32
+    environment:
+      #      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+      MYSQL_ROOT_PASSWORD: "12345678"
+    ports:
+      - 3307:3306
+    volumes:
+      - ./mysql/logs:/var/log/mysql
+      - ./mysql/data:/var/lib/mysql
+      #    networks:
+      #      - wecuit-net
+
+  # 验证码识别服务
+  ocr:
+    container_name: server_ocr
+    image: "jiyecafe/wecuit_py"
+    # build:
+    #     context: ./wecuit_py
+    #     dockerfile: Dockerfile
+    ports:
+      - 4007:4006
+    # volumes:
+    #     - ./wecuit_py:/vercode
+
+#networks:
+#  wecuit-net:
+#    driver: bridge
