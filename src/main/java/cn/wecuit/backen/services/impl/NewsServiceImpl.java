@@ -14,11 +14,15 @@ import org.apache.hc.core5.http.ParseException;
 import org.jsoup.nodes.Element;
 import org.seimicrawler.xpath.JXDocument;
 import org.seimicrawler.xpath.JXNode;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -40,16 +44,25 @@ public class NewsServiceImpl implements NewsService {
 
     @Value("${wecuit.data-path}")
     String BASE_DATA_PATH;
-
+    @Autowired
+    ResourceLoader resourceLoader;
 
     public void pullNews(String dir, News news){
         new NewsTask(dir, news).run();
     }
 
-    public void pullNews(){
-        String path = Objects.requireNonNull(TaskUtil.class.getResource("/")).getPath();
+    public void pullNews() {
 
-        String newsConfig = FileUtil.ReadFile(path + "newsConfig.json");
+        Resource resource = resourceLoader.getResource("classpath:newsConfig.json");
+        InputStream inputStream;
+        try {
+            inputStream = resource.getInputStream();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        String newsConfig = FileUtil.ReadFile(inputStream);
 
         News[] newsArray = JsonUtil.string2Obj(newsConfig, News[].class);
 

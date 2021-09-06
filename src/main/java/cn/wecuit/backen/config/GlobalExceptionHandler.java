@@ -11,9 +11,12 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.HashMap;
 
 /**
  * 异常处理器
@@ -29,13 +32,11 @@ import java.io.IOException;
 public class GlobalExceptionHandler {
     @ExceptionHandler({IOException.class})
     public ResponseResult handleIOException(IOException e) {
-        e.printStackTrace();
         return new ResponseResult(ResponseCode.SERVICE_ERROR.getCode(), ResponseCode.SERVICE_ERROR.getMsg(), null);
     }
 
     @ExceptionHandler({BaseException.class})
     public ResponseResult handleBaseException(BaseException e) {
-        e.printStackTrace();
         ResponseCode code = e.getCode2();
         if (code != null)
             return new ResponseResult(code.getCode(), code.getMsg(), null);
@@ -45,15 +46,14 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({DuplicateKeyException.class})
     public ResponseResult handleDuplicateKeyException(DuplicateKeyException e) {
-        e.printStackTrace();
         return new ResponseResult(ResponseCode.RESOURCE_ALREADY_EXIST.getCode(), ResponseCode.RESOURCE_ALREADY_EXIST.getMsg(), null);
     }
 
     @ExceptionHandler({NotLoginException.class})
     public ResponseResult handleRuntimeException(NotLoginException e) {
-        e.printStackTrace();
         return new ResponseResult(ResponseCode.USER_NOT_LOGIN.getCode(), e.getMessage(), null);
     }
+
     @ExceptionHandler({RuntimeException.class})
     public ResponseResult handleRuntimeException(RuntimeException e) {
         e.printStackTrace();
@@ -62,8 +62,14 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({HttpRequestMethodNotSupportedException.class})
     public ResponseResult handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
-        e.printStackTrace();
         return new ResponseResult(ResponseCode.METHOD_NOT_SUPPORTED.getCode(), ResponseCode.METHOD_NOT_SUPPORTED.getMsg(), null);
+    }
+
+    @ExceptionHandler({NoHandlerFoundException.class})
+    public ResponseResult handleNoHandlerFoundException(HttpServletRequest request, NoHandlerFoundException e) {
+        return new ResponseResult(ResponseCode.NO_HANDLER_FOUND.getCode(), ResponseCode.NO_HANDLER_FOUND.getMsg(), new HashMap<String, Object>() {{
+            put("uri", request.getRequestURI());
+        }});
     }
 
     /**
@@ -74,16 +80,18 @@ public class GlobalExceptionHandler {
      * @return
      * @throws Exception
      */
+    @ExceptionHandler({NullPointerException.class})
+    @ResponseBody
+    public ResponseResult handleNullPointerException(HttpServletResponse response, NullPointerException e) {
+        e.printStackTrace();
+        response.setStatus(500);
+        return new ResponseResult(ResponseCode.SERVICE_ERROR.getCode(), "空指针异常", null);
+    }
     @ExceptionHandler({Exception.class})
     @ResponseBody
     public ResponseResult handleException(HttpServletResponse response, Exception e) {
         e.printStackTrace();
-        if (e instanceof org.springframework.web.servlet.NoHandlerFoundException) {
-            response.setStatus(404);
-            return new ResponseResult(ResponseCode.NO_HANDLER_FOUND.getCode(), ResponseCode.NO_HANDLER_FOUND.getMsg(), null);
-        } else {
-            response.setStatus(500);
-            return new ResponseResult(ResponseCode.SERVICE_ERROR.getCode(), e.getMessage(), null);
-        }
+        response.setStatus(500);
+        return new ResponseResult(ResponseCode.SERVICE_ERROR.getCode(), e.getMessage(), null);
     }
 }
