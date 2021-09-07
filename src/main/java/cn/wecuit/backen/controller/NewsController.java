@@ -164,18 +164,17 @@ public class NewsController {
                 // 文件可以下载
 
                 String link;
-                String http_referer = request.getHeader("referer");
 
                 String fileName = closeableHttpResponse.getHeader("Content-disposition").getValue();
                 Pattern compile = Pattern.compile("\\.([a-zA-Z]+);");
                 Matcher matcher = compile.matcher(fileName);
                 String suffix = "";
                 if(matcher.find()) {
-                    suffix = matcher.group(0);
+                    suffix = matcher.group(1);
                 }
                 downUrl = URLEncoder.encode(url, "utf-8");
                 cookie = URLEncoder.encode(cookie, "utf-8");
-                link = "http://127.0.0.1:8080/News/downFile/suffix." + suffix + "?url=" + downUrl + "&cookie=" + cookie;
+                link = "https://test.cuit.api.jysafe.cn/v3/News/downFile/suffix." + suffix + "?url=" + downUrl + "&cookie=" + cookie;
 
                 return new HashMap<String, Object>() {{
                     put("link", link);
