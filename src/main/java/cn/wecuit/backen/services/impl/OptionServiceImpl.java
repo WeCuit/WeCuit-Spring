@@ -5,9 +5,10 @@ import cn.wecuit.backen.mapper.OptionMapper;
 import cn.wecuit.backen.services.OptionService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * @Author jiyec
@@ -15,13 +16,18 @@ import javax.annotation.Resource;
  * @Version 1.0
  **/
 @Service
-public class OptionServiceImpl implements OptionService {
-    @Resource
-    OptionMapper optionMapper;
+public class OptionServiceImpl extends ServiceImpl<OptionMapper, Option> implements OptionService {
+
+    @Override
+    public List<Option> getByPrefix(String prefix) {
+        return this.getBaseMapper().selectList(new QueryWrapper<Option>() {{
+            likeRight("name", prefix);
+        }});
+    }
 
     @Override
     public Object getValueByName(String name) {
-        Option option = optionMapper.selectOne(new QueryWrapper<Option>() {{
+        Option option = this.getBaseMapper().selectOne(new QueryWrapper<Option>() {{
             eq("name", name);
             select("value");
         }});
@@ -32,7 +38,7 @@ public class OptionServiceImpl implements OptionService {
     @Override
     public boolean updateValueByName(Option option) {
         option.setId(null);
-        int update = optionMapper.update(option, new UpdateWrapper<Option>() {{
+        int update = this.getBaseMapper().update(option, new UpdateWrapper<Option>() {{
             eq("name", option.getName());
         }});
         return update == 1;
@@ -41,7 +47,7 @@ public class OptionServiceImpl implements OptionService {
     @Override
     public boolean addNew(Option option) {
         option.setId(null);
-        int insert = optionMapper.insert(option);
+        int insert = this.getBaseMapper().insert(option);
         return insert == 1;
     }
 }
