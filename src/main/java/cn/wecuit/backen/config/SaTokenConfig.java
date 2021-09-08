@@ -24,12 +24,12 @@ public class SaTokenConfig implements WebMvcConfigurer {
             // TODO:
             log.info("456");
             // 根据路由划分模块，不同模块不同鉴权
-            SaRouter.match("/auth/**", () -> StpUtil.checkPermission("user"));
-            SaRouter.match("/admin/**", () -> StpUtil.checkPermission("admin"));
-            SaRouter.match("/goods/**", () -> StpUtil.checkPermission("goods"));
-            SaRouter.match("/orders/**", () -> StpUtil.checkPermission("orders"));
-            SaRouter.match("/notice/**", () -> StpUtil.checkPermission("notice"));
-            SaRouter.match("/comment/**", () -> StpUtil.checkPermission("comment"));
+            // SaRouter.match("/user/**", () -> StpUtil.checkPermission("user"));
+            // SaRouter.match("/admin/**", () -> StpUtil.checkPermission("admin"));
+            // SaRouter.match("/goods/**", () -> StpUtil.checkPermission("goods"));
+            // SaRouter.match("/orders/**", () -> StpUtil.checkPermission("orders"));
+            // SaRouter.match("/notice/**", () -> StpUtil.checkPermission("notice"));
+            // SaRouter.match("/comment/**", () -> StpUtil.checkPermission("comment"));
         })).addPathPatterns("/**");
     }
 }

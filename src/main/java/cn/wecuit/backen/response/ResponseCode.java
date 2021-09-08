@@ -26,7 +26,12 @@ public enum ResponseCode {
      */
     USER_NOT_EXIST(1404, "用户不存在"),
     USER_NOT_LOGIN(1401, "用户未登录"),
-    USER_PASS_WRONG(401, "用户密码错误");
+    USER_PASS_WRONG(401, "用户密码错误")
+    /**
+     * 文章
+     */,
+    ARTICLE_NOT_FOUND(5404, "文章不存在")
+    ;
 
     private final int code;
     private final String msg;
