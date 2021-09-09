@@ -1,6 +1,7 @@
 package cn.wecuit.backen.controller;
 
 import cn.wecuit.backen.bean.Media;
+import cn.wecuit.backen.response.BaseResponse;
 import cn.wecuit.backen.response.ResponseResult;
 import cn.wecuit.backen.exception.BaseException;
 import cn.wecuit.backen.services.FileService;
@@ -29,6 +30,7 @@ import java.util.*;
 @ApiSupport(author = "jiyecafe@gmail.com")
 @RestController
 @RequestMapping("/media")
+@BaseResponse
 public class MediaController {
 
     @Value("${wecuit.data-path}")
@@ -39,7 +41,7 @@ public class MediaController {
     MediaService mediaService;
 
     @PostMapping("/upload")
-    public ResponseResult upload(@RequestPart MultipartFile file){
+    public Map<String, Object> upload(@RequestPart MultipartFile file){
 
         // TODO:文件类型限制
 
@@ -71,37 +73,34 @@ public class MediaController {
             throw new BaseException(500, "文件存储失败！");
         }
 
-        return new ResponseResult(){{
-            setCode(200);
-            setMsg("success");
+        return new HashMap<String,Object>(){{
+            put("result", true);
         }};
     }
 
     @GetMapping("/localList")
-    public ResponseResult localList(@RequestParam(required = false,defaultValue = "0") int start,
+    public Map<String, Object> localList(@RequestParam(required = false,defaultValue = "0") int start,
                                     @RequestParam(required = false, defaultValue = "9") int end){
         // File path = new File(BASE_UPLOAD_PATH);
 
         if(start < 0)start = 0;
         if(end < 0) end = 10;
 
-        Map<String, Object> ret = fileService.scanAllFile(BASE_STORE_PATH, start, end);
-        return new ResponseResult(){{
-            setCode(200);
-            setMsg("success");
-            setData(ret);
-        }};
+        return fileService.scanAllFile(BASE_STORE_PATH, start, end);
     }
 
     @GetMapping("/list")
-    public ResponseResult list(@RequestParam(required = false, defaultValue = "1") int page,
+    public Map<String, Object> list(@RequestParam(required = false, defaultValue = "1") int page,
                                @RequestParam(required = false, defaultValue = "10") int limit){
         if(page <= 0)page = 1;
-        Map<String, Object> listData = mediaService.list(page, limit);
-        return new ResponseResult(){{
-            setCode(200);
-            setData(listData);
-        }};
+        return mediaService.list(page, limit);
     }
 
+    @DeleteMapping("/delete")
+    public Map<String, Object> delete(@RequestParam long id){
+        boolean delete = mediaService.delete(id);
+        return new HashMap<String, Object>(){{
+            put("result", delete);
+        }};
+    }
 }

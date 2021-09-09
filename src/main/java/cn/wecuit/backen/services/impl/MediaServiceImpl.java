@@ -5,9 +5,11 @@ import cn.wecuit.backen.mapper.MediaMapper;
 import cn.wecuit.backen.services.MediaService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,6 +22,9 @@ import java.util.Map;
 public class MediaServiceImpl implements MediaService {
     @Resource
     MediaMapper mediaMapper;
+
+    @Value("${wecuit.data-path}")
+    private String BASE_STORE_PATH;
 
     @Override
     public boolean store(Media media) {
@@ -38,4 +43,15 @@ public class MediaServiceImpl implements MediaService {
             put("current", mapPage.getCurrent());
         }};
     }
+
+    @Override
+    public boolean delete(long id) {
+        Media media = mediaMapper.selectById(id);
+        if(media == null)return true;
+        int i = mediaMapper.deleteById(id);
+        if(i == 1)new File(BASE_STORE_PATH + media.getPath()).delete();
+        return i == 1;
+    }
+
+
 }

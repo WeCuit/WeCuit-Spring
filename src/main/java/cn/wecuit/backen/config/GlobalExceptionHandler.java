@@ -81,14 +81,12 @@ public class GlobalExceptionHandler {
      * @throws Exception
      */
     @ExceptionHandler({NullPointerException.class})
-    @ResponseBody
     public ResponseResult handleNullPointerException(HttpServletResponse response, NullPointerException e) {
         e.printStackTrace();
         response.setStatus(500);
         return new ResponseResult(ResponseCode.SERVICE_ERROR.getCode(), "空指针异常", null);
     }
     @ExceptionHandler({Exception.class})
-    @ResponseBody
     public ResponseResult handleException(HttpServletResponse response, Exception e) {
         e.printStackTrace();
         response.setStatus(500);

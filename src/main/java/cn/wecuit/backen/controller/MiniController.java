@@ -30,25 +30,20 @@ public class MiniController {
     OptionService optionService;
 
     @GetMapping("/index-slide")
-    public ResponseResult indexSlideGet(){
-        Object valueByName = optionService.getValueByName("mini_index");
-        return new ResponseResult(){{
-            setCode(200);
-            setData(valueByName);
-        }};
+    public Object indexSlideGet(){
+        return optionService.getValueByName("mini_index");
     }
 
     @PatchMapping("/index-slide")
-    public ResponseResult indexSlideUpdate(@RequestBody Option option){
+    public Map<String, Object> indexSlideUpdate(@RequestBody Option option){
         option.setName("mini_index");
         boolean ac = optionService.updateValueByName(option);
         if(!ac){
             ac = optionService.addNew(option);
         }
         boolean finalAc = ac;
-        return new ResponseResult(){{
-            setCode(finalAc ?200:201);
-            setMsg(finalAc?"success":"fail");
+        return new HashMap<String, Object>(){{
+            put("result", finalAc);
         }};
     }
 

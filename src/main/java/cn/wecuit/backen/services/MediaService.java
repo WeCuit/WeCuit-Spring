@@ -12,4 +12,5 @@ import java.util.Map;
 public interface MediaService {
     boolean store(Media media);
     Map<String, Object> list(int page, int limit);
+    boolean delete(long id);
 }

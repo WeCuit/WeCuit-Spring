@@ -5,13 +5,8 @@ import cn.wecuit.backen.exception.BaseException;
 import cn.wecuit.backen.response.BaseResponse;
 import cn.wecuit.backen.services.OptionService;
 import cn.wecuit.backen.services.TencentService;
-import cn.wecuit.backen.utils.FileUtil;
-import cn.wecuit.backen.utils.TencentUtil;
 import org.apache.hc.core5.http.ParseException;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -36,7 +31,6 @@ public class SysController {
     @Resource
     OptionService optionService;
 
-    // TODO: 临时勉强用状态，需结合数据库了~
     @RequestMapping("/getConfig")
     public Map<String, Object> getConfigAction() throws IOException {
         List<Option> miniConfig = optionService.getByPrefix("mini_");
@@ -75,6 +69,11 @@ public class SysController {
         }};
     }
 
+    @ResponseBody
+    @GetMapping("/maintenance/**")
+    public String maintenance(){
+        return "{\"errorCode\":10503,\"maintenance\":{\"BText\":\"暂停服务\",\"start\":1631154856,\"end\":1731154856,\"OText\":\"新版本正在开发中~\"}}";
+    }
     /**
      * @return 0 wx | 1 qq
      */
