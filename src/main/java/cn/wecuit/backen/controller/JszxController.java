@@ -2,6 +2,7 @@ package cn.wecuit.backen.controller;
 
 import cn.wecuit.backen.exception.BaseException;
 import cn.wecuit.backen.response.BaseResponse;
+import cn.wecuit.backen.services.JszxService;
 import cn.wecuit.backen.utils.CCUtil;
 import cn.wecuit.backen.utils.HTTP.HttpUtil2;
 import cn.wecuit.backen.utils.HTTP.HttpUtilEntity;
@@ -30,10 +31,13 @@ import java.util.regex.Pattern;
 public class JszxController {
     @Resource
     HttpServletRequest request;
+    @Resource
+    JszxService jszxService;
     @Value("${wecuit.ocr.server}")
     private String OCR_SERVER;
 
     @RequestMapping("/getCheckInListV2")
+    // TODO:
     public Map<String, Object> getCheckInListV2() throws IOException, ParseException {
         String cookie = request.getParameter("cookie");
         Map<String, String> headers = new HashMap<>();
@@ -138,40 +142,12 @@ public class JszxController {
     }
 
     @RequestMapping("/office_prepare")
-    public Map<String, Object> office_prepare() throws IOException, ParseException {
-        Map<String, String> headers = new HashMap<String, String>(){{
-            put("referer", "http://login.cuit.edu.cn:81/Login/xLogin/Login.asp");
-        }};
-        HttpUtil2 http = new HttpUtil2();
-        String html = http.doGet2("http://login.cuit.edu.cn:81/Login/xLogin/Login.asp", headers);
-        Pattern compile = Pattern.compile("<input type=\"hidden\" name=\"codeKey\" value=\"(\\d+)\"");
-        Matcher matcher = compile.matcher(html);
-        String codeKey = "";
-        if(matcher.find())
-            codeKey = matcher.group(1);
-
-        compile = Pattern.compile("<span style=\"color:#0000FF;\">(.*?)</span");
-        matcher = compile.matcher(html);
-        String syncTime = "";
-        if(matcher.find())
-            syncTime = matcher.group(1);
-        Map<String, String> cookieMap = http.getCookie();
-        StringBuilder cookie = new StringBuilder();
-        cookieMap.forEach((k,v)->{
-            cookie.append(k + "=" + v + ";");
-        });
-
-        String finalCodeKey = codeKey;
-        String finalSyncTime = syncTime;
-        return new HashMap<String, Object>(){{
-            put("cookie", cookie.toString());
-            put("codeKey", finalCodeKey);
-            put("syncTime", finalSyncTime);
-        }};
+    public Map<String, Object> officePrepare() throws IOException, ParseException {
+        return jszxService.officePrepare();
     }
 
     @RequestMapping("/office_getCaptcha")
-    public Map<String, Object> office_getCaptcha(@RequestParam String cookie, @RequestParam String codeKey) throws IOException {
+    public Map<String, Object> officeGetCaptcha(@RequestParam String cookie, @RequestParam String codeKey) throws IOException {
 
         HashMap<String, String> headers = new HashMap<String, String>(){{
             put("cookie", cookie);
@@ -184,24 +160,20 @@ public class JszxController {
         Map<String, String> map = JsonUtil.string2Obj(s, Map.class);
 
         return new HashMap<String, Object>(){{
-            
+
             put("base64img", "data:image/png;base64, " + new String(Base64.getEncoder().encode(body)));
             put("imgCode", map.get("result"));
         }};
     }
 
     @RequestMapping("/office_query")
-    public Map<String, Object> office_query() throws IOException, ParseException {
-        String cookie = request.getParameter("cookie");
-        String codeKey = request.getParameter("codeKey");
-        String captcha = request.getParameter("captcha");
-        String nickname = request.getParameter("nickname");
-        String email = request.getParameter("email");
+    public Map<String, Object> officeQuery(@RequestBody Map<String, String> body) throws IOException, ParseException {
+        String cookie = body.get("cookie");
+        String codeKey = body.get("codeKey");
+        String captcha = body.get("captcha");
+        String nickname = body.get("nickname");
+        String email = body.get("email");
 
-        Map<String, String> headers = new HashMap<String, String>(){{
-            put("cookie", cookie);
-            put("referer", "http://login.cuit.edu.cn:81/Login/xLogin/Login.asp");
-        }};
         Map<String, String> param = new LinkedHashMap<String, String>(){{
             put("WinW", "1304");
             put("WinH", "768");
@@ -213,21 +185,8 @@ public class JszxController {
             put("IbtnEnter.x", "8");
             put("IbtnEnter.y", "26");
         }};
-
-        HttpUtil2 http = new HttpUtil2();
-        String html = http.doPost("http://login.cuit.edu.cn:81/Login/xLogin/Login.asp", param, headers, "GB2312");
-        Pattern compile = Pattern.compile("class=user_main_z(.*?)</span");
-        Matcher matcher = compile.matcher(html);
-
-        StringBuilder result = new StringBuilder();
-
-        if(matcher.find()){
-            result.append(matcher.group(1));
-        }
-        String msg = result.substring(result.lastIndexOf(">") + 1);
-
+        String msg = jszxService.officeQuery(param, cookie);
         return new HashMap<String, Object>(){{
-            
             put("result", msg);
         }};
     }
