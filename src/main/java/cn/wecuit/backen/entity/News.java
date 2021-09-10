@@ -18,7 +18,7 @@ public class News {
 
     private List<Map<String,String>> tags;
 
-    private String pattern;
+    private PatternType pattern;
 
     private String uriExp;
 
@@ -37,5 +37,19 @@ public class News {
                 ", sort=" + sort +
                 ", pullVer=" + pullVer +
                 '}';
+    }
+
+    @Data
+    public static
+    class PatternType{
+        private String rule;
+        private PatternPos pos;
+
+        @Data
+        public static class PatternPos{
+            private Integer title;
+            private Integer link;
+            private Integer date;
+        }
     }
 }

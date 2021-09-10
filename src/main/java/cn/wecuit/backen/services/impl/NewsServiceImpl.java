@@ -188,7 +188,9 @@ class NewsTask extends Thread {
 
             String body = HttpUtil.doGet(uri);
 
-            Pattern compile = Pattern.compile(news.getPattern());
+            News.PatternType pattern = news.getPattern();
+            News.PatternType.PatternPos pos = pattern.getPos();
+            Pattern compile = Pattern.compile(pattern.getRule());
             Matcher matcher = compile.matcher(body);
 
             ret.put("next", body.contains("class=\"Next\">下页</a>"));
@@ -196,9 +198,9 @@ class NewsTask extends Thread {
             Map<String, String> jo;
             while (matcher.find()) {
                 jo = new HashMap<>();
-                jo.put("date", matcher.group(3).replaceAll("/", "-").replaceAll("\\[|]", ""));
-                jo.put("title", matcher.group(2));
-                jo.put("link", matcher.group(1));
+                jo.put("date", matcher.group(pos.getDate()).replaceAll("/", "-").replaceAll("\\[|]", ""));
+                jo.put("title", matcher.group(pos.getTitle()));
+                jo.put("link", matcher.group(pos.getLink()));
                 if (!matcher.group(2).contains("党"))
                     list.add(jo);
             }
@@ -268,22 +270,23 @@ class NewsTask extends Thread {
             } else {
                 ret.put("next", null);
             }
-
+            News.PatternType pattern = news.getPattern();
+            News.PatternType.PatternPos pos = pattern.getPos();
             // 解析列表
-            compile = Pattern.compile(news.getPattern());
+            compile = Pattern.compile(pattern.getRule());
             matcher = compile.matcher(body);
 
             Map<String, String> jo;
             while (matcher.find()) {
                 // 真实路径处理
-                String link = link_pre + matcher.group(1);
+                String link = link_pre + matcher.group(pos.getLink());
                 URL url = new URL(link);
                 link = url.getPath() + (url.getQuery() != null ? "?" + url.getQuery() : "");
                 link = getRealPath(link);
 
                 jo = new HashMap<>();
-                jo.put("date", matcher.group(3).replaceAll("/", "-").replaceAll("\\[|]", ""));
-                jo.put("title", matcher.group(2));
+                jo.put("date", matcher.group(pos.getDate()).replaceAll("/", "-").replaceAll("\\[|]", ""));
+                jo.put("title", matcher.group(pos.getTitle()));
                 jo.put("link", link);
                 if (!matcher.group(2).contains("党"))
                     list.add(jo);
@@ -298,59 +301,6 @@ class NewsTask extends Thread {
         } catch (IOException | ParseException e) {
             e.printStackTrace();
         }
-        return ret;
-    }
-
-    // 版本三
-    public void v3_pull() {
-        String path = this.dir + "/" + news.getSource();
-        File folder = new File(path);
-
-        if (!folder.exists() && !folder.isDirectory()) {
-            System.out.println(folder.mkdirs());
-        }
-
-        news.getTags().forEach(o -> {
-            String name = o.get("name");
-            try {
-                Map<String, Object> v3_list = v3_list(name);
-                v3_list.put("name", news.getName());
-                FileUtil.WriteFile(path + "/" + name + "_1.json", JsonUtil.obj2String(v3_list));
-            } catch (IOException | ParseException e) {
-                e.printStackTrace();
-            }
-            o.put("total", "1");
-        });
-
-        FileUtil.WriteFile(path + "/tags.json", JsonUtil.obj2String(news.getTags()));
-    }
-
-    private Map<String, Object> v3_list(String tag) throws IOException, ParseException {
-        String html = HttpUtil.doGet("https://www.cuit.edu.cn/NewsList?id=" + tag);
-        html = html.replaceAll("\r\n", "").replaceAll("\n", "").replaceAll("\r", "");
-
-        List<Map<String, String>> list = new LinkedList<>();
-        Map<String, Object> ret = new HashMap<String, Object>() {{
-            put("domain", "www.cuit.edu.cn");
-            put("list", list);
-        }};
-
-        JXDocument jxDocument = JXDocument.create(html);
-        List<JXNode> jxNodes = jxDocument.selN("//*[@id=\"NewsListContent\"]/li");
-        jxNodes.forEach(e -> {
-            Element element = e.asElement();
-            String title = element.child(1).text();
-            String link = element.child(1).attr("href");
-            String date = element.child(2).text().replaceAll("/", "-").replaceAll("\\[|]", "");
-
-            if (!title.contains("党"))
-                list.add(new HashMap<String, String>() {{
-                    put("title", title);
-                    put("link", link);
-                    put("date", date);
-                }});
-        });
-
         return ret;
     }
 
@@ -410,20 +360,22 @@ class NewsTask extends Thread {
                 ret.put("next", null);
             }
 
+            News.PatternType pattern = news.getPattern();
+            News.PatternType.PatternPos pos = pattern.getPos();
             // 解析列表
-            compile = Pattern.compile(news.getPattern());
+            compile = Pattern.compile(pattern.getRule());
             matcher = compile.matcher(body);
 
             Map<String, String> jo;
             while (matcher.find()) {
                 // 真实路径处理
-                String link = link_pre + matcher.group(2);
+                String link = link_pre + matcher.group(pos.getLink());
                 link = new URL(link).getPath();
                 link = getRealPath(link);
 
                 jo = new HashMap<>();
-                jo.put("date", matcher.group(1).replaceAll("/", "-").replaceAll("\\[|]", ""));
-                jo.put("title", matcher.group(3));
+                jo.put("date", matcher.group(pos.getDate()).replaceAll("/", "-").replaceAll("\\[|]", ""));
+                jo.put("title", matcher.group(pos.getTitle()));
                 jo.put("link", link);
                 if (!matcher.group(3).contains("党"))
                     list.add(jo);
@@ -449,5 +401,59 @@ class NewsTask extends Thread {
         }
         return filename;
     }
+
+    // // 版本三
+    // @Deprecated
+    // public void v3_pull() {
+    //     String path = this.dir + "/" + news.getSource();
+    //     File folder = new File(path);
+    //
+    //     if (!folder.exists() && !folder.isDirectory()) {
+    //         System.out.println(folder.mkdirs());
+    //     }
+    //
+    //     news.getTags().forEach(o -> {
+    //         String name = o.get("name");
+    //         try {
+    //             Map<String, Object> v3_list = v3_list(name);
+    //             v3_list.put("name", news.getName());
+    //             FileUtil.WriteFile(path + "/" + name + "_1.json", JsonUtil.obj2String(v3_list));
+    //         } catch (IOException | ParseException e) {
+    //             e.printStackTrace();
+    //         }
+    //         o.put("total", "1");
+    //     });
+    //
+    //     FileUtil.WriteFile(path + "/tags.json", JsonUtil.obj2String(news.getTags()));
+    // }
+    // @Deprecated
+    // private Map<String, Object> v3_list(String tag) throws IOException, ParseException {
+    //     String html = HttpUtil.doGet("https://www.cuit.edu.cn/NewsList?id=" + tag);
+    //     html = html.replaceAll("\r\n", "").replaceAll("\n", "").replaceAll("\r", "");
+    //
+    //     List<Map<String, String>> list = new LinkedList<>();
+    //     Map<String, Object> ret = new HashMap<String, Object>() {{
+    //         put("domain", "www.cuit.edu.cn");
+    //         put("list", list);
+    //     }};
+    //
+    //     JXDocument jxDocument = JXDocument.create(html);
+    //     List<JXNode> jxNodes = jxDocument.selN("//*[@id=\"NewsListContent\"]/li");
+    //     jxNodes.forEach(e -> {
+    //         Element element = e.asElement();
+    //         String title = element.child(1).text();
+    //         String link = element.child(1).attr("href");
+    //         String date = element.child(2).text().replaceAll("/", "-").replaceAll("\\[|]", "");
+    //
+    //         if (!title.contains("党"))
+    //             list.add(new HashMap<String, String>() {{
+    //                 put("title", title);
+    //                 put("link", link);
+    //                 put("date", date);
+    //             }});
+    //     });
+    //
+    //     return ret;
+    // }
 
 }

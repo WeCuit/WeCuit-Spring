@@ -281,11 +281,11 @@ public class NewsController {
             put("jsjxy.cuit.edu.cn", "//body/div[2]/div[2]/div/div/div/form/div/div/div/div");
             put("kzgcxy.cuit.edu.cn", "//*[@id=\"vsb_newscontent\"]");
             put("rjgcxy.cuit.edu.cn", "//body/table[4]/tbody/tr/td[2]/table[2]/tbody/tr/td/table/tbody/tr[2]/td/form/table");
-            put("txgcxy.cuit.edu.cn", "//body/div[2]/div/div[2]/div[2]/form");
+            put("txgcxy.cuit.edu.cn", "//body/div[4]/div[2]/div/div[2]/div/form/table");
             put("wgyxy.cuit.edu.cn", "//*[@id=\"vsb_content\"]");
             put("cyber.cuit.edu.cn", "//body/div[3]/div[2]/div[2]/form/div");
             put("math.cuit.edu.cn", "//body/div[4]/div/div[2]/div/div/div/div/table/tbody/tr/td");
-            put("hjgcx.cuit.edu.cn", "//body/table[3]/tbody/tr[1]/td[3]/table[2]/tbody/tr/td/form/table");
+            put("hjgcx.cuit.edu.cn", "//body/div[4]/div/div[2]/ul/table/tbody/tr[2]/td/form/table/tbody");
             put("qkl.cuit.edu.cn", "//body/div[4]/div/div[2]/div[2]/form/div");
             put("jwc.cuit.edu.cn", "//body/nav[3]/form/div");
             put("dzgcxy.cuit.edu.cn", "//body/table/tbody/tr[4]/td/table/tbody/tr/td[4]/table/tbody/tr[3]/td/table/tbody/tr/td/form/table");
@@ -323,6 +323,7 @@ public class NewsController {
      * @return String 新闻主体html
      * @throws IOException 流异常 [来自HTTP请求处理]
      */
+    @Deprecated
     private String getHomeContent(String link) throws IOException, ParseException {
         link = link.replace("http://", "https://").replace(".aspx", "");
         String html = HttpUtil.doGet(link);
