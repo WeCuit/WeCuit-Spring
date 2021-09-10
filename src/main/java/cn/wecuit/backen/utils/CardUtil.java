@@ -1,5 +1,7 @@
 package cn.wecuit.backen.utils;
 
+import cn.wecuit.backen.exception.BaseException;
+
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -14,7 +16,7 @@ import java.util.Map;
  * @Version 1.0
  **/
 public class CardUtil {
-    public static Map<String, String> genSign(Map<String, String> param, String type) throws NoSuchAlgorithmException {
+    public static Map<String, String> genSign(Map<String, String> param, String type) {
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter df = DateTimeFormatter.ofPattern("yMdHms");
 
@@ -42,7 +44,12 @@ public class CardUtil {
                 break;
         }
 
-        byte[] md5s = MessageDigest.getInstance("md5").digest(st.getBytes(StandardCharsets.UTF_8));
+        byte[] md5s;
+        try {
+            md5s = MessageDigest.getInstance("md5").digest(st.getBytes(StandardCharsets.UTF_8));
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("不支持的加密模式 - MD5");
+        }
         String md5 = HexUtil.byte2HexStr(md5s);
         return new HashMap<String, String>(){{
             put("Time", time);

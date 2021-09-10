@@ -293,7 +293,7 @@ public class NewsController {
         }};
         String xpath = xpathMap.get(host);
 
-        if (null == xpath) throw new BaseException(20400, "未知来源");
+        if (null == xpath) throw new BaseException(20400, "不支持的来源" + link);
 
         jxNode = jxDocument.selNOne(xpath);
         if (null == jxNode) throw new BaseException(10500, "解析失败");
