@@ -47,7 +47,7 @@ public class NewsServiceImpl implements NewsService {
     @Autowired
     ResourceLoader resourceLoader;
 
-    public void pullNews(String dir, News news){
+    public void pullNews(String dir, News news) {
         new NewsTask(dir, news).run();
     }
 
@@ -80,34 +80,33 @@ public class NewsServiceImpl implements NewsService {
         String cachePath = BASE_DATA_PATH + "/WeCuit/cache";
         // 获取最新新闻列表
         List<Map<String, String>> latestNews = NewsUtil.getLatestNews(cachePath + "/news/list", 1);
-        latestNews.forEach(news->{
+        latestNews.forEach(news -> {
             String link = news.get("link");
             String title = news.get("title");
             try {
                 byte[] bytes = RSAUtils.genMD5((link + title).getBytes(StandardCharsets.UTF_8));
                 String md5 = HexUtil.byte2HexStr(bytes);
 
-                if(!NewsStorage.isNewsExist(md5)) {
+                if (!NewsStorage.isNewsExist(md5)) {
                     // 新的新闻
                     NewsStorage.addNews(md5);
 
                     // 构造小程序完毕
-                    if(noticeList.size() == 0)
+                    if (noticeList.size() == 0)
                         log.info("没有需要推送的群");
-                    noticeList.forEach((id)->{
+                    noticeList.forEach((id) -> {
                         log.info("id: {}", id);
                         Group group = RobotMain.getBot().getGroup(Long.parseLong(id));
-                        if(group != null) {
+                        if (group != null) {
                             try {
                                 group.sendMessage(new LightApp(NewsProvider.genLightJson(news)));
                             } catch (UnsupportedEncodingException e) {
                                 e.printStackTrace();
                             }
-                        }
-                        else
+                        } else
                             log.info("似乎没有找到群？");
                     });
-                }else{
+                } else {
                     log.info("该新闻已提醒");
                 }
             } catch (NoSuchAlgorithmException e) {
@@ -119,7 +118,7 @@ public class NewsServiceImpl implements NewsService {
 }
 
 @Slf4j
-class NewsTask extends Thread{
+class NewsTask extends Thread {
 
     private final News news;
     private final String dir;
@@ -128,13 +127,14 @@ class NewsTask extends Thread{
      * 构造方法
      *
      * @param dir  存储路径
-     * @param news  新闻实体
+     * @param news 新闻实体
      */
-    public NewsTask(String dir, News news){
+    public NewsTask(String dir, News news) {
         this.news = news;
         this.dir = dir;
     }
-    public void run(){
+
+    public void run() {
         String pullFun = "v" + news.getPullVer() + "_pull";
 
         try {
@@ -146,7 +146,7 @@ class NewsTask extends Thread{
         }
     }
 
-    public void v1_pull(){
+    public void v1_pull() {
         String path = this.dir + "/" + news.getSource();
         File folder = new File(path);
 
@@ -161,21 +161,21 @@ class NewsTask extends Thread{
 
             Map<String, Object> ret;
             boolean next;
-            do{
+            do {
                 ret = v1_list(name, page);
-                next = (boolean)ret.get("next");
+                next = (boolean) ret.get("next");
                 ret.remove("next");
                 ret.put("name", news.getName());
                 FileUtil.WriteFile(path + "/" + name + "_" + page + ".json", JsonUtil.obj2String(ret));
                 page++;
-            }while(next);
+            } while (next);
 
             o.put("total", Integer.toString(page));
         });
         FileUtil.WriteFile(path + "/tags.json", JsonUtil.obj2String(news.getTags()));
     }
 
-    private Map<String, Object> v1_list(String tag, int page){
+    private Map<String, Object> v1_list(String tag, int page) {
         String uri = news.getUriExp().replace("#tag#", tag);
         uri = uri.replace("#page#", page + "");
         Map<String, Object> ret = new HashMap<>();
@@ -194,18 +194,18 @@ class NewsTask extends Thread{
             ret.put("next", body.contains("class=\"Next\">下页</a>"));
 
             Map<String, String> jo;
-            while (matcher.find()){
+            while (matcher.find()) {
                 jo = new HashMap<>();
                 jo.put("date", matcher.group(3).replaceAll("/", "-").replaceAll("\\[|]", ""));
                 jo.put("title", matcher.group(2));
                 jo.put("link", matcher.group(1));
-                if(!matcher.group(2).contains("党"))
+                if (!matcher.group(2).contains("党"))
                     list.add(jo);
             }
 
-            if(news.isSort())
+            if (news.isSort())
                 list.sort((o1, o2) -> {
-                    if(!o2.get("date").equals(o1.get("date")))
+                    if (!o2.get("date").equals(o1.get("date")))
                         return o2.get("date").compareTo(o1.get("date"));
                     return o2.get("link").compareTo(o1.get("link"));
                 });
@@ -216,7 +216,7 @@ class NewsTask extends Thread{
     }
 
     // 版本二
-    public void v2_pull(){
+    public void v2_pull() {
         String path = this.dir + "/" + news.getSource();
         File folder = new File(path);
 
@@ -230,21 +230,21 @@ class NewsTask extends Thread{
             int i = 1;
             Map<String, Object> ret;
             String page = null;
-            do{
+            do {
                 ret = v2_list(name, page);
-                page = (String)ret.get("next");
+                page = (String) ret.get("next");
                 ret.remove("next");
                 ret.put("name", news.getName());
                 FileUtil.WriteFile(path + "/" + name + "_" + i + ".json", JsonUtil.obj2String(ret));
                 i++;
-            }while(null != page);
+            } while (null != page);
 
             o.put("total", Integer.toString(i));
         });
         FileUtil.WriteFile(path + "/tags.json", JsonUtil.obj2String(news.getTags()));
     }
 
-    private Map<String, Object> v2_list(String tag, String page){
+    private Map<String, Object> v2_list(String tag, String page) {
         String uri = news.getUriExp().replace("#tag#", tag);
         uri += (null != page ? "/" + page : ".htm");
         String link_pre = uri.replaceFirst("\\w+\\.htm", "");
@@ -262,10 +262,10 @@ class NewsTask extends Thread{
             // 处理是否有下一页
             Pattern compile = Pattern.compile("(\\d+\\.htm)\"[^<]+下页");
             Matcher matcher = compile.matcher(body);
-            if(matcher.find()){
+            if (matcher.find()) {
                 String next = matcher.group(1);
                 ret.put("next", next);
-            }else{
+            } else {
                 ret.put("next", null);
             }
 
@@ -274,24 +274,24 @@ class NewsTask extends Thread{
             matcher = compile.matcher(body);
 
             Map<String, String> jo;
-            while (matcher.find()){
+            while (matcher.find()) {
                 // 真实路径处理
                 String link = link_pre + matcher.group(1);
                 URL url = new URL(link);
-                link = url.getPath() + "?" + url.getQuery();
+                link = url.getPath() + (url.getQuery() != null ? "?" + url.getQuery() : "");
                 link = getRealPath(link);
 
                 jo = new HashMap<>();
                 jo.put("date", matcher.group(3).replaceAll("/", "-").replaceAll("\\[|]", ""));
                 jo.put("title", matcher.group(2));
                 jo.put("link", link);
-                if(!matcher.group(2).contains("党"))
+                if (!matcher.group(2).contains("党"))
                     list.add(jo);
             }
 
-            if(news.isSort())
+            if (news.isSort())
                 list.sort((o1, o2) -> {
-                    if(!o2.get("date").equals(o1.get("date")))
+                    if (!o2.get("date").equals(o1.get("date")))
                         return o2.get("date").compareTo(o1.get("date"));
                     return o2.get("link").compareTo(o1.get("link"));
                 });
@@ -302,7 +302,7 @@ class NewsTask extends Thread{
     }
 
     // 版本三
-    public void v3_pull(){
+    public void v3_pull() {
         String path = this.dir + "/" + news.getSource();
         File folder = new File(path);
 
@@ -310,7 +310,7 @@ class NewsTask extends Thread{
             System.out.println(folder.mkdirs());
         }
 
-        news.getTags().forEach(o->{
+        news.getTags().forEach(o -> {
             String name = o.get("name");
             try {
                 Map<String, Object> v3_list = v3_list(name);
@@ -324,26 +324,27 @@ class NewsTask extends Thread{
 
         FileUtil.WriteFile(path + "/tags.json", JsonUtil.obj2String(news.getTags()));
     }
+
     private Map<String, Object> v3_list(String tag) throws IOException, ParseException {
         String html = HttpUtil.doGet("https://www.cuit.edu.cn/NewsList?id=" + tag);
-        html = html.replaceAll("\r\n", "").replaceAll("\n", "").replaceAll("\r","");
+        html = html.replaceAll("\r\n", "").replaceAll("\n", "").replaceAll("\r", "");
 
         List<Map<String, String>> list = new LinkedList<>();
-        Map<String, Object> ret = new HashMap<String, Object>(){{
+        Map<String, Object> ret = new HashMap<String, Object>() {{
             put("domain", "www.cuit.edu.cn");
             put("list", list);
         }};
 
         JXDocument jxDocument = JXDocument.create(html);
         List<JXNode> jxNodes = jxDocument.selN("//*[@id=\"NewsListContent\"]/li");
-        jxNodes.forEach(e->{
+        jxNodes.forEach(e -> {
             Element element = e.asElement();
             String title = element.child(1).text();
             String link = element.child(1).attr("href");
             String date = element.child(2).text().replaceAll("/", "-").replaceAll("\\[|]", "");
 
-            if(!title.contains("党"))
-                list.add(new HashMap<String, String>(){{
+            if (!title.contains("党"))
+                list.add(new HashMap<String, String>() {{
                     put("title", title);
                     put("link", link);
                     put("date", date);
@@ -354,7 +355,7 @@ class NewsTask extends Thread{
     }
 
     // 版本四
-    public void v4_pull(){
+    public void v4_pull() {
         String path = this.dir + "/" + news.getSource();
         File folder = new File(path);
 
@@ -369,14 +370,14 @@ class NewsTask extends Thread{
             Map<String, Object> ret;
             String page = null;
             int pageCnt = 0;
-            do{
+            do {
                 ret = v4_list(name, page);
-                page = (String)ret.get("next");
+                page = (String) ret.get("next");
                 ret.remove("next");
                 ret.put("name", news.getName());
                 FileUtil.WriteFile(path + "/" + name + "_" + i + ".json", JsonUtil.obj2String(ret));
                 i++;
-            }while(null != page && ++pageCnt<5);
+            } while (null != page && ++pageCnt < 5);
 
 
             o.put("total", Integer.toString(i));
@@ -384,7 +385,7 @@ class NewsTask extends Thread{
         FileUtil.WriteFile(path + "/tags.json", JsonUtil.obj2String(news.getTags()));
     }
 
-    private Map<String, Object> v4_list(String tag, String page){
+    private Map<String, Object> v4_list(String tag, String page) {
         String uri = news.getUriExp().replace("#tag#", tag);
         uri += (null != page ? "/" + page : ".htm");
         String link_pre = uri.replaceFirst("\\w+\\.htm", "");
@@ -402,10 +403,10 @@ class NewsTask extends Thread{
             // 处理是否有下一页
             Pattern compile = Pattern.compile("(\\d+\\.htm)\"[^<]+下页");
             Matcher matcher = compile.matcher(body);
-            if(matcher.find()){
+            if (matcher.find()) {
                 String next = matcher.group(1);
                 ret.put("next", next);
-            }else{
+            } else {
                 ret.put("next", null);
             }
 
@@ -414,7 +415,7 @@ class NewsTask extends Thread{
             matcher = compile.matcher(body);
 
             Map<String, String> jo;
-            while (matcher.find()){
+            while (matcher.find()) {
                 // 真实路径处理
                 String link = link_pre + matcher.group(2);
                 link = new URL(link).getPath();
@@ -424,13 +425,13 @@ class NewsTask extends Thread{
                 jo.put("date", matcher.group(1).replaceAll("/", "-").replaceAll("\\[|]", ""));
                 jo.put("title", matcher.group(3));
                 jo.put("link", link);
-                if(!matcher.group(3).contains("党"))
+                if (!matcher.group(3).contains("党"))
                     list.add(jo);
             }
 
-            if(news.isSort())
+            if (news.isSort())
                 list.sort((o1, o2) -> {
-                    if(!o2.get("date").equals(o1.get("date")))
+                    if (!o2.get("date").equals(o1.get("date")))
                         return o2.get("date").compareTo(o1.get("date"));
                     return o2.get("link").compareTo(o1.get("link"));
                 });
@@ -440,9 +441,9 @@ class NewsTask extends Thread{
         return ret;
     }
 
-    private String getRealPath( String filename){
+    private String getRealPath(String filename) {
         String split = "/";
-        while(filename.contains(split + '.')){
+        while (filename.contains(split + '.')) {
             filename = filename.replaceAll("/\\w+/\\.\\./", "/");
             filename = filename.replaceAll("/\\./", "/");
         }

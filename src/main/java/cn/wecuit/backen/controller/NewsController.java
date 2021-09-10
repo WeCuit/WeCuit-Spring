@@ -279,7 +279,7 @@ public class NewsController {
             put("cas.cuit.edu.cn", "//body/table[5]/tbody/tr/td[1]/table[3]/tbody/tr/td[2]/table/tbody/tr/td/form/table");
             put("gdgcxy.cuit.edu.cn", "//body/div[5]/div[2]/form/div");
             put("jsjxy.cuit.edu.cn", "//body/div[2]/div[2]/div/div/div/form/div/div/div/div");
-            put("kzgcxy.cuit.edu.cn", "//*[@id=\"vsb_content\"]");
+            put("kzgcxy.cuit.edu.cn", "//*[@id=\"vsb_newscontent\"]");
             put("rjgcxy.cuit.edu.cn", "//body/table[4]/tbody/tr/td[2]/table[2]/tbody/tr/td/table/tbody/tr[2]/td/form/table");
             put("txgcxy.cuit.edu.cn", "//body/div[2]/div/div[2]/div[2]/form");
             put("wgyxy.cuit.edu.cn", "//*[@id=\"vsb_content\"]");
