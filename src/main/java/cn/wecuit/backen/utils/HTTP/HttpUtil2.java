@@ -84,7 +84,7 @@ public class HttpUtil2 {
         // 默认配置
         unBuildConfig = RequestConfig.custom().setConnectTimeout(Timeout.ofSeconds(5))
                 .setResponseTimeout(Timeout.ofSeconds(5))
-                .setProxy(new HttpHost("127.0.0.1", 8888))
+                // .setProxy(new HttpHost("127.0.0.1", 8888))
                 .setCircularRedirectsAllowed(true);
         localContext.setCookieStore(httpCookieStore);
     }

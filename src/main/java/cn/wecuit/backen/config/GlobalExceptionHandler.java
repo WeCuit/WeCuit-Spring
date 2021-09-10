@@ -37,6 +37,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({BaseException.class})
     public ResponseResult handleBaseException(BaseException e) {
+        e.printStackTrace();
         ResponseCode code = e.getCode2();
         if (code != null)
             return new ResponseResult(code.getCode(), code.getMsg(), null);

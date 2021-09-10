@@ -9,7 +9,6 @@ import cn.wecuit.backen.utils.HTTP.HttpUtil;
 import cn.wecuit.backen.utils.HTTP.HttpUtil2;
 import cn.wecuit.backen.utils.HexUtil;
 import cn.wecuit.backen.utils.JsonUtil;
-import cn.wecuit.backen.utils.NewsUtil;
 import cn.wecuit.backen.utils.StringUtil.AbstractReplaceCallBack;
 import cn.wecuit.backen.utils.StringUtil.StringUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +30,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -116,17 +116,17 @@ public class NewsController {
      * @throws ParseException           HttpUtil
      * @throws NoSuchAlgorithmException MD5计算
      */
-    @GetMapping("/getContent/source/{source}")
-    public String getContentAction(@PathVariable String source) throws IOException, ParseException, NoSuchAlgorithmException {
+    @GetMapping("/getContent")
+    public String getContentAction() throws IOException, ParseException, NoSuchAlgorithmException {
         String link = request.getParameter("link").replaceFirst("http://", "https://");
 
-        byte[] md5s = MessageDigest.getInstance("md5").digest((source + link).getBytes(StandardCharsets.UTF_8));
+        byte[] md5s = MessageDigest.getInstance("md5").digest((link).getBytes(StandardCharsets.UTF_8));
         String md5 = HexUtil.byte2HexStr(md5s);
         String cachePath = BASE_DATA_PATH + "/WeCuit/cache";
         String cacheFile = cachePath + "/news/content/" + md5 + ".html";
         File file = new File(cacheFile);
 
-        // 缓存时间[秒]
+        // 是否需要更新缓存    缓存时间[秒]
         boolean update = System.currentTimeMillis() / 1000 - file.lastModified() / 1000 > 60 * 60 * 30;
 
         // 缓存文件存在，输出缓存文件
@@ -135,7 +135,7 @@ public class NewsController {
         }
 
         // 缓存不存在
-        String html = getOtherContent(link, source);
+        String html = getNewsContent(link);
 
         // 写入缓存
         FileUtil.WriteFile(cacheFile, html);
@@ -256,10 +256,9 @@ public class NewsController {
      * 其它新闻解析
      *
      * @param link   新闻链接
-     * @param source 来源
      * @return String 截取后的新闻内容
      */
-    private String getOtherContent(String link, String source) throws IOException, ParseException {
+    private String getNewsContent(String link) throws IOException, ParseException {
         link = link.replace("n//", "n/");
         String html = HttpUtil.doGet(link);
         JXDocument jxDocument = JXDocument.create(html);
@@ -267,28 +266,30 @@ public class NewsController {
         JXNode jxNode = jxDocument.selNOne("//body/title");
 
         String title = jxNode == null ? "标题失踪了" : jxNode.asString();
+        URL url = new URL(link);
+        String host = url.getHost();
 
         Map<String, String> xpathMap = new HashMap<String, String>() {{
-            put("gl", "//body/table[2]/tbody/tr/td/table[2]/tbody/tr[2]/td[4]/table/tbody/tr[2]/td/form/table");
-            put("tj", "//body/table[3]/tbody/tr[1]/td[3]/table[2]/tbody/tr/td/form/table");
-            put("whys", "//body/table[2]/tbody/tr/td/table[2]/tbody/tr[2]/td[4]/table/tbody/tr[2]/td/form/table");
-            put("wl", "//body/table[5]/tbody/tr[2]/td[4]/table/tbody/tr[2]/td/div/form/table");
-            put("dqkx", "//body/table[5]/tbody/tr/td[1]/table[3]/tbody/tr/td[2]/table/tbody/tr/td/form/table");
-            put("gdgc", "//body/div[5]/div[2]/form/div");
-            put("compute", "//body/div[2]/div[2]/div/div/div/form/div/div/div/div");
-            put("kzgc", "//*[@id=\"vsb_content\"]");
-            put("rjgc", "//body/table[4]/tbody/tr/td[2]/table[2]/tbody/tr/td/table/tbody/tr[2]/td/form/table");
-            put("txgc", "//body/div[2]/div/div[2]/div[2]/form");
-            put("wgy", "//*[@id=\"vsb_content\"]");
-            put("wlaq", "//body/div[3]/div[2]/div[2]/form/div");
-            put("yysx", "//body/div[4]/div/div[2]/div/div/div/div/table/tbody/tr/td");
-            put("zyhj", "//body/table[3]/tbody/tr[1]/td[3]/table[2]/tbody/tr/td/form/table");
-            put("qkl", "//body/div[4]/div/div[2]/div[2]/form/div");
-            put("jwc", "//body/nav[3]/form/div");
-            put("dzgc", "//body/table/tbody/tr[4]/td/table/tbody/tr/td[4]/table/tbody/tr[3]/td/table/tbody/tr/td/form/table");
-            put("home", "//body/div[3]/div/div[2]/div/form/div");
+            put("glxy.cuit.edu.cn", "//body/table[2]/tbody/tr/td/table[2]/tbody/tr[2]/td[4]/table/tbody/tr[2]/td/form/table");
+            put("tjx.cuit.edu.cn", "//body/table[3]/tbody/tr[1]/td[3]/table[2]/tbody/tr/td/form/table");
+            put("whys.cuit.edu.cn", "//body/table[2]/tbody/tr/td/table[2]/tbody/tr[2]/td[4]/table/tbody/tr[2]/td/form/table");
+            put("wlxy.cuit.edu.cn", "//body/table[5]/tbody/tr[2]/td[4]/table/tbody/tr[2]/td/div/form/table");
+            put("cas.cuit.edu.cn", "//body/table[5]/tbody/tr/td[1]/table[3]/tbody/tr/td[2]/table/tbody/tr/td/form/table");
+            put("gdgcxy.cuit.edu.cn", "//body/div[5]/div[2]/form/div");
+            put("jsjxy.cuit.edu.cn", "//body/div[2]/div[2]/div/div/div/form/div/div/div/div");
+            put("kzgcxy.cuit.edu.cn", "//*[@id=\"vsb_content\"]");
+            put("rjgcxy.cuit.edu.cn", "//body/table[4]/tbody/tr/td[2]/table[2]/tbody/tr/td/table/tbody/tr[2]/td/form/table");
+            put("txgcxy.cuit.edu.cn", "//body/div[2]/div/div[2]/div[2]/form");
+            put("wgyxy.cuit.edu.cn", "//*[@id=\"vsb_content\"]");
+            put("cyber.cuit.edu.cn", "//body/div[3]/div[2]/div[2]/form/div");
+            put("math.cuit.edu.cn", "//body/div[4]/div/div[2]/div/div/div/div/table/tbody/tr/td");
+            put("hjgcx.cuit.edu.cn", "//body/table[3]/tbody/tr[1]/td[3]/table[2]/tbody/tr/td/form/table");
+            put("qkl.cuit.edu.cn", "//body/div[4]/div/div[2]/div[2]/form/div");
+            put("jwc.cuit.edu.cn", "//body/nav[3]/form/div");
+            put("dzgcxy.cuit.edu.cn", "//body/table/tbody/tr[4]/td/table/tbody/tr/td[4]/table/tbody/tr[3]/td/table/tbody/tr/td/form/table");
+            put("www.cuit.edu.cn", "//body/div[3]/div/div[2]/div/form/div");
         }};
-        String xpath = xpathMap.get(source);
+        String xpath = xpathMap.get(host);
 
         if (null == xpath) throw new BaseException(20400, "未知来源");
 
