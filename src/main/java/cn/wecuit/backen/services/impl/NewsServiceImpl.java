@@ -277,7 +277,8 @@ class NewsTask extends Thread{
             while (matcher.find()){
                 // 真实路径处理
                 String link = link_pre + matcher.group(1);
-                link = new URL(link).getPath();
+                URL url = new URL(link);
+                link = url.getPath() + "?" + url.getQuery();
                 link = getRealPath(link);
 
                 jo = new HashMap<>();

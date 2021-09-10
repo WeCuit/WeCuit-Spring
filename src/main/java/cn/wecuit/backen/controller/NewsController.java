@@ -169,7 +169,7 @@ public class NewsController {
                 Pattern compile = Pattern.compile("\\.([a-zA-Z]+);");
                 Matcher matcher = compile.matcher(fileName);
                 String suffix = "";
-                if(matcher.find()) {
+                if (matcher.find()) {
                     suffix = matcher.group(1);
                 }
                 downUrl = URLEncoder.encode(url, "utf-8");
@@ -220,7 +220,7 @@ public class NewsController {
     public void downFile(@RequestParam String url, @RequestParam String cookie, @PathVariable String suffix, HttpServletResponse response) {
 
         HttpUtil2 http = new HttpUtil2();
-        Map<String, String> headers = new HashMap<String, String>(){{
+        Map<String, String> headers = new HashMap<String, String>() {{
             put("cookie", cookie);
             put("referer", url);
         }};
@@ -255,7 +255,7 @@ public class NewsController {
     /**
      * 其它新闻解析
      *
-     * @param link   新闻链接
+     * @param link 新闻链接
      * @return String 截取后的新闻内容
      */
     private String getNewsContent(String link) throws IOException, ParseException {
@@ -264,6 +264,8 @@ public class NewsController {
         JXDocument jxDocument = JXDocument.create(html);
 
         JXNode jxNode = jxDocument.selNOne("//body/title");
+        if (jxNode == null)
+            jxNode = jxDocument.selNOne("//head/title");
 
         String title = jxNode == null ? "标题失踪了" : jxNode.asString();
         URL url = new URL(link);
