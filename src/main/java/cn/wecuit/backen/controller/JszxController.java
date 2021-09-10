@@ -1,16 +1,15 @@
 package cn.wecuit.backen.controller;
 
 import cn.wecuit.backen.exception.BaseException;
+import cn.wecuit.backen.response.BaseResponse;
 import cn.wecuit.backen.utils.CCUtil;
 import cn.wecuit.backen.utils.HTTP.HttpUtil2;
 import cn.wecuit.backen.utils.HTTP.HttpUtilEntity;
 import cn.wecuit.backen.utils.JsonUtil;
 import cn.wecuit.backen.utils.RSAUtils;
 import org.apache.hc.core5.http.ParseException;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletContext;
@@ -27,9 +26,12 @@ import java.util.regex.Pattern;
  **/
 @RestController
 @RequestMapping("/Jszx")
+@BaseResponse
 public class JszxController {
     @Resource
     HttpServletRequest request;
+    @Value("${wecuit.ocr.server}")
+    private String OCR_SERVER;
 
     @RequestMapping("/getCheckInListV2")
     public Map<String, Object> getCheckInListV2() throws IOException, ParseException {
@@ -48,7 +50,7 @@ public class JszxController {
         String html = resp.getBody();
         Map<String, List<Map<String, String>>> checkInList = CCUtil.parseCheckInList(html);
         return new HashMap<String, Object>(){{
-            put("code", 200);
+            
             put("list", checkInList);
         }};
     }
@@ -66,7 +68,6 @@ public class JszxController {
 
         // 响应体
         Map<String, Object> ret = new HashMap<>();
-        ret.put("code", 200);
         ret.put("cookie", loginCookie);
         return ret;
     }
@@ -90,7 +91,6 @@ public class JszxController {
         String html = httpUtilEntity.getBody();
         Map<String, Object> form = CCUtil.parseCheckInContent(html);
         return new HashMap<String, Object>(){{
-            put("code", 200);
             put("form", form);
         }};
     }
@@ -125,7 +125,7 @@ public class JszxController {
         if(html.contains("提交打卡成功！")) {
             Map<String, Object> newForm = CCUtil.parseCheckInContent(html);
             return new HashMap<String, Object>(){{
-                put("code", 200);
+                
                 put("error", time.toString());
                 put("form", newForm);
             }};
@@ -164,7 +164,6 @@ public class JszxController {
         String finalCodeKey = codeKey;
         String finalSyncTime = syncTime;
         return new HashMap<String, Object>(){{
-            put("code", 200);
             put("cookie", cookie.toString());
             put("codeKey", finalCodeKey);
             put("syncTime", finalSyncTime);
@@ -172,9 +171,7 @@ public class JszxController {
     }
 
     @RequestMapping("/office_getCaptcha")
-    public Map<String, Object> office_getCaptcha() throws IOException {
-        String cookie = request.getParameter("cookie");
-        String codeKey = request.getParameter("codeKey");
+    public Map<String, Object> office_getCaptcha(@RequestParam String cookie, @RequestParam String codeKey) throws IOException {
 
         HashMap<String, String> headers = new HashMap<String, String>(){{
             put("cookie", cookie);
@@ -183,13 +180,11 @@ public class JszxController {
         HttpUtil2 http = new HttpUtil2();
         byte[] body = http.getContent("http://login.cuit.edu.cn:81/Login/xLogin/yzmDvCode.asp?k=" + codeKey, null, headers, "UTF-8");
 
-        ServletContext servletContext = request.getServletContext();
-        String OCR_SERVER = servletContext.getInitParameter("OCR_SERVER");
         String s = http.doFilePost(OCR_SERVER, body);
         Map<String, String> map = JsonUtil.string2Obj(s, Map.class);
 
         return new HashMap<String, Object>(){{
-            put("code", 200);
+            
             put("base64img", "data:image/png;base64, " + new String(Base64.getEncoder().encode(body)));
             put("imgCode", map.get("result"));
         }};
@@ -232,7 +227,7 @@ public class JszxController {
         String msg = result.substring(result.lastIndexOf(">") + 1);
 
         return new HashMap<String, Object>(){{
-            put("code", 200);
+            
             put("result", msg);
         }};
     }
