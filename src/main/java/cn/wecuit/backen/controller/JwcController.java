@@ -22,8 +22,6 @@ import java.util.Map;
 @RequestMapping("/Jwc")
 @BaseResponse
 public class JwcController {
-    @Resource
-    HttpServletRequest request;
 
     @PostMapping("/labAll")
     public Map<String, Object> labAll(@RequestBody Map<String, String> body) throws IOException, ParseException {
