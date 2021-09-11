@@ -1,12 +1,11 @@
 package cn.wecuit.backen.controller;
 
+import cn.wecuit.backen.response.BaseResponse;
 import cn.wecuit.backen.response.ResponseResult;
 import cn.wecuit.backen.utils.HTTP.HttpUtil2;
 import cn.wecuit.backen.utils.JwcUtil;
 import org.apache.hc.core5.http.ParseException;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -21,40 +20,25 @@ import java.util.Map;
  **/
 @RestController
 @RequestMapping("/Jwc")
+@BaseResponse
 public class JwcController {
     @Resource
     HttpServletRequest request;
 
-
-    @GetMapping("/labAll")
-    public ResponseResult labAll() throws IOException, ParseException {
-        Map<String, String[]> parameterMap = request.getParameterMap();
-        Map<String, String> parameter = new HashMap<>();
-        parameterMap.forEach((k, v)->{
-            parameter.put(k,v[0]);
-        });
+    @PostMapping("/labAll")
+    public Map<String, Object> labAll(@RequestBody Map<String, String> body) throws IOException, ParseException {
 
         HttpUtil2 http = new HttpUtil2(new HashMap<String, Object>() {{
             put("redirection", 0);
         }});
-        String html = http.doGet("http://jxgl.cuit.edu.cn/Jxgl/Js/sysYxgl/Cx/sysHz.asp", parameter, "gb2312");
+        String html = http.doGet("http://jxgl.cuit.edu.cn/Jxgl/Js/sysYxgl/Cx/sysHz.asp", body, "gb2312");
 
         //数据解析
-        Map<String, Object> ret = JwcUtil.LAB_ListHtml2json(html);
-
-        return new ResponseResult(){{
-            setCode(200);
-            setData(ret);
-        }};
+        return JwcUtil.LAB_ListHtml2json(html);
     }
 
-    @RequestMapping("/labDetail")
-    public Map<String, Object> labDetail() throws IOException, ParseException {
-        Map<String, String[]> parameterMap = request.getParameterMap();
-        Map<String, String> parameter = new HashMap<>();
-        parameterMap.forEach((k, v)->{
-            parameter.put(k,v[0]);
-        });
+    @PostMapping("/labDetail")
+    public Map<String, Object> labDetail(@RequestBody Map<String, String> body) throws IOException, ParseException {
         /*
             cxZtO: 8
             cxZcO:
@@ -73,7 +57,7 @@ public class JwcController {
         HttpUtil2 http = new HttpUtil2(new HashMap<String, Object>() {{
             put("redirection", 0);
         }});
-        String html = http.doGet("http://jxgl.cuit.edu.cn/Jxgl/Js/sysYxgl/Cx/sysKb.asp", parameter, "gb2312");
+        String html = http.doGet("http://jxgl.cuit.edu.cn/Jxgl/Js/sysYxgl/Cx/sysKb.asp", body, "gb2312");
         html = html.replace("请输入实验室名称", "").replace("<br>", "").replace("　　", " ");
 
         // 数据解析

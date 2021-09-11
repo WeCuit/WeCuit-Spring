@@ -60,6 +60,7 @@ public class JwcUtil {
         // list
         List<Map<String, Object>> list = new LinkedList<>();
         jxNodes = jxDocument.selN("//body/div[2]/table/tbody/tr/td/table/tbody/tr");
+        if(!jxNodes.toString().contains("系统中目前没有符合查询条件的记录！"))
         jxNodes.forEach(node->{
             Map<String, Object> temp = new HashMap<>();
             List<Map<String, Object>> placeList = new LinkedList<>();
