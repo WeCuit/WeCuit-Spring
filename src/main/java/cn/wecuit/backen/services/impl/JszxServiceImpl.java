@@ -3,7 +3,6 @@ package cn.wecuit.backen.services.impl;
 import cn.wecuit.backen.services.JszxService;
 import cn.wecuit.backen.utils.HTTP.HttpUtil2;
 import org.apache.hc.core5.http.ParseException;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;

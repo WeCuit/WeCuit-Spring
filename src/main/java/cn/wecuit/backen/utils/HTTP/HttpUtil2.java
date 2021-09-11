@@ -80,6 +80,7 @@ public class HttpUtil2 {
                 .setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36 Edg/90.0.818.51")
                 .build();
     }
+
     {
         // 默认配置
         unBuildConfig = RequestConfig.custom().setConnectTimeout(Timeout.ofSeconds(5))
@@ -89,20 +90,21 @@ public class HttpUtil2 {
         localContext.setCookieStore(httpCookieStore);
     }
 
-    public HttpUtil2(){
+    public HttpUtil2() {
         // 默认配置
         localContext.setRequestConfig(unBuildConfig.build());
     }
 
     /**
      * 自定义配置
+     *
      * @param config
      */
-    public HttpUtil2(Map<String, Object> config){
+    public HttpUtil2(Map<String, Object> config) {
         // 自定义配置
-        if(config.containsKey("redirection")) {
+        if (config.containsKey("redirection")) {
             unBuildConfig.setMaxRedirects((int) config.get("redirection"));
-            unBuildConfig.setRedirectsEnabled((int) config.get("redirection")!=0);
+            unBuildConfig.setRedirectsEnabled((int) config.get("redirection") != 0);
         }
         localContext.setRequestConfig(unBuildConfig.build());
 
@@ -123,16 +125,16 @@ public class HttpUtil2 {
     }
 
     /**
-     *    _____/\\\\\\\\\\\\__/\\\\\\\\\\\\\\\__/\\\\\\\\\\\\\\\_
-     *     ___/\\\//////////__\/\\\///////////__\///////\\\/////__
-     *      __/\\\_____________\/\\\___________________\/\\\_______
-     *       _\/\\\____/\\\\\\\_\/\\\\\\\\\\\___________\/\\\_______
-     *        _\/\\\___\/////\\\_\/\\\///////____________\/\\\_______
-     *         _\/\\\_______\/\\\_\/\\\___________________\/\\\_______
-     *          _\/\\\_______\/\\\_\/\\\___________________\/\\\_______
-     *           _\//\\\\\\\\\\\\/__\/\\\\\\\\\\\\\\\_______\/\\\_______
-     *            __\////////////____\///////////////________\///________
-     *            FROM:http://patorjk.com/software/taag
+     * _____/\\\\\\\\\\\\__/\\\\\\\\\\\\\\\__/\\\\\\\\\\\\\\\_
+     * ___/\\\//////////__\/\\\///////////__\///////\\\/////__
+     * __/\\\_____________\/\\\___________________\/\\\_______
+     * _\/\\\____/\\\\\\\_\/\\\\\\\\\\\___________\/\\\_______
+     * _\/\\\___\/////\\\_\/\\\///////____________\/\\\_______
+     * _\/\\\_______\/\\\_\/\\\___________________\/\\\_______
+     * _\/\\\_______\/\\\_\/\\\___________________\/\\\_______
+     * _\//\\\\\\\\\\\\/__\/\\\\\\\\\\\\\\\_______\/\\\_______
+     * __\////////////____\///////////////________\///________
+     * FROM:http://patorjk.com/software/taag
      *
      * @param url 发送get请求的url
      * @return String 响应体
@@ -156,6 +158,7 @@ public class HttpUtil2 {
     public String doGet(String url, Map<String, String> params, String charset) throws IOException, ParseException {
         return getString(Objects.requireNonNull(doGet(url, params, null, charset, localContext)), charset);
     }
+
     public String doGet(String url, String charset, Map<String, String> headers) throws IOException, ParseException {
         return getString(Objects.requireNonNull(doGet(url, null, headers, charset, localContext)), charset);
     }
@@ -204,12 +207,11 @@ public class HttpUtil2 {
      * @param headers 自定义请求头
      * @param charset 请求编码
      * @return HttpUtilEntity
-     *
      */
     public HttpUtilEntity doGetEntity(String url, Map<String, String> params, Map<String, String> headers, String charset) throws IOException, ParseException {
         CloseableHttpResponse closeableHttpResponse = doGet(url, params, headers, charset, localContext);
 
-        if(null == closeableHttpResponse)return null;
+        if (null == closeableHttpResponse) return null;
 
         HttpUtilEntity httpUtilEntity = response2entity(closeableHttpResponse, charset);
         closeableHttpResponse.close();
@@ -228,7 +230,7 @@ public class HttpUtil2 {
         byte[] chunk = new byte[1024];
         InputStream inputStream = entity.getContent();
         int len = -1;
-        while (-1 != (len=inputStream.read(chunk))){
+        while (-1 != (len = inputStream.read(chunk))) {
             outputStream.write(chunk, 0, chunk.length);
         }
         return outputStream.toByteArray();
@@ -274,7 +276,7 @@ public class HttpUtil2 {
 
             return httpClient.execute(httpGet, context);
         } catch (Exception e) {
-            if(e.getCause() instanceof RedirectException) {
+            if (e.getCause() instanceof RedirectException) {
                 // 处理"达到最大重定向异常"
                 return (CloseableHttpResponse) context.getResponse();
             }
@@ -369,7 +371,7 @@ public class HttpUtil2 {
 
     public HttpUtilEntity doPostEntity(String url, Map<String, String> params, Map<String, String> headers, String charset) throws IOException, ParseException {
         CloseableHttpResponse closeableHttpResponse = doPost(url, params, headers, charset, localContext);
-        if(null == closeableHttpResponse)return null;
+        if (null == closeableHttpResponse) return null;
         HttpUtilEntity httpUtilEntity = response2entity(closeableHttpResponse, charset);
         closeableHttpResponse.close();
         return httpUtilEntity;
@@ -381,7 +383,7 @@ public class HttpUtil2 {
             Map<String, String> headers,
             String charset,
             HttpClientContext context
-    ){
+    ) {
         if (StringUtils.isBlank(url)) {
             return null;
         }
@@ -396,18 +398,18 @@ public class HttpUtil2 {
             httpPost.setEntity(urlEncodedFormEntity);
         }
 
-        return doPost( httpPost, context);
+        return doPost(httpPost, context);
     }
 
     public static CloseableHttpResponse doPost(
             HttpPost httpPost,
             HttpClientContext context
-    ){
+    ) {
 
         try {
             return httpClient.execute(httpPost, context);
         } catch (IOException e) {
-            if(e.getCause() instanceof RedirectException) {
+            if (e.getCause() instanceof RedirectException) {
                 // 处理"达到最大重定向异常"
                 return (CloseableHttpResponse) context.getResponse();
             }
@@ -463,7 +465,12 @@ public class HttpUtil2 {
         pairs = new ArrayList<>(params.size());
         for (Map.Entry<String, String> entry : params.entrySet()) {
             String value;
-            value = entry.getValue();
+            Object obj = entry.getValue();
+            if (obj instanceof Integer) {
+                value = Integer.toString((int) obj);
+            } else {
+                value = entry.getValue();
+            }
             if (value != null) {
                 pairs.add(new BasicNameValuePair(entry.getKey(), value));
             }
