@@ -294,7 +294,7 @@ public class CCUtil {
             put("type", "picker");
             put("id", "sF21650_6");
             put("lable", "(3)今天工作状态：");
-            put("defaultIdx", config.get(0)[5]);
+            put("defaultIdx", config.get(0).length < 6 ? 0 : config.get(0)[5]);
             put("isRequired", true);
             put("range", new HashMap[]{
                     new HashMap<String, Object>(){{
@@ -329,7 +329,7 @@ public class CCUtil {
             put("type", "picker");
             put("id", "sF21650_7");
             put("lable", "(4)个人健康状况：");
-            put("defaultIdx", config.get(0)[6]);
+            put("defaultIdx", config.get(0).length < 7 ? 0 : config.get(0)[6]);
             put("isRequired", true);
             put("range", new HashMap[]{
                     new HashMap<String, Object>(){{
@@ -375,7 +375,7 @@ public class CCUtil {
             put("type", "picker");
             put("id", "sF21650_8");
             put("lable", "(5)个人生活状态：");
-            put("defaultIdx", config.get(0)[7]);
+            put("defaultIdx", config.get(0).length < 8 ? 0 : config.get(0)[7]);
             put("isRequired", true);
             put("range", new HashMap[]{
                     new HashMap<String, Object>(){{
@@ -409,7 +409,7 @@ public class CCUtil {
             put("type", "picker");
             put("id", "sF21650_9");
             put("lable", "(6)家庭成员状况：");
-            put("defaultIdx", config.get(0)[8]);
+            put("defaultIdx", config.get(0).length < 9 ? 0 : config.get(0)[8]);
             put("isRequired", true);
             put("range", new HashMap[]{
                     new HashMap<String, Object>(){{
