@@ -59,11 +59,6 @@ public class JwcController {
         html = html.replace("请输入实验室名称", "").replace("<br>", "").replace("　　", " ");
 
         // 数据解析
-        Map<String, Object> ret = JwcUtil.LAB_DetailHtml2json(html);
-
-        return new HashMap<String, Object>(){{
-            put("code", 200);
-            put("data", ret);
-        }};
+        return JwcUtil.LAB_DetailHtml2json(html);
     }
 }
