@@ -822,7 +822,7 @@ public class CCUtil {
             put("sF21650_3", form.get("sF21650_3"));      // 外地详址[市]
             put("sF21650_4", form.get("sF21650_4"));      // 外地详址[区(县)]
             put("sF21650_5", form.get("sF21650_5"));      // (2)现居住地状态
-            put("sF21650_6", form.get("sF21650_6"));      // (3)今天工作状态
+            put("sF21650_6", "0".equals(form.get("sF21650_6"))?"":form.get("sF21650_6"));      // (3)今天工作状态
             put("sF21650_7", form.get("sF21650_7"));      // (4)个人健康状况
             put("sF21650_8", form.get("sF21650_8"));      // (5)个人生活状态
             put("sF21650_9", form.get("sF21650_9"));      // (6)家庭成员状况

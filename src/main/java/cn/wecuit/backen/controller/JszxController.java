@@ -18,6 +18,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -104,7 +105,12 @@ public class JszxController {
 
         String cookie = (String) postMap.get("JSZXCookie");
 
-        Map<String, String> form = (LinkedHashMap<String, String>) postMap.get("form");
+        Map form1 = (Map) postMap.get("form");
+        form1.forEach((o, o2) -> {
+            form1.put(o, String.valueOf(o2));
+        });
+        Map<String, String> form = (LinkedHashMap<String, String>) form1;
+
         form = CCUtil.genPostBody(form, "?" + postMap.get("link"));
 
         Map<String, String> headers = new HashMap<>();
