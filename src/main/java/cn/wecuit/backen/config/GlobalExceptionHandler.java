@@ -51,7 +51,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler({NotLoginException.class})
-    public ResponseResult handleRuntimeException(NotLoginException e) {
+    public ResponseResult handleRuntimeException(HttpServletResponse response, NotLoginException e) {
+        response.setStatus(ResponseCode.USER_NOT_LOGIN.getCode());
         return new ResponseResult(ResponseCode.USER_NOT_LOGIN.getCode(), e.getMessage(), null);
     }
 

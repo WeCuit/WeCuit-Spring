@@ -28,63 +28,13 @@ import java.util.stream.Collectors;
 @ApiSupport(author = "jiyecafe@gmail.com")
 @RestController
 @RequestMapping("/auth")
-public class AdminAuthController {
+public class AuthController {
     @Resource
     MenuService menuService;
     @Resource
     RoleService roleService;
     @Autowired
     RoleMenuService roleMenuService;
-    @Resource
-    AdminAuthService adminAuthService;
-
-    @ApiOperation(value = "用户注册")
-    @PostMapping("/user/reg")
-    public Map<String, Object> register(@RequestBody AdminUser user){
-        user.setId(null);   // 清除可能自定义的ID
-        boolean register = adminAuthService.register(user);
-        return new HashMap<String, Object>(){{
-            put("result", register);
-        }};
-    }
-
-    @ApiOperation(value = "用户登录")
-    @PostMapping("/user/login")
-    public Map<String, Object> login(@RequestBody AdminUser user){
-        String[] login = adminAuthService.login(user);
-        return new HashMap<String, Object>(){{
-            put("auth", login);
-        }};
-    }
-
-    @ApiOperation(value = "用户注销")
-    @GetMapping("/user/logout")
-    public Map<String, Object> logout(){
-        StpUtil.logout();
-        return new HashMap<String, Object>(){{
-            put("result", true);
-        }};
-    }
-
-    @ApiOperation(value = "用户信息")
-    @GetMapping("/user/info")
-    public Map<String, Object> userInfo(){
-        boolean b = StpUtil.hasRole("123");
-        return new HashMap<String, Object>(){{
-            put("result", b);
-        }};
-    }
-
-    @ApiOperation(value = "用户菜单")
-    @GetMapping("/user/routes")
-    public Map<String, Object> userMenu(){
-
-        List<String> list = adminAuthService.userMenu(StpUtil.getLoginIdAsLong());
-        return new HashMap<String, Object>(){{
-            put("authedRoutes", list);
-        }};
-    }
-
 
     @ApiOperation(value = "获取角色列表")
     @GetMapping("/roles")

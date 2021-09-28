@@ -9,8 +9,10 @@ import java.util.List;
  * @Date 2021/9/5 8:14
  * @Version 1.0
  **/
-public interface AdminAuthService {
+public interface AdminUserService {
     boolean register(AdminUser user);
     String[] login(AdminUser user);
     List<String> userMenu(long id);
+    AdminUser info(long id);
+    boolean modifyInfoById(long id, AdminUser user);
 }

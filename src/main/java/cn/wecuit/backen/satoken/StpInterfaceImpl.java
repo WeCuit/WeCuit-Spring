@@ -48,7 +48,7 @@ public class StpInterfaceImpl implements StpInterface {
         log.info("获取角色列表 {}, {}", loginId, loginType);
 
         // 本list仅做模拟，实际项目中要根据具体业务逻辑来查询角色
-        return userRoleMapper.getRoleByUserId((long) loginId);
+        return userRoleMapper.getRoleByUserId(Long.parseLong((String)loginId));
     }
 
 }
