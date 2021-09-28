@@ -1,6 +1,6 @@
 package cn.wecuit.backen.mapper;
 
-import cn.wecuit.backen.bean.User;
+import cn.wecuit.backen.bean.AdminUser;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.*;
 
@@ -14,7 +14,7 @@ import java.util.Map;
  * @Version 1.0
  **/
 @Mapper
-public interface UserMapper extends BaseMapper<User> {
+public interface AdminUserMapper extends BaseMapper<AdminUser> {
 
     // 根据openid或sid 查询 userid
     @Select("SELECT user_id FROM wc_users WHERE `user_sid`=#{sid};")

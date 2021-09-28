@@ -1,7 +1,8 @@
 package cn.wecuit.backen.services.impl;
 
-import cn.wecuit.backen.bean.User;
-import cn.wecuit.backen.mapper.UserMapper;
+import cn.wecuit.backen.bean.AdminUser;
+import cn.wecuit.backen.bean.MiniUser;
+import cn.wecuit.backen.mapper.AdminUserMapper;
 import cn.wecuit.backen.services.UserService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.stereotype.Service;
@@ -16,11 +17,11 @@ import javax.annotation.Resource;
 @Service
 public class UserServiceImpl implements UserService {
     @Resource
-    UserMapper userMapper;
+    AdminUserMapper adminUserMapper;
 
     @Override
-    public User getUserByUsername(String username) {
-        return userMapper.selectOne(new QueryWrapper<User>(){{
+    public AdminUser getUserByUsername(String username) {
+        return adminUserMapper.selectOne(new QueryWrapper<AdminUser>(){{
             eq("stu_id", username);
         }});
     }

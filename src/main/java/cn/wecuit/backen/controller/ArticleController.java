@@ -25,7 +25,6 @@ public class ArticleController {
     @Resource
     ArticleService articleService;
 
-
     @ApiOperation("获取文章列表")
     @GetMapping("/list")
     public Map<String, Object> list(@RequestParam(required = false, defaultValue = "1") int page, @RequestParam(required = false, defaultValue = "10") int limit){

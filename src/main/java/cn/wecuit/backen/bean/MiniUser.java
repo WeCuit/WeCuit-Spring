@@ -17,8 +17,8 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@TableName("wc_users")
-public class User implements Serializable {
+@TableName("wc_miniusers")
+public class MiniUser implements Serializable {
     @TableId(type = IdType.AUTO)
     private Long id;                    // 系统用户ID
     private String stuId;               // 学号

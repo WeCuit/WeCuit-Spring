@@ -1,6 +1,7 @@
 package cn.wecuit.backen.services;
 
-import cn.wecuit.backen.bean.User;
+import cn.wecuit.backen.bean.AdminUser;
+import cn.wecuit.backen.bean.MiniUser;
 
 /**
  * @Author jiyec
@@ -8,5 +9,5 @@ import cn.wecuit.backen.bean.User;
  * @Version 1.0
  **/
 public interface UserService {
-    User getUserByUsername(String username);
+    AdminUser getUserByUsername(String username);
 }

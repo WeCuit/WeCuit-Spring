@@ -3,6 +3,7 @@ package cn.wecuit.backen.bean;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,6 +22,8 @@ import java.io.Serializable;
 public class College implements Serializable {
     @TableId(type = IdType.AUTO)
     private Integer id;
+    @ApiModelProperty("学院名称")
     private String name;
+    @ApiModelProperty("学院标记")
     private String mark;
 }

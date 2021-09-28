@@ -1,10 +1,7 @@
 package cn.wecuit.backen.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
-import cn.wecuit.backen.bean.Menu;
-import cn.wecuit.backen.bean.Role;
-import cn.wecuit.backen.bean.RoleMenu;
-import cn.wecuit.backen.bean.User;
+import cn.wecuit.backen.bean.*;
 import cn.wecuit.backen.response.BaseResponse;
 import cn.wecuit.backen.services.*;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -31,7 +28,7 @@ import java.util.stream.Collectors;
 @ApiSupport(author = "jiyecafe@gmail.com")
 @RestController
 @RequestMapping("/auth")
-public class AuthController {
+public class AdminAuthController {
     @Resource
     MenuService menuService;
     @Resource
@@ -39,12 +36,22 @@ public class AuthController {
     @Autowired
     RoleMenuService roleMenuService;
     @Resource
-    AuthService authService;
+    AdminAuthService adminAuthService;
+
+    @ApiOperation(value = "用户注册")
+    @PostMapping("/user/reg")
+    public Map<String, Object> register(@RequestBody AdminUser user){
+        user.setId(null);   // 清除可能自定义的ID
+        boolean register = adminAuthService.register(user);
+        return new HashMap<String, Object>(){{
+            put("result", register);
+        }};
+    }
 
     @ApiOperation(value = "用户登录")
     @PostMapping("/user/login")
-    public Map<String, Object> login(@RequestBody User user){
-        String[] login = authService.login(user);
+    public Map<String, Object> login(@RequestBody AdminUser user){
+        String[] login = adminAuthService.login(user);
         return new HashMap<String, Object>(){{
             put("auth", login);
         }};
@@ -72,7 +79,7 @@ public class AuthController {
     @GetMapping("/user/routes")
     public Map<String, Object> userMenu(){
 
-        List<String> list = authService.userMenu(StpUtil.getLoginIdAsLong());
+        List<String> list = adminAuthService.userMenu(StpUtil.getLoginIdAsLong());
         return new HashMap<String, Object>(){{
             put("authedRoutes", list);
         }};

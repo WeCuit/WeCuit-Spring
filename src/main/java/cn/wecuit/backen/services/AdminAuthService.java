@@ -1,6 +1,6 @@
 package cn.wecuit.backen.services;
 
-import cn.wecuit.backen.bean.User;
+import cn.wecuit.backen.bean.AdminUser;
 
 import java.util.List;
 
@@ -9,7 +9,8 @@ import java.util.List;
  * @Date 2021/9/5 8:14
  * @Version 1.0
  **/
-public interface AuthService {
-    String[] login(User user);
+public interface AdminAuthService {
+    boolean register(AdminUser user);
+    String[] login(AdminUser user);
     List<String> userMenu(long id);
 }

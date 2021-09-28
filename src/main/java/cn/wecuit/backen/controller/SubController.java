@@ -1,7 +1,7 @@
 package cn.wecuit.backen.controller;
 
 import cn.wecuit.backen.mapper.SubMapper;
-import cn.wecuit.backen.mapper.UserMapper;
+import cn.wecuit.backen.mapper.AdminUserMapper;
 import cn.wecuit.backen.exception.BaseException;
 import cn.wecuit.backen.utils.HexUtil;
 import cn.wecuit.backen.utils.RSAUtils;
@@ -96,7 +96,7 @@ public class SubController {
         if("true".equals(status))sub_enable=true;
 
         try(SqlSession sqlSession = MyBatis.getSqlSessionFactory().openSession()){
-            UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+            AdminUserMapper userMapper = sqlSession.getMapper(AdminUserMapper.class);
             SubMapper subMapper = sqlSession.getMapper(SubMapper.class);
 
             BigInteger uid = userMapper.queryUIdBySId(userId);
@@ -145,7 +145,7 @@ public class SubController {
         if(sign == null || !sign.equals(s))throw new BaseException(403, "非法请求");
 
         try(SqlSession sqlSession = MyBatis.getSqlSessionFactory().openSession()){
-            UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+            AdminUserMapper userMapper = sqlSession.getMapper(AdminUserMapper.class);
             SubMapper subMapper = sqlSession.getMapper(SubMapper.class);
 
             BigInteger uid = userMapper.queryUIdByOpenId(getClient(), openid);
@@ -172,7 +172,7 @@ public class SubController {
         if(sign == null || !sign.equals(s))throw new BaseException(403, "非法请求");
 
         try(SqlSession sqlSession = MyBatis.getSqlSessionFactory().openSession()){
-            UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+            AdminUserMapper userMapper = sqlSession.getMapper(AdminUserMapper.class);
             SubMapper subMapper = sqlSession.getMapper(SubMapper.class);
 
             BigInteger uid = userMapper.queryUIdByOpenId(getClient(), openid);
