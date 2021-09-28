@@ -1,4 +1,4 @@
-package cn.wecuit.backen.controller;
+package cn.wecuit.backen.api.v3;
 
 import cn.wecuit.backen.exception.BaseException;
 import cn.wecuit.backen.utils.HTTP.HttpUtil;

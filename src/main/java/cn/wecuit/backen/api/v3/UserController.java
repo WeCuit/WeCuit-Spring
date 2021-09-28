@@ -1,4 +1,4 @@
-package cn.wecuit.backen.controller;
+package cn.wecuit.backen.api.v3;
 
 import cn.dev33.satoken.stp.StpUtil;
 import cn.wecuit.backen.bean.AdminUser;

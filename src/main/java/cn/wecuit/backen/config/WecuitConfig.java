@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 public class WecuitConfig {
     private String dataPath;
     private String localhost;
+    private String apiPackage;
     private Robot robot;
     private AES aes;
     private RSA rsa;

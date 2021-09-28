@@ -1,4 +1,4 @@
-package cn.wecuit.backen.controller;
+package cn.wecuit.backen.api.v3;
 
 import cn.wecuit.backen.mapper.SubMapper;
 import cn.wecuit.backen.mapper.AdminUserMapper;

@@ -1,8 +1,7 @@
-package cn.wecuit.backen.controller;
+package cn.wecuit.backen.api.v3;
 
 import cn.wecuit.backen.bean.College;
 import cn.wecuit.backen.response.BaseResponse;
-import cn.wecuit.backen.response.ResponseResult;
 import cn.wecuit.backen.services.CollegeService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;

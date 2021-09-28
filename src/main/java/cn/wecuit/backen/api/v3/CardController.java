@@ -1,11 +1,8 @@
-package cn.wecuit.backen.controller;
+package cn.wecuit.backen.api.v3;
 
 import cn.wecuit.backen.exception.BaseException;
 import cn.wecuit.backen.response.BaseResponse;
-import cn.wecuit.backen.response.ResponseResult;
 import cn.wecuit.backen.services.CardService;
-import cn.wecuit.backen.utils.CardUtil;
-import cn.wecuit.backen.utils.HTTP.HttpUtil2;
 import cn.wecuit.backen.utils.JsonUtil;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import org.apache.hc.core5.http.ParseException;
@@ -16,9 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**

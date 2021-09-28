@@ -1,14 +1,10 @@
-package cn.wecuit.backen.controller;
+package cn.wecuit.backen.api.v3;
 
 import cn.wecuit.backen.response.BaseResponse;
 import cn.wecuit.backen.response.ResponseResult;
-import cn.wecuit.backen.exception.BaseException;
 import cn.wecuit.backen.services.JwglService;
 import cn.wecuit.backen.utils.HTTP.HttpUtil2;
 import cn.wecuit.backen.utils.HTTP.HttpUtilEntity;
-import cn.wecuit.backen.utils.JsonUtil;
-import cn.wecuit.backen.utils.JwcUtil;
-import cn.wecuit.backen.utils.JwglUtil;
 import org.apache.hc.core5.http.ParseException;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,8 +14,6 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @Author jiyec

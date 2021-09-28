@@ -1,14 +1,11 @@
-package cn.wecuit.backen.controller;
+package cn.wecuit.backen.api.v3;
 
 import cn.wecuit.backen.response.BaseResponse;
-import cn.wecuit.backen.response.ResponseResult;
 import cn.wecuit.backen.utils.HTTP.HttpUtil2;
 import cn.wecuit.backen.utils.JwcUtil;
 import org.apache.hc.core5.http.ParseException;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
