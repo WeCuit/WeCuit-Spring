@@ -1,6 +1,6 @@
-package cn.wecuit.backen.api.v3;
+package cn.wecuit.backen.api.admin;
 
-import cn.wecuit.backen.bean.Option;
+import cn.wecuit.backen.pojo.Option;
 import cn.wecuit.backen.response.BaseResponse;
 import cn.wecuit.backen.services.OptionService;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/mini")
 @BaseResponse
-public class MiniController {
+public class MiniConfigController {
     @Autowired
     OptionService optionService;
 

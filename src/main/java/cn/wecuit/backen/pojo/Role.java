@@ -1,4 +1,4 @@
-package cn.wecuit.backen.bean;
+package cn.wecuit.backen.pojo;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -8,22 +8,23 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
-
 /**
  * @Author jiyec
- * @Date 2021/8/20 13:03
+ * @Date 2021/8/27 15:48
  * @Version 1.0
  **/
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@TableName("wc_colleges")
-public class College implements Serializable {
+@TableName(value = "wc_roles", autoResultMap = true)
+public class Role {
+    @ApiModelProperty(value = "角色ID")
     @TableId(type = IdType.AUTO)
-    private Integer id;
-    @ApiModelProperty("学院名称")
+    private Long id;
+    @ApiModelProperty(name = "角色名")
     private String name;
-    @ApiModelProperty("学院标记")
-    private String mark;
+    @ApiModelProperty(name = "角色备注")
+    private String remark;
+    @ApiModelProperty(name = "角色状态")
+    private Integer state;
 }

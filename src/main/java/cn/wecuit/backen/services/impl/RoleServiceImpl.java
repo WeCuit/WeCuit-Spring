@@ -1,8 +1,8 @@
 package cn.wecuit.backen.services.impl;
 
-import cn.wecuit.backen.bean.Role;
-import cn.wecuit.backen.bean.RoleMenu;
-import cn.wecuit.backen.bean.UserRole;
+import cn.wecuit.backen.pojo.Role;
+import cn.wecuit.backen.pojo.RoleMenu;
+import cn.wecuit.backen.pojo.UserRole;
 import cn.wecuit.backen.mapper.RoleMapper;
 import cn.wecuit.backen.mapper.RoleMenuMapper;
 import cn.wecuit.backen.mapper.UserRoleMapper;

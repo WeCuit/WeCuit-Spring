@@ -2,7 +2,7 @@ package cn.wecuit.backen.services.impl;
 
 import cn.dev33.satoken.stp.SaTokenInfo;
 import cn.dev33.satoken.stp.StpUtil;
-import cn.wecuit.backen.bean.AdminUser;
+import cn.wecuit.backen.pojo.AdminUser;
 import cn.wecuit.backen.exception.BaseException;
 import cn.wecuit.backen.mapper.RoleMapper;
 import cn.wecuit.backen.mapper.AdminUserMapper;
@@ -94,5 +94,27 @@ public class AdminUserServiceImpl implements AdminUserService {
         user.setId(id);
         int i = adminUserMapper.updateById(user);
         return i == 1;
+    }
+
+    @Override
+    public AdminUser getUserByWxId(String openid) {
+        return adminUserMapper.selectOne(new QueryWrapper<AdminUser>(){{
+            eq("wx_id", openid);
+            select("id", "nickname");
+        }});
+    }
+
+    @Override
+    public AdminUser getUserByQqId(String openid) {
+        return adminUserMapper.selectOne(new QueryWrapper<AdminUser>(){{
+            eq("qq_id", openid);
+            select("id", "nickname");
+        }});
+    }
+
+    @Override
+    public boolean updateInfoById(AdminUser user) {
+        int i = adminUserMapper.updateById(user);
+        return i==1;
     }
 }

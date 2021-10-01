@@ -1,9 +1,8 @@
 package cn.wecuit.backen.services.impl;
 
-import cn.wecuit.backen.bean.Media;
+import cn.wecuit.backen.pojo.Media;
 import cn.wecuit.backen.mapper.MediaMapper;
 import cn.wecuit.backen.services.MediaService;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

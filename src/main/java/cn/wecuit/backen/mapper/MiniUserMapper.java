@@ -1,14 +1,14 @@
 package cn.wecuit.backen.mapper;
 
-import cn.wecuit.backen.pojo.Article;
+import cn.wecuit.backen.pojo.MiniUser;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
  * @Author jiyec
- * @Date 2021/9/7 8:56
+ * @Date 2021/9/30 19:09
  * @Version 1.0
  **/
 @Mapper
-public interface ArticleMapper extends BaseMapper<Article> {
+public interface MiniUserMapper extends BaseMapper<MiniUser> {
 }

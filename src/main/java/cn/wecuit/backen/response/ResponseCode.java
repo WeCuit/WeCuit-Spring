@@ -29,7 +29,9 @@ public enum ResponseCode {
     USER_NOT_EXIST(1404, "用户不存在"),
     USER_NOT_LOGIN(401, "用户未登录"),
     USER_PASS_WRONG(401, "用户密码错误"),
+    USER_LOGIN_FAILED(401, "用户登录失败"),
     USER_NOT_AUTHORIZED(403, "用户无权限"),
+    USER_TOKEN_INVALID(405, "token无效"),
 
     /**
      * 文章

@@ -1,6 +1,6 @@
 package cn.wecuit.backen.api.v3;
 
-import cn.wecuit.backen.bean.Option;
+import cn.wecuit.backen.pojo.Option;
 import cn.wecuit.backen.exception.BaseException;
 import cn.wecuit.backen.response.BaseResponse;
 import cn.wecuit.backen.services.OptionService;
@@ -24,8 +24,6 @@ import java.util.Map;
 @RequestMapping("/Sys")
 @BaseResponse
 public class SysController {
-    @Resource
-    HttpServletRequest request;
     @Resource
     TencentService tencentService;
     @Resource
@@ -56,16 +54,27 @@ public class SysController {
      * @throws IOException
      */
     @GetMapping("/getUserInfoV2")
-    public Map<String, Object> getUserInfoV2Action(@RequestParam String code) throws IOException, ParseException {
+    public Map<String, Object> getUserInfoV2Action(HttpServletRequest request, @RequestParam String code) throws IOException, ParseException {
 
-        Map<String, Object> session = tencentService.code2session(code, getClientId());
+        String referer = request.getHeader("referer");
+        if (null == referer) throw new BaseException(20500, "请求异常");
+        Map<String, Object> session;
+        if (referer.contains("servicewechat.com"))
+            session = tencentService.WX_code2session(code);
+        else if (referer.contains("appservice.qq.com"))
+            session = tencentService.QQ_code2session(code);
+        else
+            throw new RuntimeException("不支持的客户端");
 
+        // 判断请求失败
+        int errcode = (int)session.get("errcode");
+        if(errcode != 0)throw new RuntimeException((String) session.get("errmsg"));
+
+        Object openid = session.get("unionid");
+        if(openid == null)openid = session.get("openid");
+        Object finalOpenid = openid;
         return new HashMap<String, Object>() {{
-            put("code", 200);
-            put("info", new HashMap<String, Object>() {{
-                put("isAdmin", false);
-                put("openid", session.get("openid"));
-            }});
+            put("openid", finalOpenid);
         }};
     }
 
@@ -74,16 +83,5 @@ public class SysController {
     public String maintenance(){
         return "{\"errorCode\":10503,\"maintenance\":{\"BText\":\"暂停服务\",\"start\":1631154856,\"end\":1731154856,\"OText\":\"新版本正在开发中~\"}}";
     }
-    /**
-     * @return 0 wx | 1 qq
-     */
-    public final int getClientId() {
 
-        String referer = request.getHeader("referer");
-        if (null == referer) throw new BaseException(20500, "请求异常");
-        if (referer.contains("servicewechat.com")) return 0;
-        else if (referer.contains("appservice.qq.com")) return 1;
-        else
-            throw new BaseException(20403, "不支持的客户端");
-    }
 }

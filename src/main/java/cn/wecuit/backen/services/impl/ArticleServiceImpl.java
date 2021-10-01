@@ -1,6 +1,6 @@
 package cn.wecuit.backen.services.impl;
 
-import cn.wecuit.backen.bean.Article;
+import cn.wecuit.backen.pojo.Article;
 import cn.wecuit.backen.mapper.ArticleMapper;
 import cn.wecuit.backen.services.ArticleService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;

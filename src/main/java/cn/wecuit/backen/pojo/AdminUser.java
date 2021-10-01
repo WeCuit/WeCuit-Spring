@@ -1,4 +1,4 @@
-package cn.wecuit.backen.bean;
+package cn.wecuit.backen.pojo;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -7,7 +7,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.web.bind.annotation.ModelAttribute;
 
 import java.io.Serializable;
 
@@ -34,4 +33,8 @@ public class AdminUser implements Serializable {
     private String avatar;
     @ApiModelProperty("邮箱")
     private String email;
+    @ApiModelProperty("微信ID")
+    private String wxId;
+    @ApiModelProperty("QQID")
+    private String qqId;
 }

@@ -1,4 +1,4 @@
-package cn.wecuit.backen.bean;
+package cn.wecuit.backen.pojo;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;

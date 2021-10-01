@@ -10,6 +10,7 @@ import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
 import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.cookie.BasicCookieStore;
 import org.apache.hc.client5.http.cookie.Cookie;
+import org.apache.hc.client5.http.entity.EntityBuilder;
 import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -85,7 +86,7 @@ public class HttpUtil2 {
         // 默认配置
         unBuildConfig = RequestConfig.custom().setConnectTimeout(Timeout.ofSeconds(5))
                 .setResponseTimeout(Timeout.ofSeconds(5))
-                // .setProxy(new HttpHost("127.0.0.1", 8888))
+//                 .setProxy(new HttpHost("127.0.0.1", 8888))
                 .setCircularRedirectsAllowed(true);
         localContext.setCookieStore(httpCookieStore);
     }
@@ -231,7 +232,7 @@ public class HttpUtil2 {
         InputStream inputStream = entity.getContent();
         int len = -1;
         while (-1 != (len = inputStream.read(chunk))) {
-            outputStream.write(chunk, 0, chunk.length);
+            outputStream.write(chunk, 0, len);
         }
         return outputStream.toByteArray();
     }
@@ -300,7 +301,24 @@ public class HttpUtil2 {
     public String doPost(String url, Map<String, String> params) throws IOException, ParseException {
         return getString(Objects.requireNonNull(doPost(url, params, null, CHARSET, localContext)), CHARSET);
     }
-
+    public byte[] doPostJson2Byte(String url, String s) throws IOException {
+        CloseableHttpResponse closeableHttpResponse = this.doPostJson2CHR(url, s);
+        InputStream content = closeableHttpResponse.getEntity().getContent();
+        ByteArrayOutputStream arrayOutputStream = new ByteArrayOutputStream();
+        byte[] chunk = new byte[1024];
+        int len;
+        while (-1 != (len = content.read(chunk))){
+            arrayOutputStream.write(chunk, 0, len);
+        }
+        return arrayOutputStream.toByteArray();
+    }
+    public CloseableHttpResponse doPostJson2CHR(String url, String body) throws IOException {
+        HttpPost httpPost = new HttpPost(url);
+        HttpEntity entity = EntityBuilder.create().setText(body).build();
+        httpPost.setEntity(entity);
+        httpPost.setHeader("Content-Type", "application/json");
+        return doPost(httpPost, localContext);
+    }
     public CloseableHttpResponse doStreamPost(String url, byte[] data) throws IOException {
         InputStreamEntity inputStreamEntity = genStreamEntity(data);
         HttpPost httpPost = new HttpPost(url);

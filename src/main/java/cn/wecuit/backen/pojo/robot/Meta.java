@@ -1,4 +1,4 @@
-package cn.wecuit.backen.bean;
+package cn.wecuit.backen.pojo.robot;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
@@ -7,14 +7,15 @@ import lombok.NoArgsConstructor;
 
 /**
  * @Author jiyec
- * @Date 2021/8/27 15:52
+ * @Date 2021/8/21 21:05
  * @Version 1.0
  **/
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@TableName("wc_role_permission")
-public class RolePermission {
-    private Long roleId;                // 角色ID
-    private Long permissionId;          // 权限ID
+@TableName("rb_meta")
+public class Meta {
+    private Long id;
+    private String name;
+    private String value;
 }

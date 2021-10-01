@@ -1,7 +1,7 @@
-package cn.wecuit.backen.api.v3;
+package cn.wecuit.backen.api.admin;
 
 import cn.dev33.satoken.stp.StpUtil;
-import cn.wecuit.backen.bean.AdminUser;
+import cn.wecuit.backen.pojo.AdminUser;
 import cn.wecuit.backen.response.BaseResponse;
 import cn.wecuit.backen.services.AdminUserService;
 import io.swagger.annotations.ApiOperation;

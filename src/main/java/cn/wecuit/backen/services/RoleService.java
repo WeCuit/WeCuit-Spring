@@ -1,6 +1,6 @@
 package cn.wecuit.backen.services;
 
-import cn.wecuit.backen.bean.Role;
+import cn.wecuit.backen.pojo.Role;
 
 import java.util.List;
 

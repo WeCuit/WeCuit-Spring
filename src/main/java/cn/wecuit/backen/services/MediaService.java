@@ -1,6 +1,6 @@
 package cn.wecuit.backen.services;
 
-import cn.wecuit.backen.bean.Media;
+import cn.wecuit.backen.pojo.Media;
 
 import java.util.Map;
 

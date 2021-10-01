@@ -1,6 +1,6 @@
 package cn.wecuit.backen.mapper;
 
-import cn.wecuit.backen.bean.AdminUser;
+import cn.wecuit.backen.pojo.AdminUser;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.*;
 

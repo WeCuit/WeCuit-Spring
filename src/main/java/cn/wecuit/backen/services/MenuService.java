@@ -1,6 +1,6 @@
 package cn.wecuit.backen.services;
 
-import cn.wecuit.backen.bean.Menu;
+import cn.wecuit.backen.pojo.Menu;
 
 import java.util.List;
 

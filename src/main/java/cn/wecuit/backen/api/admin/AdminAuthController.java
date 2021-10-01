@@ -1,6 +1,7 @@
-package cn.wecuit.backen.api.v3;
+package cn.wecuit.backen.api.admin;
 
-import cn.wecuit.backen.bean.*;
+import cn.wecuit.backen.entity.MiniType;
+import cn.wecuit.backen.pojo.*;
 import cn.wecuit.backen.response.BaseResponse;
 import cn.wecuit.backen.services.*;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -27,7 +28,7 @@ import java.util.stream.Collectors;
 @ApiSupport(author = "jiyecafe@gmail.com")
 @RestController
 @RequestMapping("/auth")
-public class AuthController {
+public class AdminAuthController {
     @Resource
     MenuService menuService;
     @Resource

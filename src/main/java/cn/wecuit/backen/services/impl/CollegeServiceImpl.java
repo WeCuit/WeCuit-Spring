@@ -1,6 +1,6 @@
 package cn.wecuit.backen.services.impl;
 
-import cn.wecuit.backen.bean.College;
+import cn.wecuit.backen.pojo.College;
 import cn.wecuit.backen.mapper.CollegeMapper;
 import cn.wecuit.backen.services.CollegeService;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;

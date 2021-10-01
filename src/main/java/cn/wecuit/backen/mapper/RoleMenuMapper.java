@@ -1,6 +1,6 @@
 package cn.wecuit.backen.mapper;
 
-import cn.wecuit.backen.bean.RoleMenu;
+import cn.wecuit.backen.pojo.RoleMenu;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;

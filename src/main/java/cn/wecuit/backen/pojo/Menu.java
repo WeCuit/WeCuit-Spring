@@ -1,4 +1,4 @@
-package cn.wecuit.backen.bean;
+package cn.wecuit.backen.pojo;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -15,10 +15,11 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@TableName("wc_permissions")
-public class Permission {
+@TableName("wc_menus")
+public class Menu {
     @TableId(type = IdType.AUTO)
-    private Long id;                // 权限ID
-    private String mark;            // 权限标记
-    private String name;            // 权限名
+    private Long id;                // 菜单ID
+    private String name;            // 菜单名
+    private String path;            // 菜单路径
+    private String icon;            // 菜单图标
 }

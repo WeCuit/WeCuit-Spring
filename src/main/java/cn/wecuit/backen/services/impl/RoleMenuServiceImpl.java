@@ -1,6 +1,6 @@
 package cn.wecuit.backen.services.impl;
 
-import cn.wecuit.backen.bean.RoleMenu;
+import cn.wecuit.backen.pojo.RoleMenu;
 import cn.wecuit.backen.mapper.RoleMenuMapper;
 import cn.wecuit.backen.services.RoleMenuService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;

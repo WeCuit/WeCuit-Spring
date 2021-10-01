@@ -1,6 +1,6 @@
-package cn.wecuit.backen.api.v3;
+package cn.wecuit.backen.api.admin;
 
-import cn.wecuit.backen.bean.Media;
+import cn.wecuit.backen.pojo.Media;
 import cn.wecuit.backen.response.BaseResponse;
 import cn.wecuit.backen.exception.BaseException;
 import cn.wecuit.backen.services.FileService;

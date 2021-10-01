@@ -1,4 +1,4 @@
-package cn.wecuit.backen.bean.robot;
+package cn.wecuit.backen.pojo.robot;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;

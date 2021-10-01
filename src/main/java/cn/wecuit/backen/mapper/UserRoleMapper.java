@@ -6,7 +6,7 @@ package cn.wecuit.backen.mapper;
  * @Version 1.0
  **/
 
-import cn.wecuit.backen.bean.UserRole;
+import cn.wecuit.backen.pojo.UserRole;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;

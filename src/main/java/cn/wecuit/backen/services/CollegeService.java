@@ -1,9 +1,7 @@
 package cn.wecuit.backen.services;
 
-import cn.wecuit.backen.bean.College;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import cn.wecuit.backen.pojo.College;
 
-import java.util.List;
 import java.util.Map;
 
 /**

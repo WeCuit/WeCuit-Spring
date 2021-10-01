@@ -1,4 +1,4 @@
-package cn.wecuit.backen.bean;
+package cn.wecuit.backen.pojo;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -11,18 +11,17 @@ import java.io.Serializable;
 
 /**
  * @Author jiyec
- * @Date 2021/8/21 20:46
+ * @Date 2021/8/24 20:21
  * @Version 1.0
  **/
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@TableName("wc_miniusers")
-public class MiniUser implements Serializable {
+@TableName("wc_media")
+public class Media implements Serializable {
     @TableId(type = IdType.AUTO)
-    private Long id;                    // 系统用户ID
-    private String stuId;               // 学号
-    private String stuPass;             // 学生密码
-    private String wxId;                // 微信ID
-    private String qqId;                // QQ ID
+    private Long id;                // 媒体ID
+    private String author;          // 上传者
+    private String path;            // 媒体路径
+    private String mime;            // 媒体类型
 }

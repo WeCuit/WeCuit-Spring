@@ -1,6 +1,6 @@
 package cn.wecuit.backen.services;
 
-import cn.wecuit.backen.bean.Option;
+import cn.wecuit.backen.pojo.Option;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.List;

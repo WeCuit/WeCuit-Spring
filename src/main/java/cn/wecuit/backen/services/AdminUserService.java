@@ -1,6 +1,6 @@
 package cn.wecuit.backen.services;
 
-import cn.wecuit.backen.bean.AdminUser;
+import cn.wecuit.backen.pojo.AdminUser;
 
 import java.util.List;
 
@@ -15,4 +15,7 @@ public interface AdminUserService {
     List<String> userMenu(long id);
     AdminUser info(long id);
     boolean modifyInfoById(long id, AdminUser user);
+    AdminUser getUserByWxId(String openid);
+    AdminUser getUserByQqId(String openid);
+    boolean updateInfoById(AdminUser user);
 }

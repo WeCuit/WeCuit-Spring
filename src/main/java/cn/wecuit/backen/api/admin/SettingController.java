@@ -1,6 +1,6 @@
-package cn.wecuit.backen.api.v3;
+package cn.wecuit.backen.api.admin;
 
-import cn.wecuit.backen.bean.College;
+import cn.wecuit.backen.pojo.College;
 import cn.wecuit.backen.response.BaseResponse;
 import cn.wecuit.backen.services.CollegeService;
 import io.swagger.annotations.ApiOperation;

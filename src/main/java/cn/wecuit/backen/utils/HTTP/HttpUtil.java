@@ -19,7 +19,7 @@ public class HttpUtil {
     private static final CustomCookieStore httpCookieStore;
     private static final HttpClientContext defaultContext;
     private static final RequestConfig.Builder unBuildConfig;
-    private static final HttpUtil2 HTTP = new HttpUtil2();
+    public static final HttpUtil2 HTTP = new HttpUtil2();
 
     // 采用静态代码块，初始化超时时间配置，再根据配置生成默认httpClient对象
     static {
@@ -33,7 +33,7 @@ public class HttpUtil {
         final RequestConfig config = unBuildConfig
                 .setConnectTimeout(Timeout.ofSeconds(5))
                 .setRedirectsEnabled(false)
-                // .setProxy(new HttpHost("127.0.0.1", 8866))      // TODO:开发环境设置代理
+                // .setProxy(new HttpHost("127.0.0.1", 8866))      // 开发环境设置代理
                 .setCircularRedirectsAllowed(true)
                 .build();
 
@@ -80,32 +80,6 @@ public class HttpUtil {
         return HTTP.doGet(url, charset, headers);
     }
 
-    /**
-     * HTTP Get 获取内容
-     *
-     * @param url     请求的url地址 ?之前的地址
-     * @param headers 自定义的请求头信息
-     * @return 页面内容
-     */
-    public static String doGet2(String url, Map<String, String> headers) throws IOException, ParseException {
-        return HTTP.doGet2(url, headers);
-    }
-
-
-    /**
-     * HTTP Get 获取内容
-     *
-     * @param url     请求的url地址 ?之前的地址
-     * @param headers 自定义的请求头信息
-     * @return 页面内容
-     */
-    public static HttpUtilEntity doGetEntity(String url, Map<String, String> headers) throws IOException, ParseException {
-        return HTTP.doGetEntity(url, headers);
-    }
-
-    public static HttpUtilEntity doGetEntity(String url, Map<String, String> headers, String charset) throws IOException, ParseException {
-        return HTTP.doGetEntity(url, headers, charset);
-    }
 
     public static CloseableHttpResponse doGet(
             String url,
@@ -155,10 +129,6 @@ public class HttpUtil {
     public static String doPost(String url, Map<String, String> params, Map<String, String> header)
             throws IOException, ParseException {
         return HTTP.doPost(url, params, header, null);
-    }
-
-    public static HttpUtilEntity doPostEntity(String url, Map<String, String> params, Map<String, String> headers, String charset) throws IOException, ParseException {
-        return HTTP.doPostEntity(url, params, headers, charset);
     }
 
 }

@@ -1,6 +1,6 @@
 package cn.wecuit.backen.services;
 
-import cn.wecuit.backen.bean.RoleMenu;
+import cn.wecuit.backen.pojo.RoleMenu;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.List;

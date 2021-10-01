@@ -1,6 +1,6 @@
 package cn.wecuit.backen.services;
 
-import cn.wecuit.backen.bean.Article;
+import cn.wecuit.backen.pojo.Article;
 
 import java.util.Map;
 
