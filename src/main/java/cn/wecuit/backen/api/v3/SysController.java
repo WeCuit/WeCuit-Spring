@@ -67,11 +67,16 @@ public class SysController {
             throw new RuntimeException("不支持的客户端");
 
         // 判断请求失败
-        int errcode = (int)session.get("errcode");
-        if(errcode != 0)throw new RuntimeException((String) session.get("errmsg"));
+        if(session.containsKey("errcode")) {
+            int errcode = (int) session.get("errcode");
+            if (errcode != 0) throw new RuntimeException((String) session.get("errmsg"));
+        }
 
-        Object openid = session.get("unionid");
-        if(openid == null)openid = session.get("openid");
+        Object openid;
+        if(session.containsKey("unionid"))
+            openid = session.get("unionid");
+        else
+            openid = session.get("openid");
         Object finalOpenid = openid;
         return new HashMap<String, Object>() {{
             put("openid", finalOpenid);

@@ -58,7 +58,16 @@ public class JszxController {
         }};
     }
 
-    @RequestMapping("/loginRSAv1")
+    @PostMapping("/checkLogin")
+    public Map<String, Object> checkLogin(@RequestBody Map<String, String> body){
+        String cookie = body.get("cookie");
+        boolean b = jszxService.checkLogin(cookie);
+        return new HashMap<String,Object>(){{
+            put("login", b);
+        }};
+    }
+
+    @PostMapping("/loginRSAv1")
     public Map<String, Object> loginRSAv1(@RequestBody Map<String, String> uInfo) throws Exception {
 
         String userId = uInfo.get("userId");

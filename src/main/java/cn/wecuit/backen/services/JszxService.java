@@ -13,4 +13,5 @@ import java.util.Map;
 public interface JszxService {
     Map<String, Object> officePrepare() throws IOException, ParseException;
     String officeQuery(Map<String, String> param, String cookie) throws IOException, ParseException;
+    boolean checkLogin(String cookie);
 }

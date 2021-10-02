@@ -24,10 +24,6 @@ import java.util.*;
 @RequestMapping("/Jwgl")
 @BaseResponse
 public class JwglController {
-
-    @Resource
-    HttpServletRequest request;
-
     @Resource
     JwglService jwglService;
 
@@ -43,8 +39,8 @@ public class JwglController {
     }
 
     @RequestMapping("/loginCheck")
-    public ResponseResult loginCheck() throws IOException, ParseException {
-        String cookie = request.getParameter("cookie");
+    public Map<String,Object> loginCheck(@RequestBody Map<String, String> body) throws IOException, ParseException {
+        String cookie = body.get("cookie");
         Map<String, String> headers = new HashMap<>();
         headers.put("Content-Type", "application/x-www-form-urlencoded");
         headers.put("referer", "http://jwgl-cuit-edu-cn.webvpn.cuit.edu.cn:8118/");
@@ -57,14 +53,13 @@ public class JwglController {
         }});
         HttpUtilEntity resp = http.doGetEntity(home_url, headers);
 
-        ResponseResult response = new ResponseResult();
+        Map<String, Object> result = new HashMap<>();
         if(200 == resp.getStatusCode()){
-            response.setCode(200);
+            result.put("login", true);
         }else{
-            response.setCode(401);
-            response.setMsg("未登录");
+            result.put("login", false);
         }
-        return response;
+        return result;
     }
 
     @RequestMapping("/getGradeTableV2")

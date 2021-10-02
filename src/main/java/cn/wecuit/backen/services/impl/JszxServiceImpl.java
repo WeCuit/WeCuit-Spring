@@ -2,6 +2,7 @@ package cn.wecuit.backen.services.impl;
 
 import cn.wecuit.backen.services.JszxService;
 import cn.wecuit.backen.utils.HTTP.HttpUtil2;
+import cn.wecuit.backen.utils.HTTP.HttpUtilEntity;
 import org.apache.hc.core5.http.ParseException;
 import org.springframework.stereotype.Service;
 
@@ -70,5 +71,24 @@ public class JszxServiceImpl implements JszxService {
             result.append(matcher.group(1));
         }
         return result.substring(result.lastIndexOf(">") + 1);
+    }
+
+    @Override
+    public boolean checkLogin(String cookie) {
+        HttpUtil2 http = new HttpUtil2(new HashMap<String, Object>() {{
+            put("redirection", 0);
+        }});
+        try {
+            HttpUtilEntity entity = http.doGetEntity("http://login.cuit.edu.cn/Login/qqLogin.asp", new HashMap<String, String>() {{
+                put("cookie", cookie);
+            }});
+            String location = entity.getHeaders().get("Location");
+            return "http://jxgl.cuit.edu.cn/jkdk".equals(location);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }
