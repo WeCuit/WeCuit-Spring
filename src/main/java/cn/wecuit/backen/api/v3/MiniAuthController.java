@@ -25,27 +25,29 @@ public class MiniAuthController {
     @Resource
     AuthService authService;
 
-    @ApiOperation("小程序发送登录授权")
+    @ApiOperation("小程序发送授权结果")
     @PostMapping("/mini/result")
     public Map<String, Object> miniLoginResult(@RequestBody Map<String, String> body,
             HttpServletRequest request){
         String referer = request.getHeader("referer");
         if (null == referer) throw new BaseException(20500, "请求异常");
-        String client;
+        MiniType type;
         if (referer.contains("servicewechat.com"))
-            client = "WX";
+            type = MiniType.WX;
         else if (referer.contains("appservice.qq.com"))
-            client = "QQ";
+            type = MiniType.QQ;
         else
             throw new RuntimeException("不支持的客户端");
         // openid 为空表示拒绝
         boolean ret;
         String token = body.get("token");
-        String openid = body.get("openid");
+        String code = body.get("code");
+
+        String openid = authService.getOpenidByCode(code, type);
         if(openid == null)
             ret = authService.updateLoginStatus(token, "reject");
         else
-            ret = authService.updateLoginStatus(token, client + "," + openid);
+            ret = authService.updateLoginStatus(token, type.name() + "," + openid);
         boolean finalRet = ret;
         return new HashMap<String, Object>(){{
             put("result", finalRet);

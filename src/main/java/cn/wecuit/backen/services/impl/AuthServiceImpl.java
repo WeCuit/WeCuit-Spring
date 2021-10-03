@@ -187,4 +187,29 @@ public class AuthServiceImpl implements AuthService {
         }});
         return b;
     }
+
+    @Override
+    public String getOpenidByCode(String code, MiniType type) {
+        Map<String, Object> session;
+        if (type == MiniType.WX)
+            session = tencentService.WX_code2session(code);
+        else if (type == MiniType.QQ)
+            session = tencentService.QQ_code2session(code);
+        else
+            throw new RuntimeException("不支持的客户端");
+
+        // 判断请求失败
+        if(session.containsKey("errcode")) {
+            int errcode = (int) session.get("errcode");
+            if (errcode != 0) throw new RuntimeException((String) session.get("errmsg"));
+        }
+
+        Object openid;
+        if(session.containsKey("unionid"))
+            openid = session.get("unionid");
+        else
+            openid = session.get("openid");
+        return (String) openid;
+
+    }
 }
