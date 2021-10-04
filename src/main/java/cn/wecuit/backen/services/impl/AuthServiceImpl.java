@@ -2,6 +2,7 @@ package cn.wecuit.backen.services.impl;
 
 import cn.dev33.satoken.stp.SaTokenInfo;
 import cn.dev33.satoken.stp.StpUtil;
+import cn.wecuit.backen.config.StpMiniUtil;
 import cn.wecuit.backen.entity.MiniType;
 import cn.wecuit.backen.exception.BaseException;
 import cn.wecuit.backen.pojo.AdminUser;
@@ -225,9 +226,9 @@ public class AuthServiceImpl implements AuthService {
         if(user == null) {
             throw new BaseException(ResponseCode.USER_NOT_EXIST);
         }
-        StpUtil.login(user.getId());
-        SaTokenInfo tokenInfo = StpUtil.getTokenInfo();
-        tokenInfo.setLoginType("MINI");
+
+        StpMiniUtil.login(user.getId());
+        SaTokenInfo tokenInfo = StpMiniUtil.getTokenInfo();
 
         return new String[]{tokenInfo.getTokenName(), tokenInfo.getTokenValue()};
     }

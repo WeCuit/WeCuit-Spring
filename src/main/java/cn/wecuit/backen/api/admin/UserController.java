@@ -26,7 +26,7 @@ public class UserController {
     AdminUserService adminUserService;
 
     @ApiOperation(value = "用户注册")
-    @PostMapping("/admin/reg")
+    @PostMapping("/reg")
     public Map<String, Object> register(@RequestBody AdminUser user){
         user.setId(null);   // 清除可能自定义的ID
         boolean register = adminUserService.register(user);
@@ -36,7 +36,7 @@ public class UserController {
     }
 
     @ApiOperation(value = "用户登录")
-    @PostMapping("/admin/login")
+    @PostMapping("/login")
     public Map<String, Object> login(@RequestBody AdminUser user){
         String[] login = adminUserService.login(user);
         return new HashMap<String, Object>(){{
@@ -45,7 +45,7 @@ public class UserController {
     }
 
     @ApiOperation(value = "用户注销")
-    @GetMapping("/admin/logout")
+    @GetMapping("/logout")
     public Map<String, Object> logout(){
         StpUtil.logout();
         return new HashMap<String, Object>(){{
@@ -54,7 +54,7 @@ public class UserController {
     }
 
     @ApiOperation(value = "获取用户信息")
-    @GetMapping("/admin/info")
+    @GetMapping("/info")
     public Map<String, Object> getAdminUserInfo(){
         Object loginId = StpUtil.getLoginId();
         AdminUser info = adminUserService.info(Long.parseLong((String) loginId));
@@ -64,7 +64,7 @@ public class UserController {
     }
     
     @ApiOperation(value = "修改用户信息")
-    @PutMapping("/admin/info")
+    @PutMapping("/info")
     public Map<String, Object> putAdminUserInfo(@RequestBody AdminUser user){
         Object loginId = StpUtil.getLoginId();
         long id = Long.parseLong((String) loginId);
