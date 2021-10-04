@@ -160,6 +160,7 @@ public class AuthServiceImpl implements AuthService {
 
         StpUtil.login(user.getId());
         SaTokenInfo tokenInfo = StpUtil.getTokenInfo();
+        tokenInfo.setLoginType("ADMIN");
 
         // SaSession session = StpUtil.getSession();
         // session.set("role", null);
@@ -211,5 +212,23 @@ public class AuthServiceImpl implements AuthService {
             openid = session.get("openid");
         return (String) openid;
 
+    }
+
+    @Override
+    public String[] miniUserLogin(String openid, MiniType type) {
+        MiniUser user = miniUserService.getUserByOpenid(openid, type);
+        return this.miniUserLogin(user);
+    }
+
+    @Override
+    public String[] miniUserLogin(MiniUser user) {
+        if(user == null) {
+            throw new BaseException(ResponseCode.USER_NOT_EXIST);
+        }
+        StpUtil.login(user.getId());
+        SaTokenInfo tokenInfo = StpUtil.getTokenInfo();
+        tokenInfo.setLoginType("MINI");
+
+        return new String[]{tokenInfo.getTokenName(), tokenInfo.getTokenValue()};
     }
 }

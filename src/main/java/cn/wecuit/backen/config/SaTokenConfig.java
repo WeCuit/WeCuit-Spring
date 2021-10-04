@@ -22,10 +22,12 @@ public class SaTokenConfig implements WebMvcConfigurer {
         // 注册路由拦截器，自定义验证规则
         registry.addInterceptor(new SaRouteInterceptor((req, res, handler)->{
             // TODO:
-            log.info("456");
+            log.info("路由拦截 - {}", StpUtil.isLogin());
+
             // 根据路由划分模块，不同模块不同鉴权
             // SaRouter.match("/user/**", () -> StpUtil.checkPermission("user"));
-            // SaRouter.match("/admin/**", () -> StpUtil.checkPermission("admin"));
+             SaRouter.match("/admin/**", () -> StpUtil.checkPermission("ADMIN"));
+            //SaRouter.match("/v**", () -> StpUtil.checkPermission("MINI"));
             // SaRouter.match("/goods/**", () -> StpUtil.checkPermission("goods"));
             // SaRouter.match("/orders/**", () -> StpUtil.checkPermission("orders"));
             // SaRouter.match("/notice/**", () -> StpUtil.checkPermission("notice"));

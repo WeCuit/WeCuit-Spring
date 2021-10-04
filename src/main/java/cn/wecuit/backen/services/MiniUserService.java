@@ -1,6 +1,6 @@
 package cn.wecuit.backen.services;
 
-import cn.wecuit.backen.pojo.AdminUser;
+import cn.wecuit.backen.entity.MiniType;
 import cn.wecuit.backen.pojo.MiniUser;
 
 /**
@@ -10,5 +10,6 @@ import cn.wecuit.backen.pojo.MiniUser;
  **/
 public interface MiniUserService {
     MiniUser getUserById(long id);
-
+    MiniUser getUserByOpenid(String openid, MiniType type);
+    MiniUser regUserByOpenid(String openid, MiniType type);
 }

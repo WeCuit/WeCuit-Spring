@@ -11,9 +11,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 public class PasswordTests {
     @Test
     public void encode(){
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
-        String encode = passwordEncoder.encode("12345678");
-        System.out.println(encode);
-        passwordEncoder.matches("12345678", encode);
+        //BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+        //String encode = passwordEncoder.encode("12345678");
+        //System.out.println(encode);
+        //passwordEncoder.matches("12345678", encode);
     }
 }

@@ -47,42 +47,6 @@ public class SysController {
         return ret;
     }
 
-    /**
-     * 获取用户信息
-     * openid | 是否管理员[暂废]
-     *
-     * @throws IOException
-     */
-    @GetMapping("/getUserInfoV2")
-    public Map<String, Object> getUserInfoV2Action(HttpServletRequest request, @RequestParam String code) throws IOException, ParseException {
-
-        String referer = request.getHeader("referer");
-        if (null == referer) throw new BaseException(20500, "请求异常");
-        Map<String, Object> session;
-        if (referer.contains("servicewechat.com"))
-            session = tencentService.WX_code2session(code);
-        else if (referer.contains("appservice.qq.com"))
-            session = tencentService.QQ_code2session(code);
-        else
-            throw new RuntimeException("不支持的客户端");
-
-        // 判断请求失败
-        if(session.containsKey("errcode")) {
-            int errcode = (int) session.get("errcode");
-            if (errcode != 0) throw new RuntimeException((String) session.get("errmsg"));
-        }
-
-        Object openid;
-        if(session.containsKey("unionid"))
-            openid = session.get("unionid");
-        else
-            openid = session.get("openid");
-        Object finalOpenid = openid;
-        return new HashMap<String, Object>() {{
-            put("openid", finalOpenid);
-        }};
-    }
-
     @ResponseBody
     @GetMapping("/maintenance/**")
     public String maintenance(){

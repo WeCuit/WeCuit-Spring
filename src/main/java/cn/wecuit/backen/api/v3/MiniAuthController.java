@@ -2,13 +2,17 @@ package cn.wecuit.backen.api.v3;
 
 import cn.wecuit.backen.entity.MiniType;
 import cn.wecuit.backen.exception.BaseException;
+import cn.wecuit.backen.pojo.MiniUser;
 import cn.wecuit.backen.response.BaseResponse;
 import cn.wecuit.backen.services.AuthService;
+import cn.wecuit.backen.services.MiniUserService;
 import io.swagger.annotations.ApiOperation;
+import org.apache.hc.core5.http.ParseException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,6 +28,8 @@ public class MiniAuthController {
 
     @Resource
     AuthService authService;
+    @Resource
+    MiniUserService miniUserService;
 
     @ApiOperation("小程序发送授权结果")
     @PostMapping("/mini/result")
@@ -62,10 +68,74 @@ public class MiniAuthController {
         return authService.getTokenInfo(token);
     }
 
-    @ApiOperation("获取小程序绑定用小程序码")
+    /**
+     * 小程序用户登录
+     * openid | 是否管理员[暂废]
+     *
+     * @throws IOException
+     */
+    @GetMapping("/getAccessToken")
+    public Map<String, Object> getAccessToken(HttpServletRequest request, @RequestParam String code) throws IOException, ParseException {
+
+        String referer = request.getHeader("referer");
+        if (null == referer) throw new BaseException(20500, "请求异常");
+        MiniType type;
+        if (referer.contains("servicewechat.com"))
+            type = MiniType.WX;
+        else if (referer.contains("appservice.qq.com"))
+            type = MiniType.QQ;
+        else
+            throw new RuntimeException("不支持的客户端");
+
+        String openid = authService.getOpenidByCode(code, type);
+
+        MiniUser user = miniUserService.getUserByOpenid(openid, type);
+        String[] auth = authService.miniUserLogin(user);
+
+        return new HashMap<String, Object>() {{
+            put("auth", auth);
+            put("userInfo", new HashMap<String, Object>(){{
+                put("uid", user.getId());
+                if(user.getStuId() != null)
+                    put("sid", user.getStuId());
+            }});
+            put("bind", new HashMap<String, Boolean>(){{
+                put("QQ", user.getQqId() != null);
+                put("WX", user.getWxId() != null);
+                put("STU", user.getStuId() != null);
+            }});
+        }};
+    }
+
+    @GetMapping("/register")
+    public Map<String, Object> register(HttpServletRequest request, @RequestParam String code){
+        String referer = request.getHeader("referer");
+        if (null == referer) throw new BaseException(20500, "请求异常");
+        MiniType type;
+        if (referer.contains("servicewechat.com"))
+            type = MiniType.WX;
+        else if (referer.contains("appservice.qq.com"))
+            type = MiniType.QQ;
+        else
+            throw new RuntimeException("不支持的客户端");
+        String openid = authService.getOpenidByCode(code, type);
+        MiniUser miniUser = miniUserService.regUserByOpenid(openid, type);
+        String[] auth = authService.miniUserLogin(miniUser);
+
+        return new HashMap<String, Object>() {{
+            put("auth", auth);
+            put("userInfo", new HashMap<String, Object>(){{
+                put("uid", miniUser.getId());
+            }});
+        }};
+    }
+
+    @ApiOperation("获取小程序绑定小程序码")
     @GetMapping("/binding/mini/{type}")
     public Map<String, Object> getMiniBindCode(@PathVariable MiniType type, @RequestParam String openid){
         // TODO: 获取当前小程序用户ID
         return authService.genQRCode(type, null, "MINI");
     }
+
+
 }

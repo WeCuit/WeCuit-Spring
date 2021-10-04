@@ -5692,12 +5692,11 @@ LABL 0 新宋体,8,N</a:FontList>
 <a:Code>stu_id</a:Code>
 <a:CreationDate>1629359571</a:CreationDate>
 <a:Creator>jiyec</a:Creator>
-<a:ModificationDate>1629441682</a:ModificationDate>
+<a:ModificationDate>1633270171</a:ModificationDate>
 <a:Modifier>jiyec</a:Modifier>
 <a:Comment>学生ID</a:Comment>
 <a:DataType>varchar(20)</a:DataType>
 <a:Length>20</a:Length>
-<a:Column.Mandatory>1</a:Column.Mandatory>
 </o:Column>
 <o:Column Id="o108">
 <a:ObjectID>013160BC-BECF-46E0-B057-BD72ADD9C7A6</a:ObjectID>
@@ -5716,12 +5715,11 @@ LABL 0 新宋体,8,N</a:FontList>
 <a:Code>wx_id</a:Code>
 <a:CreationDate>1629359775</a:CreationDate>
 <a:Creator>jiyec</a:Creator>
-<a:ModificationDate>1629441705</a:ModificationDate>
+<a:ModificationDate>1633270171</a:ModificationDate>
 <a:Modifier>jiyec</a:Modifier>
 <a:Comment>微信ID</a:Comment>
-<a:DataType>varchar(20)</a:DataType>
-<a:Length>20</a:Length>
-<a:Column.Mandatory>1</a:Column.Mandatory>
+<a:DataType>varchar(30)</a:DataType>
+<a:Length>30</a:Length>
 </o:Column>
 <o:Column Id="o110">
 <a:ObjectID>A15840D8-B9BF-4391-9204-380A67D27932</a:ObjectID>
@@ -5729,12 +5727,11 @@ LABL 0 新宋体,8,N</a:FontList>
 <a:Code>qq_id</a:Code>
 <a:CreationDate>1629359775</a:CreationDate>
 <a:Creator>jiyec</a:Creator>
-<a:ModificationDate>1629441709</a:ModificationDate>
+<a:ModificationDate>1633270171</a:ModificationDate>
 <a:Modifier>jiyec</a:Modifier>
 <a:Comment>QQID</a:Comment>
-<a:DataType>varchar(20)</a:DataType>
-<a:Length>20</a:Length>
-<a:Column.Mandatory>1</a:Column.Mandatory>
+<a:DataType>varchar(30)</a:DataType>
+<a:Length>30</a:Length>
 </o:Column>
 </c:Columns>
 <c:Keys>

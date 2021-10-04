@@ -28,10 +28,10 @@ public class StpInterfaceImpl implements StpInterface {
      */
     @Override
     public List<String> getPermissionList(Object loginId, String loginType) {
-        log.info("获取权限列表");
+        log.info("获取权限列表 {}, {}", loginId, loginType);
         // 本list仅做模拟，实际项目中要根据具体业务逻辑来查询权限
         List<String> list = new ArrayList<String>();
-        list.add("101");
+        if(loginType != null)list.add(loginType);
         list.add("user-add");
         list.add("user-delete");
         list.add("user-update");

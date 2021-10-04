@@ -1,5 +1,6 @@
 package cn.wecuit.backen.services.impl;
 
+import cn.wecuit.backen.entity.MiniType;
 import cn.wecuit.backen.mapper.MiniUserMapper;
 import cn.wecuit.backen.pojo.AdminUser;
 import cn.wecuit.backen.mapper.AdminUserMapper;
@@ -23,5 +24,32 @@ public class MiniUserServiceImpl implements MiniUserService {
     @Override
     public MiniUser getUserById(long id) {
         return miniUserMapper.selectById(id);
+    }
+
+    @Override
+    public MiniUser getUserByOpenid(String openid, MiniType type) {
+
+        return miniUserMapper.selectOne(new QueryWrapper<MiniUser>() {{
+            if(type == MiniType.QQ)
+                eq("qq_id", openid);
+            else if(type == MiniType.WX)
+                eq("wx_id", openid);
+            select("id", "wx_id", "qq_id", "stu_id");
+        }});
+    }
+
+    @Override
+    public MiniUser regUserByOpenid(String openid, MiniType type) {
+        MiniUser miniUser = new MiniUser() {{
+            if (type == MiniType.QQ)
+                setQqId(openid);
+            else if (type == MiniType.WX)
+                setWxId(openid);
+        }};
+        int i = miniUserMapper.insert(miniUser);
+        if(i == 1)
+            return miniUser;
+        else
+            return null;
     }
 }

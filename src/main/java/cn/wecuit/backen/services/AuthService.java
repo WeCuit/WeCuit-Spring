@@ -1,6 +1,7 @@
 package cn.wecuit.backen.services;
 
 import cn.wecuit.backen.entity.MiniType;
+import cn.wecuit.backen.pojo.MiniUser;
 
 import java.util.Map;
 
@@ -41,4 +42,7 @@ public interface AuthService {
     boolean bindAdminByToken(String token, long id);
 
     String getOpenidByCode(String code, MiniType type);
+
+    String[] miniUserLogin(String openid, MiniType type);
+    String[] miniUserLogin(MiniUser user);
 }
