@@ -1,5 +1,6 @@
 package cn.wecuit.backen.api.v3;
 
+import cn.wecuit.backen.config.StpMiniUtil;
 import cn.wecuit.backen.entity.MiniType;
 import cn.wecuit.backen.exception.BaseException;
 import cn.wecuit.backen.pojo.MiniUser;
@@ -90,10 +91,11 @@ public class MiniAuthController {
         String openid = authService.getOpenidByCode(code, type);
 
         MiniUser user = miniUserService.getUserByOpenid(openid, type);
-        String[] auth = authService.miniUserLogin(user);
+
+        Map<String, Object> auth = authService.miniUserLogin(user);
 
         return new HashMap<String, Object>() {{
-            put("auth", auth);
+            put("token", auth);
             put("userInfo", new HashMap<String, Object>(){{
                 put("uid", user.getId());
                 if(user.getStuId() != null)
@@ -120,10 +122,10 @@ public class MiniAuthController {
             throw new RuntimeException("不支持的客户端");
         String openid = authService.getOpenidByCode(code, type);
         MiniUser miniUser = miniUserService.regUserByOpenid(openid, type);
-        String[] auth = authService.miniUserLogin(miniUser);
+        Map<String, Object> auth = authService.miniUserLogin(miniUser);
 
         return new HashMap<String, Object>() {{
-            put("auth", auth);
+            put("token", auth);
             put("userInfo", new HashMap<String, Object>(){{
                 put("uid", miniUser.getId());
             }});
@@ -132,10 +134,26 @@ public class MiniAuthController {
 
     @ApiOperation("获取小程序绑定小程序码")
     @GetMapping("/binding/mini/{type}")
-    public Map<String, Object> getMiniBindCode(@PathVariable MiniType type, @RequestParam String openid){
-        // TODO: 获取当前小程序用户ID
-        return authService.genQRCode(type, null, "MINI");
+    public Map<String, Object> getMiniBindCode(@PathVariable MiniType type){
+        String id = StpMiniUtil.getLoginIdAsString();
+        return authService.genQRCode(type, id, "MINI");
     }
 
+    @ApiOperation("绑定学校账号")
+    @PostMapping("/binding/student")
+    public Map<String, Object> bindStudent(@RequestBody Map<String, String> body){
+        long id = StpMiniUtil.getLoginIdAsLong();
+        String userId = body.get("userId");
+        String userPass = body.get("userPass");
+
+        boolean b = miniUserService.bindStudent(new MiniUser() {{
+            setId(id);
+            setStuId(userId);
+            setStuPass(userPass);
+        }});
+        return  new HashMap<String, Object>(){{
+            put("result", b);
+        }};
+    }
 
 }

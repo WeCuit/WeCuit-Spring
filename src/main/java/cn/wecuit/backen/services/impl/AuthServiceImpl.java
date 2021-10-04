@@ -216,20 +216,19 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public String[] miniUserLogin(String openid, MiniType type) {
-        MiniUser user = miniUserService.getUserByOpenid(openid, type);
-        return this.miniUserLogin(user);
-    }
-
-    @Override
-    public String[] miniUserLogin(MiniUser user) {
+    public Map<String, Object> miniUserLogin(MiniUser user) {
         if(user == null) {
             throw new BaseException(ResponseCode.USER_NOT_EXIST);
         }
 
         StpMiniUtil.login(user.getId());
         SaTokenInfo tokenInfo = StpMiniUtil.getTokenInfo();
+        long tokenTimeout = tokenInfo.getTokenTimeout();
 
-        return new String[]{tokenInfo.getTokenName(), tokenInfo.getTokenValue()};
+        return new HashMap<String, Object>(){{
+            put("auth", new String[]{tokenInfo.getTokenName(), tokenInfo.getTokenValue()});
+            put("expires_in", tokenTimeout);
+        }};
     }
+
 }

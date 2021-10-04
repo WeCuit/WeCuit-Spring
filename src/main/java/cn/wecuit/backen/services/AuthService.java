@@ -43,6 +43,5 @@ public interface AuthService {
 
     String getOpenidByCode(String code, MiniType type);
 
-    String[] miniUserLogin(String openid, MiniType type);
-    String[] miniUserLogin(MiniUser user);
+    Map<String, Object> miniUserLogin(MiniUser user);
 }
