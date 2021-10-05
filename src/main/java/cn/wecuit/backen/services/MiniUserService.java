@@ -13,4 +13,5 @@ public interface MiniUserService {
     MiniUser getUserByOpenid(String openid, MiniType type);
     MiniUser regUserByOpenid(String openid, MiniType type);
     boolean bindStudent(MiniUser user);
+    boolean bindMini(MiniUser user);
 }

@@ -1,5 +1,8 @@
 package cn.wecuit.backen.services;
 
+import cn.wecuit.backen.entity.MiniType;
+
+import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
 /**
@@ -7,7 +10,7 @@ import java.util.Map;
  * @Date 2021/8/17 20:08
  * @Version 1.0
  **/
-public interface TencentService {
+public interface MiniService {
     Map<String, Object> WX_code2session(String code);
     Map<String, Object> QQ_code2session(String code);
 
@@ -22,4 +25,5 @@ public interface TencentService {
     String WX_getAccessToken();
     byte[] WX_acode_getUnlimited(String accessToken, Map<String, String> body);
     String QQ_getMiniURL(String path);
+    MiniType getMiniType(HttpServletRequest request);
 }

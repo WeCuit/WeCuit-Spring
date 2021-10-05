@@ -1,8 +1,10 @@
 package cn.wecuit.backen.api.v3;
 
+import cn.wecuit.backen.entity.MiniType;
 import cn.wecuit.backen.mapper.SubMapper;
 import cn.wecuit.backen.mapper.AdminUserMapper;
 import cn.wecuit.backen.exception.BaseException;
+import cn.wecuit.backen.services.MiniService;
 import cn.wecuit.backen.utils.HexUtil;
 import cn.wecuit.backen.utils.RSAUtils;
 import cn.wecuit.mybatis.entity.MyBatis;
@@ -30,13 +32,17 @@ public class SubController {
     @Resource
     HttpServletRequest request;
 
+    @Resource
+    MiniService miniService;
+
     protected final String[] client = {"wx", "qq"};
 
     public Map<String, Object> getTemplateIdListAction() throws IOException {
-        int clientId = getClientId();
-        if(-1 == clientId) throw new BaseException(403, "不支持的客户端");
+
+        MiniType type = miniService.getMiniType(request);
+
         try (SqlSession sqlSession = MyBatis.getSqlSessionFactory().openSession()) {
-            List<HashMap<String, Object>> list = sqlSession.selectList("cn.wecuit.backen.sub.selectTplList", client[clientId]);
+            List<HashMap<String, Object>> list = sqlSession.selectList("cn.wecuit.backen.sub.selectTplList", type.name());
 
             return new HashMap<String, Object>() {{
                 put("code", 200);
@@ -56,12 +62,14 @@ public class SubController {
 
         if(sign == null || !sign.equals(s))throw new BaseException(403, "非法请求");
 
-        String client = getClient();
+
+        MiniType type = miniService.getMiniType(request);
+
         try (SqlSession sqlSession = MyBatis.getSqlSessionFactory().openSession()) {
 
             List<HashMap<String, Object>> list = sqlSession.selectList("cn.wecuit.backen.sub.subStatus",
                     new HashMap<String, String>(){{
-                        put("client", client);
+                        put("client", type.name());
                         put("openid", openid);
                     }}
             );
@@ -81,7 +89,7 @@ public class SubController {
         String userId = request.getParameter("userId");
         String userPass = request.getParameter("userPass");
 
-        String client = getClient();
+        MiniType type = miniService.getMiniType(request);
 
         String path = (request.getServletPath() + ((null == request.getPathInfo())?"":request.getPathInfo()) + "/").substring(4);
         String s = genQuerySign(path, openid, tplId);
@@ -108,7 +116,7 @@ public class SubController {
             }else{
                 // 新用户
                 Map<String, BigInteger> uid_t = new HashMap<>();
-                int i = userMapper.addUser(uid_t, getClient(), openid, userId, userPass);
+                int i = userMapper.addUser(uid_t, type.name(), openid, userId, userPass);
                 uid = uid_t.get("uid");
                 if(i!=1 || uid == null)throw new BaseException(10500, "新增用户失败");
 
@@ -148,7 +156,8 @@ public class SubController {
             AdminUserMapper userMapper = sqlSession.getMapper(AdminUserMapper.class);
             SubMapper subMapper = sqlSession.getMapper(SubMapper.class);
 
-            BigInteger uid = userMapper.queryUIdByOpenId(getClient(), openid);
+            MiniType type = miniService.getMiniType(request);
+            BigInteger uid = userMapper.queryUIdByOpenId(type.name(), openid);
             int delete = subMapper.deleteSub(uid);
 
             if(delete==0)throw new BaseException(10500, "删除失败");
@@ -175,7 +184,8 @@ public class SubController {
             AdminUserMapper userMapper = sqlSession.getMapper(AdminUserMapper.class);
             SubMapper subMapper = sqlSession.getMapper(SubMapper.class);
 
-            BigInteger uid = userMapper.queryUIdByOpenId(getClient(), openid);
+            MiniType type = miniService.getMiniType(request);
+            BigInteger uid = userMapper.queryUIdByOpenId(type.name(), openid);
             int i = subMapper.incrCnt(uid, tplId);
             if(i != 1)throw new BaseException(10500, "操作失败");
 
@@ -188,22 +198,6 @@ public class SubController {
         }};
     }
 
-    /**
-     *
-     * @return 0 wx | 1 qq
-     */
-    public final int getClientId() {
-
-        String referer = request.getHeader("referer");
-        if(null == referer)throw new BaseException(20500, "请求异常");
-        if(referer.contains("servicewechat.com"))return 0;
-        else if(referer.contains("appservice.qq.com"))return 1;
-        else
-            throw new BaseException(20403, "不支持的客户端");
-    }
-    public String getClient() {
-        return client[getClientId()];
-    }
     public String genQuerySign(String path, String openid, String data) throws NoSuchAlgorithmException {
         byte[] pathData = RSAUtils.genMD5(path.getBytes(StandardCharsets.UTF_8));
         byte[] openidData = RSAUtils.genMD5(openid.getBytes(StandardCharsets.UTF_8));

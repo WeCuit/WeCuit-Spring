@@ -4521,10 +4521,10 @@ DESTINATION 0 新宋体,8,N</a:FontList>
 </o:ReferenceSymbol>
 <o:ReferenceSymbol Id="o38">
 <a:CreationDate>1632747683</a:CreationDate>
-<a:ModificationDate>1632751675</a:ModificationDate>
+<a:ModificationDate>1633402295</a:ModificationDate>
 <a:CenterTextWidth>9509</a:CenterTextWidth>
-<a:Rect>((-21926,20258), (-12418,31694))</a:Rect>
-<a:ListOfPoints>((-17172,20258),(-17172,31694))</a:ListOfPoints>
+<a:Rect>((-21926,20258), (-12418,31823))</a:Rect>
+<a:ListOfPoints>((-17172,20258),(-17172,31823))</a:ListOfPoints>
 <a:CornerStyle>1</a:CornerStyle>
 <a:ArrowStyle>1</a:ArrowStyle>
 <a:LineColor>12615680</a:LineColor>
@@ -5095,9 +5095,9 @@ LABL 0 新宋体,8,N</a:FontList>
 </o:TableSymbol>
 <o:TableSymbol Id="o39">
 <a:CreationDate>1632746513</a:CreationDate>
-<a:ModificationDate>1633000732</a:ModificationDate>
+<a:ModificationDate>1633402295</a:ModificationDate>
 <a:IconMode>-1</a:IconMode>
-<a:Rect>((-23869,24828), (-13931,33404))</a:Rect>
+<a:Rect>((-23869,24957), (-13931,33533))</a:Rect>
 <a:AutoAdjustToText>0</a:AutoAdjustToText>
 <a:LineColor>12615680</a:LineColor>
 <a:FillColor>16570034</a:FillColor>
@@ -5715,11 +5715,11 @@ LABL 0 新宋体,8,N</a:FontList>
 <a:Code>wx_id</a:Code>
 <a:CreationDate>1629359775</a:CreationDate>
 <a:Creator>jiyec</a:Creator>
-<a:ModificationDate>1633270171</a:ModificationDate>
+<a:ModificationDate>1633402306</a:ModificationDate>
 <a:Modifier>jiyec</a:Modifier>
 <a:Comment>微信ID</a:Comment>
-<a:DataType>varchar(30)</a:DataType>
-<a:Length>30</a:Length>
+<a:DataType>varchar(50)</a:DataType>
+<a:Length>50</a:Length>
 </o:Column>
 <o:Column Id="o110">
 <a:ObjectID>A15840D8-B9BF-4391-9204-380A67D27932</a:ObjectID>
@@ -5727,11 +5727,11 @@ LABL 0 新宋体,8,N</a:FontList>
 <a:Code>qq_id</a:Code>
 <a:CreationDate>1629359775</a:CreationDate>
 <a:Creator>jiyec</a:Creator>
-<a:ModificationDate>1633270171</a:ModificationDate>
+<a:ModificationDate>1633402306</a:ModificationDate>
 <a:Modifier>jiyec</a:Modifier>
 <a:Comment>QQID</a:Comment>
-<a:DataType>varchar(30)</a:DataType>
-<a:Length>30</a:Length>
+<a:DataType>varchar(50)</a:DataType>
+<a:Length>50</a:Length>
 </o:Column>
 </c:Columns>
 <c:Keys>

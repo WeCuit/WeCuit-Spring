@@ -1,26 +1,24 @@
 package cn.wecuit.backen.services.impl;
 
+import cn.wecuit.backen.entity.MiniType;
 import cn.wecuit.backen.mapper.TemporaryMapper;
 import cn.wecuit.backen.pojo.Temporary;
-import cn.wecuit.backen.services.TencentService;
+import cn.wecuit.backen.services.MiniService;
 import cn.wecuit.backen.utils.HTTP.HttpUtil;
 import cn.wecuit.backen.utils.HTTP.HttpUtil2;
-import cn.wecuit.backen.utils.HTTP.HttpUtilEntity;
 import cn.wecuit.backen.utils.JsonUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.core5.http.ParseException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -29,7 +27,7 @@ import java.util.Map;
  * @Version 1.0
  **/
 @Service
-public class TencentServiceImpl implements TencentService {
+public class MiniServiceImpl implements MiniService {
     @Value("${wecuit.wx.appid}")
     String WX_APPID;
     @Value("${wecuit.wx.secret}")
@@ -145,5 +143,27 @@ public class TencentServiceImpl implements TencentService {
             e.printStackTrace();
         }
         return String.format("https://m.q.qq.com/a/p/%s?s=%s", QQ_APPID, path);
+    }
+
+    @Override
+    public MiniType getMiniType(HttpServletRequest request) {
+        String referer = request.getHeader("referer");
+        if(referer != null){
+            if (referer.contains("servicewechat.com"))
+                return MiniType.WX;
+            else if (referer.contains("appservice.qq.com"))
+                return MiniType.QQ;
+            else
+                throw new RuntimeException("不支持的客户端");
+        }else{
+            String ua = request.getHeader("user-agent");
+
+            if (ua.contains("WeChat"))
+                return MiniType.WX;
+            else if (ua.contains("QQ"))
+                return MiniType.QQ;
+            else
+                throw new RuntimeException("不支持的客户端");
+        }
     }
 }

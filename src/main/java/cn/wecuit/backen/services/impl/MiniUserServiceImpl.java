@@ -58,4 +58,10 @@ public class MiniUserServiceImpl implements MiniUserService {
         int i = miniUserMapper.updateById(user);
         return i == 1;
     }
+
+    @Override
+    public boolean bindMini(MiniUser user) {
+        int i = miniUserMapper.updateById(user);
+        return i == 1;
+    }
 }

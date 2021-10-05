@@ -1,18 +1,23 @@
 package cn.wecuit.backen.api.v3;
 
+import cn.wecuit.backen.response.BaseResponse;
 import cn.wecuit.backen.response.ResponseResult;
 import cn.wecuit.backen.exception.BaseException;
 import cn.wecuit.backen.utils.HTTP.HttpUtil;
 import cn.wecuit.backen.utils.HexUtil;
 import cn.wecuit.backen.utils.JsonUtil;
+import cn.wecuit.backen.utils.QrcodeGenerator;
 import cn.wecuit.backen.utils.RSAUtils;
+import com.google.zxing.WriterException;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.util.Base64;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -22,6 +27,7 @@ import java.util.Map;
  **/
 @RestController
 @RequestMapping("/Tool")
+@BaseResponse
 public class ToolController {
 
     @Resource
@@ -37,8 +43,8 @@ public class ToolController {
      *
      * @throws Exception
      */
-    @RequestMapping("/captchaDecodeV2")
-    public ResponseResult captchaDecodeV2Action() throws Exception {
+    @PostMapping("/captchaDecodeV2")
+    public Map captchaDecodeV2Action() throws Exception {
         // 获取POST 原始数据流
         ServletInputStream is = request.getInputStream();
         if(request.getContentLength() <= 0)throw new BaseException(20500, "请求异常");
@@ -65,9 +71,23 @@ public class ToolController {
 
         String s = HttpUtil.doFilePost(OCR_SERVER, data);
 
-        return new ResponseResult(){{
-            setCode(200);
-            setData(JsonUtil.string2Obj(s, Map.class));
+        return JsonUtil.string2Obj(s, Map.class);
+    }
+
+    @GetMapping("/qrCode")
+    public Map<String, Object> str2qr(@RequestParam String str, @RequestParam(required = false, defaultValue = "100") int width, @RequestParam(required = false, defaultValue = "100") int height){
+        String qrstr = null;
+        try {
+            byte[] qrCodeImage = QrcodeGenerator.getQRCodeImage(str, width, height);
+            qrstr = Base64.getEncoder().encodeToString(qrCodeImage);
+        } catch (WriterException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        String finalQrstr = qrstr;
+        return new HashMap<String, Object>(){{
+            put("img", "data:image/png;base64," + finalQrstr);
         }};
     }
 }

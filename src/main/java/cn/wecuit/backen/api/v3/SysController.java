@@ -1,15 +1,12 @@
 package cn.wecuit.backen.api.v3;
 
 import cn.wecuit.backen.pojo.Option;
-import cn.wecuit.backen.exception.BaseException;
 import cn.wecuit.backen.response.BaseResponse;
 import cn.wecuit.backen.services.OptionService;
-import cn.wecuit.backen.services.TencentService;
-import org.apache.hc.core5.http.ParseException;
+import cn.wecuit.backen.services.MiniService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -25,7 +22,7 @@ import java.util.Map;
 @BaseResponse
 public class SysController {
     @Resource
-    TencentService tencentService;
+    MiniService miniService;
     @Resource
     OptionService optionService;
 

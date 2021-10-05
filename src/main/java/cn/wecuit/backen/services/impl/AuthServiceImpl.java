@@ -30,7 +30,7 @@ import java.util.Map;
 @Service
 public class AuthServiceImpl implements AuthService {
     @Resource
-    TencentService tencentService;
+    MiniService miniService;
     @Resource
     TemporaryService temporaryService;
     @Resource
@@ -52,8 +52,8 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("小程序码生成失败");
         }
         if(type == MiniType.WX){
-            String accessToken = tencentService.WX_getAccessToken();
-            byte[] miniCode = tencentService.WX_acode_getUnlimited(accessToken, new HashMap<String, String>() {{
+            String accessToken = miniService.WX_getAccessToken();
+            byte[] miniCode = miniService.WX_acode_getUnlimited(accessToken, new HashMap<String, String>() {{
                 put("scene", token);
                 put("page", "pages/index/index");
             }});
@@ -66,8 +66,15 @@ public class AuthServiceImpl implements AuthService {
             result.put("img", "data:image/png;base64," + Base64.getEncoder().encodeToString(miniCode));
         }else if (type == MiniType.QQ){
             String path = String.format("/pages/auth/auth?scene=%s", qrtoken);
-            String miniURL = tencentService.QQ_getMiniURL(path);
+            String miniURL = miniService.QQ_getMiniURL(path);
             result.put("url", miniURL);
+            //String qrcode = "data:image/png;base64,";
+            //try {
+            //    qrcode += QrcodeGenerator.getQRCodeImage(miniURL, 100, 100);
+            //} catch (WriterException | IOException e) {
+            //    e.printStackTrace();
+            //}
+            //result.put("img", qrcode);
         }
         // 存储token
         boolean insert = temporaryService.addNew(new Temporary() {{
@@ -118,14 +125,17 @@ public class AuthServiceImpl implements AuthService {
         if(t.getTime().getTime() < System.currentTimeMillis()){
             throw new BaseException(ResponseCode.USER_TOKEN_INVALID);
         }
-        // wait1,[ADMIN|MINI],uid
         String[] split = t.getValue().split(",");
         t.setValue(t.getValue().replace("wait1", "wait2"));
         temporaryService.updateByName(t);
         Map<String, Object> result = new HashMap<>();
         if(split.length <= 2){
+            // wait2,uid
+            // 管理登录后台
             result.put("type", "login");
         }else{
+            // wait2,[ADMIN|MINI],uid
+            // 管理绑定小程序，小程序绑定小程序
             String displayName;
             result.put("type", "bind");
             long id = Long.parseLong(split[2]);
@@ -138,8 +148,9 @@ public class AuthServiceImpl implements AuthService {
                 displayName = user.getNickname();
             }else{
                 MiniUser userById = miniUserService.getUserById(id);
-                displayName = userById.getStuId();
+                displayName = "uid - " + userById.getId();
             }
+            result.put("target", split[1].toLowerCase());
             result.put("displayName", displayName);
         }
         return result;
@@ -191,12 +202,23 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    public boolean bindMiniByToken(String token, String openid, MiniType idType) {
+        Temporary tokenInfo = temporaryService.getByName("login_" + token);
+        String[] split = tokenInfo.getValue().split(",");
+        return miniUserService.bindMini(new MiniUser() {{
+            setId(Long.parseLong(split[2]));
+            if(idType == MiniType.QQ)setQqId(openid);
+            else if(idType == MiniType.WX)setWxId(openid);
+        }});
+    }
+
+    @Override
     public String getOpenidByCode(String code, MiniType type) {
         Map<String, Object> session;
         if (type == MiniType.WX)
-            session = tencentService.WX_code2session(code);
+            session = miniService.WX_code2session(code);
         else if (type == MiniType.QQ)
-            session = tencentService.QQ_code2session(code);
+            session = miniService.QQ_code2session(code);
         else
             throw new RuntimeException("不支持的客户端");
 

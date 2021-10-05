@@ -42,7 +42,7 @@ public class MiniLoginController {
         return result;
     }
 
-    @ApiOperation("管理端小程序登录操作")
+    @ApiOperation("管理端小程序绑定操作")
     @GetMapping("/mini/binding")
     public Map<String, Object> adminMiniBinding(@RequestParam String token){
         long adminId = StpUtil.getLoginIdAsLong();

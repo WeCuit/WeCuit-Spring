@@ -40,6 +40,7 @@ public interface AuthService {
      * @return
      */
     boolean bindAdminByToken(String token, long id);
+    boolean bindMiniByToken(String token, String openid, MiniType idType);
 
     String getOpenidByCode(String code, MiniType type);
 

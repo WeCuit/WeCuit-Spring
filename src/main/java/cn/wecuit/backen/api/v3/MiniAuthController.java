@@ -6,6 +6,7 @@ import cn.wecuit.backen.exception.BaseException;
 import cn.wecuit.backen.pojo.MiniUser;
 import cn.wecuit.backen.response.BaseResponse;
 import cn.wecuit.backen.services.AuthService;
+import cn.wecuit.backen.services.MiniService;
 import cn.wecuit.backen.services.MiniUserService;
 import io.swagger.annotations.ApiOperation;
 import org.apache.hc.core5.http.ParseException;
@@ -31,20 +32,16 @@ public class MiniAuthController {
     AuthService authService;
     @Resource
     MiniUserService miniUserService;
+    @Resource
+    MiniService miniService;
 
     @ApiOperation("小程序发送授权结果")
     @PostMapping("/mini/result")
     public Map<String, Object> miniLoginResult(@RequestBody Map<String, String> body,
             HttpServletRequest request){
-        String referer = request.getHeader("referer");
-        if (null == referer) throw new BaseException(20500, "请求异常");
-        MiniType type;
-        if (referer.contains("servicewechat.com"))
-            type = MiniType.WX;
-        else if (referer.contains("appservice.qq.com"))
-            type = MiniType.QQ;
-        else
-            throw new RuntimeException("不支持的客户端");
+
+        MiniType type = miniService.getMiniType(request);
+
         // openid 为空表示拒绝
         boolean ret;
         String token = body.get("token");
@@ -64,8 +61,6 @@ public class MiniAuthController {
     @ApiOperation("获取小程序登录授权信息")
     @GetMapping("/mini/tokenInfo")
     public Map<String, Object> miniTokenInfo(@RequestParam String token, HttpServletRequest request){
-        String referer = request.getHeader("referer");
-        if (null == referer) throw new BaseException(20500, "请求异常");
         return authService.getTokenInfo(token);
     }
 
@@ -78,15 +73,7 @@ public class MiniAuthController {
     @GetMapping("/getAccessToken")
     public Map<String, Object> getAccessToken(HttpServletRequest request, @RequestParam String code) throws IOException, ParseException {
 
-        String referer = request.getHeader("referer");
-        if (null == referer) throw new BaseException(20500, "请求异常");
-        MiniType type;
-        if (referer.contains("servicewechat.com"))
-            type = MiniType.WX;
-        else if (referer.contains("appservice.qq.com"))
-            type = MiniType.QQ;
-        else
-            throw new RuntimeException("不支持的客户端");
+        MiniType type = miniService.getMiniType(request);
 
         String openid = authService.getOpenidByCode(code, type);
 
@@ -109,17 +96,12 @@ public class MiniAuthController {
         }};
     }
 
+    @ApiOperation("注册小程序用户")
     @GetMapping("/register")
     public Map<String, Object> register(HttpServletRequest request, @RequestParam String code){
-        String referer = request.getHeader("referer");
-        if (null == referer) throw new BaseException(20500, "请求异常");
-        MiniType type;
-        if (referer.contains("servicewechat.com"))
-            type = MiniType.WX;
-        else if (referer.contains("appservice.qq.com"))
-            type = MiniType.QQ;
-        else
-            throw new RuntimeException("不支持的客户端");
+
+        MiniType type = miniService.getMiniType(request);
+
         String openid = authService.getOpenidByCode(code, type);
         MiniUser miniUser = miniUserService.regUserByOpenid(openid, type);
         Map<String, Object> auth = authService.miniUserLogin(miniUser);
@@ -132,7 +114,7 @@ public class MiniAuthController {
         }};
     }
 
-    @ApiOperation("获取小程序绑定小程序码")
+    @ApiOperation("获取小程序互绑码")
     @GetMapping("/binding/mini/{type}")
     public Map<String, Object> getMiniBindCode(@PathVariable MiniType type){
         String id = StpMiniUtil.getLoginIdAsString();
@@ -156,4 +138,28 @@ public class MiniAuthController {
         }};
     }
 
+    @ApiOperation("小程序用户互绑")
+    @PostMapping("/binding/mini")
+    public Map<String, Object> bindMini(@RequestBody Map<String, String> body,
+                                        HttpServletRequest request){
+
+        MiniType type = miniService.getMiniType(request);
+
+        // openid 为空表示拒绝
+        boolean ret;
+        String token = body.get("token");
+        String code = body.get("code");
+
+        String openid = authService.getOpenidByCode(code, type);
+        if(openid == null) {
+            ret = authService.updateLoginStatus(token, "reject");
+        }else {
+            // 取得小程序用户
+            ret = authService.bindMiniByToken(token, openid, type);
+        }
+        boolean finalRet = ret;
+        return new HashMap<String, Object>(){{
+            put("result", finalRet);
+        }};
+    }
 }
