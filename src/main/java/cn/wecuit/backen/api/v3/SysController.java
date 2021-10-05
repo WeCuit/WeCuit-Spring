@@ -22,8 +22,6 @@ import java.util.Map;
 @BaseResponse
 public class SysController {
     @Resource
-    MiniService miniService;
-    @Resource
     OptionService optionService;
 
     @RequestMapping("/getConfig")

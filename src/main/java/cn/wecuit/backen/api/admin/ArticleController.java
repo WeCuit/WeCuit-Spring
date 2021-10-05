@@ -49,15 +49,6 @@ public class ArticleController {
         return article;
     }
 
-    @ApiOperation("获取文章详情")
-    @GetMapping("/view/{id}")
-    @ResponseBody
-    public String view(@PathVariable long id){
-        Article article = articleService.detail(id);
-        if(article==null)return "文章不存在";
-        return article.getContent();
-    }
-
     @ApiOperation("修改文章内容")
     @PutMapping("/edit/{id}")
     public Map<String, Object> edit(@PathVariable long id, @RequestBody Article article){
