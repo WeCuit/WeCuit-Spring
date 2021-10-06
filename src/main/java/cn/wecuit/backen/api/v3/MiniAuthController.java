@@ -47,11 +47,12 @@ public class MiniAuthController {
         String token = body.get("token");
         String code = body.get("code");
 
-        String openid = authService.getOpenidByCode(code, type);
-        if(openid == null)
+        if(code == null)
             ret = authService.updateLoginStatus(token, "reject");
-        else
+        else {
+            String openid = authService.getOpenidByCode(code, type);
             ret = authService.updateLoginStatus(token, type.name() + "," + openid);
+        }
         boolean finalRet = ret;
         return new HashMap<String, Object>(){{
             put("result", finalRet);

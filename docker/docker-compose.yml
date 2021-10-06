@@ -28,7 +28,7 @@ services:
   spring:
     container_name: server_spring
     #    build: .
-    image: tomcat:jdk8-openjdk-slim
+    image: openjdk:8-jdk-alpine
     ports:
       - 8085:8080
     #     restart: always
