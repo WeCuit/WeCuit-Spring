@@ -55,7 +55,7 @@ public class AuthServiceImpl implements AuthService {
             String accessToken = miniService.WX_getAccessToken();
             byte[] miniCode = miniService.WX_acode_getUnlimited(accessToken, new HashMap<String, String>() {{
                 put("scene", token);
-                put("page", "pages/index/index");
+                put("page", "pages/auth/auth");
             }});
             if('{' == (char)miniCode[0] && '"' == (char) miniCode[1]) {
                 System.out.println(new String(miniCode));

@@ -1,0 +1,444 @@
+[
+  {
+    "name": "首页",
+    "source": "home",
+    "tags": [
+      {
+        "name": "cxyw",
+        "text": "成信要闻"
+      },
+      {
+        "name": "xxgg",
+        "text": "信息公告"
+      },
+      {
+        "name": "xyxw",
+        "text": "校园新闻"
+      },
+      {
+        "name": "xscx",
+        "text": "学术成信"
+      },
+      {
+        "name": "whhd",
+        "text": "文化活动"
+      },
+      {
+        "name": "mtcx",
+        "text": "媒体成信"
+      },
+      {
+        "name": "mtcx",
+        "text": "媒体成信"
+      }
+    ],
+    "pattern": {
+      "rule": "class=\"fr gray\">(\\d+-\\d+-\\d+)<[^<]+<a href=\"([^\"]*?)\" target=\"_blank\">([^<]*?)</a>",
+      "pos": {
+        "link": 2,
+        "title": 3,
+        "date": 1
+      }
+    },
+    "uriExp": "https://www.cuit.edu.cn/xw/#tag#",
+    "sort": false,
+    "pullVer": 4
+  },
+  {
+    "name": "教务处",
+    "source": "jwc",
+    "tags": [
+      {
+        "name": "1161",
+        "text": "通知公告"
+      },
+      {
+        "name": "1171",
+        "text": "考试安排"
+      },
+      {
+        "name": "1172",
+        "text": "课程安排"
+      },
+      {
+        "name": "1173",
+        "text": "选课通知"
+      },
+      {
+        "name": "1174",
+        "text": "国家级考试"
+      },
+      {
+        "name": "1182",
+        "text": "学科竞赛"
+      }
+    ],
+    "pattern": {
+      "rule": "href=\"([^\"]*?)\" target=\"_blank\">([^<]*?)</[aA]>[\\s\\S]*?((\\d+/\\d+))</[hH]6>",
+      "pos": {
+        "link": 1,
+        "title": 2,
+        "date": 3
+      }
+    },
+    "uriExp": "https://jwc.cuit.edu.cn/tymb.jsp?wbtreeid=#tag#&a126120p=#page#",
+    "sort": false,
+    "pullVer": 1
+  },
+  {
+    "name": "管理学院",
+    "source": "gl",
+    "tags": [
+      {
+        "name": "xyxw",
+        "text": "学院公告"
+      }
+    ],
+    "pattern": {
+      "rule": "href=\"(.*?)\" target=\"_blank\" title=\"(.*?)\"[\\s\\S]*?(\\d+/\\d+/\\d+)&nbsp;</span>",
+      "pos": {
+        "link": 1,
+        "title": 2,
+        "date": 3
+      }
+    },
+    "uriExp": "https://glxy.cuit.edu.cn/index/#tag#",
+    "sort": true,
+    "pullVer": 2
+  },
+  {
+    "name": "统计学院",
+    "source": "tj",
+    "tags": [
+      {
+        "name": "tzgg",
+        "text": "通知公告"
+      }
+    ],
+    "pattern": {
+      "rule": "href=\"(.*?)\" target=\"_blank\"[ ]+title=\"(.*?)\"[\\s\\S]*?(\\d+-\\d+-\\d+)&nbsp;",
+      "pos": {
+        "link": 1,
+        "title": 2,
+        "date": 3
+      }
+    },
+    "uriExp": "https://tjx.cuit.edu.cn/index/#tag#",
+    "sort": true,
+    "pullVer": 2
+  },
+  {
+    "name": "文化艺术学院",
+    "source": "whys",
+    "tags": [
+      {
+        "name": "xygg",
+        "text": "学院公告"
+      }
+    ],
+    "pattern": {
+      "rule": "href=\"(.*?)\" target=\"_blank\" title=\"(.*?)\"[\\s\\S]*?(\\d+/\\d+/\\d+)&nbsp;</span>",
+      "pos": {
+        "link": 1,
+        "title": 2,
+        "date": 3
+      }
+    },
+    "uriExp": "https://whys.cuit.edu.cn/index/#tag#",
+    "sort": false,
+    "pullVer": 2
+  },
+  {
+    "name": "物流学院",
+    "source": "wl",
+    "tags": [
+      {
+        "name": "tzgg",
+        "text": "通知公告"
+      }
+    ],
+    "pattern": {
+      "rule": "href=\"(.*?)\" target=\"_blank\" title=\"(.*?)\"[\\s\\S]*?(\\d+/\\d+/\\d+)&nbsp;</span>",
+      "pos": {
+        "link": 1,
+        "title": 2,
+        "date": 3
+      }
+    },
+    "uriExp": "https://wlxy.cuit.edu.cn/xwgg/#tag#",
+    "sort": true,
+    "pullVer": 2
+  },
+  {
+    "name": "大气科学学院",
+    "source": "dqkx",
+    "tags": [
+      {
+        "name": "tzgg",
+        "text": "通知公告"
+      }
+    ],
+    "pattern": {
+      "rule": "href=\"(.*?)\" target=\"_blank\" title=\"(.*?)\"[\\s\\S]*?(\\d+/\\d+/\\d+)&nbsp;</span>",
+      "pos": {
+        "link": 1,
+        "title": 2,
+        "date": 3
+      }
+    },
+    "uriExp": "https://cas.cuit.edu.cn/#tag#",
+    "sort": true,
+    "pullVer": 2
+  },
+  {
+    "name": "电子工程学院",
+    "source": "dzgc",
+    "tags": [
+      {
+        "name": "xxgg",
+        "text": "信息公告"
+      }
+    ],
+    "pattern": {
+      "rule": "href=\"(.*?)\" target=\"_blank\" title=\"(.*?)\"[\\s\\S]*?(\\d+/\\d+/\\d+)&nbsp;</span>",
+      "pos": {
+        "link": 1,
+        "title": 2,
+        "date": 3
+      }
+    },
+    "uriExp": "https://dzgcxy.cuit.edu.cn/#tag#",
+    "sort": false,
+    "pullVer": 2
+  },
+  {
+    "name": "光电工程学院",
+    "source": "gdgc",
+    "tags": [
+      {
+        "name": "xxgg",
+        "text": "信息公告"
+      }
+    ],
+    "pattern": {
+      "rule": "href=\"(.*?)\" target=\"_blank\" title=\"(.*?)\"[\\s\\S]*?(\\d+/\\d+/\\d+)&nbsp;</span>",
+      "pos": {
+        "link": 1,
+        "title": 2,
+        "date": 3
+      }
+    },
+    "uriExp": "https://gdgcxy.cuit.edu.cn/xwgg/#tag#",
+    "sort": false,
+    "pullVer": 2
+  },
+  {
+    "name": "计算机学院",
+    "source": "compute",
+    "tags": [
+      {
+        "name": "tzgg",
+        "text": "通知公告"
+      },
+      {
+        "name": "zhxw",
+        "text": "综合新闻"
+      },
+      {
+        "name": "jdxw",
+        "text": "焦点新闻"
+      }
+    ],
+    "pattern": {
+      "rule": "id=\"line_u3_\\d\"><A href=\"(.*?)\"[\\s\\S]*?<H3 class=\"h3\">(.*?)<\\/[\\s\\S]*?date\">(.*?)</",
+      "pos": {
+        "link": 1,
+        "title": 2,
+        "date": 3
+      }
+    },
+    "uriExp": "https://jsjxy.cuit.edu.cn/xwgg/#tag#",
+    "sort": false,
+    "pullVer": 2
+  },
+  {
+    "name": "控制工程学院",
+    "source": "kzgc",
+    "tags": [
+      {
+        "name": "tzgg",
+        "text": "通知公告"
+      }
+    ],
+    "pattern": {
+      "rule": "id=\"line_u6_\\d\"[\\s\\S]*?<a href=\"(.*?)\" target=\"_blank\" title=\"(.*?)\"[\\s\\S]*?(\\d+-\\d+-\\d+)</span>",
+      "pos": {
+        "link": 1,
+        "title": 2,
+        "date": 3
+      }
+    },
+    "uriExp": "https://kzgcxy.cuit.edu.cn/gglm/#tag#",
+    "sort": true,
+    "pullVer": 2
+  },
+  {
+    "name": "软件工程学院",
+    "source": "rjgc",
+    "tags": [
+      {
+        "name": "bkjx",
+        "text": "本科教学"
+      }
+    ],
+    "pattern": {
+      "rule": "href=\"(.*?)\" target=\"_blank\" title=\"(.*?)\"[\\s\\S]*?(\\d+/\\d+/\\d+)&nbsp;</span>",
+      "pos": {
+        "link": 1,
+        "title": 2,
+        "date": 3
+      }
+    },
+    "uriExp": "https://rjgcxy.cuit.edu.cn/#tag#",
+    "sort": false,
+    "pullVer": 2
+  },
+  {
+    "name": "通信工程学院",
+    "source": "txgc",
+    "tags": [
+      {
+        "name": "tzgg",
+        "text": "通知公告"
+      }
+    ],
+    "pattern": {
+      "rule": "a href=\"(.*?)\" target=\"_blank\" title=\"(.*?)\"[\\s\\S]*?<span>(\\d+-\\d+-\\d+)<",
+      "pos": {
+        "link": 1,
+        "title": 2,
+        "date": 3
+      }
+    },
+    "uriExp": "https://txgcxy.cuit.edu.cn/gglm/#tag#",
+    "sort": true,
+    "pullVer": 2
+  },
+  {
+    "name": "外国语学院",
+    "source": "wgy",
+    "tags": [
+      {
+        "name": "1293",
+        "text": "学院新闻"
+      },
+      {
+        "name": "1294",
+        "text": "通知公告"
+      }
+    ],
+    "pattern": {
+      "rule": "href=\"(.*?)\" target=\"_blank\"   title=\"(.*?)\"[\\s\\S]*?(\\d+-\\d+-\\d+)]",
+      "pos": {
+        "link": 1,
+        "title": 2,
+        "date": 3
+      }
+    },
+    "uriExp": "https://wgyxy.cuit.edu.cn/list.jsp?wbtreeid=#tag#&a2p=#page#",
+    "sort": false,
+    "pullVer": 1
+  },
+  {
+    "name": "网络空间安全学院",
+    "source": "wlaq",
+    "tags": [
+      {
+        "name": "tzgg",
+        "text": "通知公告"
+      }
+    ],
+    "pattern": {
+      "rule": "a><a href=\"(.*?)\">(.*?)<[\\s\\S]*?(\\d+-\\d+-\\d+)<",
+      "pos": {
+        "link": 1,
+        "title": 2,
+        "date": 3
+      }
+    },
+    "uriExp": "https://cyber.cuit.edu.cn/#tag#",
+    "sort": true,
+    "pullVer": 2
+  },
+  {
+    "name": "应用数学学院",
+    "source": "yysx",
+    "tags": [
+      {
+        "name": "jxdt",
+        "text": "教学动态"
+      },
+      {
+        "name": "bkjy",
+        "text": "本科教育"
+      }
+    ],
+    "pattern": {
+      "rule": "<a href=\"(.*?)\" class=\"c124260\" title=\"(.*?)\"[\\s\\S]*?(\\d+/\\d+/\\d+)</td",
+      "pos": {
+        "link": 1,
+        "title": 2,
+        "date": 3
+      }
+    },
+    "uriExp": "https://math.cuit.edu.cn/rcpy/#tag#",
+    "sort": true,
+    "pullVer": 2
+  },
+  {
+    "name": "资源环境学院",
+    "source": "zyhj",
+    "tags": [
+      {
+        "name": "tzgg",
+        "text": "通知公告"
+      }
+    ],
+    "pattern": {
+      "rule": "href=\"(.*?)\"><span>(\\d+-\\d+-\\d+)</span>(.*?)</a>",
+      "pos": {
+        "link": 1,
+        "title": 3,
+        "date": 2
+      }
+    },
+    "uriExp": "https://hjgcx.cuit.edu.cn/index/#tag#",
+    "sort": true,
+    "pullVer": 2
+  },
+  {
+    "name": "区块链产业学院",
+    "source": "qkl",
+    "tags": [
+      {
+        "name": "tzgg",
+        "text": "通知公告"
+      },
+      {
+        "name": "xyxw",
+        "text": "学院新闻"
+      }
+    ],
+    "pattern": {
+      "rule": "<a href=\"(.*?)\"><FONT [\\S]*?</FONT>&nbsp;(.*?)</a>[\\s\\S]*?(\\d+-\\d+-\\d+)<",
+      "pos": {
+        "link": 1,
+        "title": 2,
+        "date": 3
+      }
+    },
+    "uriExp": "https://qkl.cuit.edu.cn/xwzx/#tag#",
+    "sort": true,
+    "pullVer": 2
+  }
+]
