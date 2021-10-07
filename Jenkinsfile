@@ -4,7 +4,7 @@ pipeline {
 
     stage('Prepare Resource File') {
       steps {
-        sh 'cp -r /app/resources ./src/main/resources'
+        sh 'cp -r /app/resources ./src/main'
       }
     }
 
