@@ -1,12 +1,11 @@
 package cn.wecuit.robot.plugins.msg;
 
-import cn.wecuit.mybatis.entity.MyBatis;
-import cn.wecuit.robot.data.mapper.DictMapper;
+import cn.wecuit.backen.utils.SpringUtil;
 import cn.wecuit.robot.provider.WSeg;
+import cn.wecuit.robot.services.RbDictService;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.mamoe.mirai.message.code.MiraiCode;
-import org.apache.ibatis.session.SqlSession;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -68,8 +67,6 @@ public class ChatPlugin extends MessagePluginImpl {
         // 是否开启聊天模式
         if(!enabledList.contains(subjectId))return false;
 
-        try(SqlSession sqlSession = MyBatis.getSqlSessionFactory().openSession()){
-            DictMapper mapper = sqlSession.getMapper(DictMapper.class);
 
             log.info("开始分词");
             List<String> keys = WSeg.seg(msg);
@@ -83,7 +80,8 @@ public class ChatPlugin extends MessagePluginImpl {
             keys.add(msg);
             log.info("最终查询依据: {}", keys);
 
-            List<String> msgList = mapper.getMsgList2(keys);
+        RbDictService dictService = SpringUtil.getBean(RbDictService.class);
+        List<String> msgList = dictService.getByKeyword(keys);
 
             if(msgList.size() > 0) {
                 int i = (int) (Math.random() * (msgList.size()));
@@ -91,7 +89,6 @@ public class ChatPlugin extends MessagePluginImpl {
 
                 event.getSubject().sendMessage(MiraiCode.deserializeMiraiCode(msg));
             }
-        }
 
         return false;
     }

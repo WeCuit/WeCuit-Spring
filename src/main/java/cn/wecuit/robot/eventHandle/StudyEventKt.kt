@@ -1,9 +1,9 @@
 package cn.wecuit.robot.eventHandle
 
 
-import cn.wecuit.mybatis.entity.MyBatis
+import cn.wecuit.backen.utils.SpringUtil
 import cn.wecuit.robot.data.Storage
-import cn.wecuit.robot.data.mapper.DictMapper
+import cn.wecuit.robot.services.RbDictService
 import kotlinx.coroutines.TimeoutCancellationException
 import net.mamoe.mirai.event.events.MessageEvent
 import net.mamoe.mirai.event.nextEvent
@@ -11,7 +11,6 @@ import net.mamoe.mirai.message.code.MiraiCode.deserializeMiraiCode
 import net.mamoe.mirai.message.data.At
 import net.mamoe.mirai.message.data.PlainText
 import net.mamoe.mirai.message.data.content
-import java.util.*
 
 /**
  * @Author jiyec
@@ -41,10 +40,8 @@ object StudyEventKt {
             // 消息序列化
             val content = newEvent.message.serializeToMiraiCode()
 
-            val openSession = MyBatis.getSqlSessionFactory().openSession()
-            val mapper = openSession.getMapper(DictMapper::class.java)
-            mapper.addItem(key, content)
-            openSession.commit()
+            val ds = SpringUtil.getBean(RbDictService::class.java)
+            ds.add(key, content)
 
             newEvent.subject.sendMessage(PlainText("你的回答是：\n") + content.deserializeMiraiCode())
 

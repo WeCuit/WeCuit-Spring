@@ -7,7 +7,6 @@ import cn.wecuit.backen.exception.BaseException;
 import cn.wecuit.backen.services.MiniService;
 import cn.wecuit.backen.utils.HexUtil;
 import cn.wecuit.backen.utils.RSAUtils;
-import cn.wecuit.mybatis.entity.MyBatis;
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -37,19 +36,19 @@ public class SubController {
 
     protected final String[] client = {"wx", "qq"};
 
-    public Map<String, Object> getTemplateIdListAction() throws IOException {
+    public Map<String, Object> getTemplateIdListAction() throws Exception {
 
         MiniType type = miniService.getMiniType(request);
 
-        try (SqlSession sqlSession = MyBatis.getSqlSessionFactory().openSession()) {
-            List<HashMap<String, Object>> list = sqlSession.selectList("cn.wecuit.backen.sub.selectTplList", type.name());
-
-            return new HashMap<String, Object>() {{
-                put("code", 200);
-                put("data", list);
-            }};
-        }
-
+        //try (SqlSession sqlSession = MyBatis.getSqlSessionFactory().getObject().openSession()) {
+        //    List<HashMap<String, Object>> list = sqlSession.selectList("cn.wecuit.backen.sub.selectTplList", type.name());
+        //
+        //    return new HashMap<String, Object>() {{
+        //        put("code", 200);
+        //        put("data", list);
+        //    }};
+        //}
+        return null;
     }
 
     public Map<String, Object> getStatusV2Action() throws NoSuchAlgorithmException, IOException {
@@ -65,19 +64,23 @@ public class SubController {
 
         MiniType type = miniService.getMiniType(request);
 
-        try (SqlSession sqlSession = MyBatis.getSqlSessionFactory().openSession()) {
-
-            List<HashMap<String, Object>> list = sqlSession.selectList("cn.wecuit.backen.sub.subStatus",
-                    new HashMap<String, String>(){{
-                        put("client", type.name());
-                        put("openid", openid);
-                    }}
-            );
-            return new HashMap<String, Object>() {{
-                put("code", 200);
-                put("sub", list);
-            }};
-        }
+        //try (SqlSession sqlSession = MyBatis.getSqlSessionFactory().getObject().openSession()) {
+        //
+        //    List<HashMap<String, Object>> list = sqlSession.selectList("cn.wecuit.backen.sub.subStatus",
+        //            new HashMap<String, String>(){{
+        //                put("client", type.name());
+        //                put("openid", openid);
+        //            }}
+        //    );
+        //    return new HashMap<String, Object>() {{
+        //        put("code", 200);
+        //        put("sub", list);
+        //    }};
+        //} catch (Exception e) {
+        //    e.printStackTrace();
+        //    return null;
+        //}
+        return null;
 
     }
 
@@ -103,37 +106,37 @@ public class SubController {
         boolean sub_enable = false;
         if("true".equals(status))sub_enable=true;
 
-        try(SqlSession sqlSession = MyBatis.getSqlSessionFactory().openSession()){
-            AdminUserMapper userMapper = sqlSession.getMapper(AdminUserMapper.class);
-            SubMapper subMapper = sqlSession.getMapper(SubMapper.class);
-
-            BigInteger uid = userMapper.queryUIdBySId(userId);
-            // 用户账号数据处理
-            if(uid != null){
-                // 旧用户
-                int i = userMapper.updateStuInfoByUId(uid, userId, userPass);
-                if(i != 1)throw new BaseException(10500, "更新用户失败");
-            }else{
-                // 新用户
-                Map<String, BigInteger> uid_t = new HashMap<>();
-                int i = userMapper.addUser(uid_t, type.name(), openid, userId, userPass);
-                uid = uid_t.get("uid");
-                if(i!=1 || uid == null)throw new BaseException(10500, "新增用户失败");
-
-            }
-
-            // 订阅信息处理
-            int i = subMapper.setEnable(sub_enable, uid, tplId);
-            if(i == 0){
-                // 影响0行，可能不存在
-                int i1 = subMapper.insertSub(uid, tplId);
-
-                if(i1 != 1)throw new BaseException(10500, "订阅信息更新失败");
-            }
-
-            sqlSession.commit();
-
-        }
+        //try(SqlSession sqlSession = MyBatis.getSqlSessionFactory().getObject().openSession()){
+        //    AdminUserMapper userMapper = sqlSession.getMapper(AdminUserMapper.class);
+        //    SubMapper subMapper = sqlSession.getMapper(SubMapper.class);
+        //
+        //    BigInteger uid = userMapper.queryUIdBySId(userId);
+        //    // 用户账号数据处理
+        //    if(uid != null){
+        //        // 旧用户
+        //        int i = userMapper.updateStuInfoByUId(uid, userId, userPass);
+        //        if(i != 1)throw new BaseException(10500, "更新用户失败");
+        //    }else{
+        //        // 新用户
+        //        Map<String, BigInteger> uid_t = new HashMap<>();
+        //        int i = userMapper.addUser(uid_t, type.name(), openid, userId, userPass);
+        //        uid = uid_t.get("uid");
+        //        if(i!=1 || uid == null)throw new BaseException(10500, "新增用户失败");
+        //
+        //    }
+        //
+        //    // 订阅信息处理
+        //    int i = subMapper.setEnable(sub_enable, uid, tplId);
+        //    if(i == 0){
+        //        // 影响0行，可能不存在
+        //        int i1 = subMapper.insertSub(uid, tplId);
+        //
+        //        if(i1 != 1)throw new BaseException(10500, "订阅信息更新失败");
+        //    }
+        //
+        //    sqlSession.commit();
+        //
+        //}
 
         return new HashMap<String, Object>(){{
             put("code", 2000);
@@ -152,18 +155,20 @@ public class SubController {
 
         if(sign == null || !sign.equals(s))throw new BaseException(403, "非法请求");
 
-        try(SqlSession sqlSession = MyBatis.getSqlSessionFactory().openSession()){
-            AdminUserMapper userMapper = sqlSession.getMapper(AdminUserMapper.class);
-            SubMapper subMapper = sqlSession.getMapper(SubMapper.class);
-
-            MiniType type = miniService.getMiniType(request);
-            BigInteger uid = userMapper.queryUIdByOpenId(type.name(), openid);
-            int delete = subMapper.deleteSub(uid);
-
-            if(delete==0)throw new BaseException(10500, "删除失败");
-
-            sqlSession.commit();
-        }
+        //try(SqlSession sqlSession = MyBatis.getSqlSessionFactory().getObject().openSession()){
+        //    AdminUserMapper userMapper = sqlSession.getMapper(AdminUserMapper.class);
+        //    SubMapper subMapper = sqlSession.getMapper(SubMapper.class);
+        //
+        //    MiniType type = miniService.getMiniType(request);
+        //    BigInteger uid = userMapper.queryUIdByOpenId(type.name(), openid);
+        //    int delete = subMapper.deleteSub(uid);
+        //
+        //    if(delete==0)throw new BaseException(10500, "删除失败");
+        //
+        //    sqlSession.commit();
+        //} catch (Exception e) {
+        //    e.printStackTrace();
+        //}
 
         return new HashMap<String, Object>(){{
             put("code", 200);
@@ -171,7 +176,7 @@ public class SubController {
         }};
     }
 
-    public Map<String, Object> addCntV2Action() throws NoSuchAlgorithmException, IOException {
+    public Map<String, Object> addCntV2Action() throws Exception {
         String openid = request.getParameter("openid");
         String tplId = request.getParameter("tplId");
         String sign = request.getParameter("sign");
@@ -180,17 +185,17 @@ public class SubController {
         String s = genQuerySign(path, openid, tplId);
         if(sign == null || !sign.equals(s))throw new BaseException(403, "非法请求");
 
-        try(SqlSession sqlSession = MyBatis.getSqlSessionFactory().openSession()){
-            AdminUserMapper userMapper = sqlSession.getMapper(AdminUserMapper.class);
-            SubMapper subMapper = sqlSession.getMapper(SubMapper.class);
-
-            MiniType type = miniService.getMiniType(request);
-            BigInteger uid = userMapper.queryUIdByOpenId(type.name(), openid);
-            int i = subMapper.incrCnt(uid, tplId);
-            if(i != 1)throw new BaseException(10500, "操作失败");
-
-            sqlSession.commit();
-        }
+        //try(SqlSession sqlSession = MyBatis.getSqlSessionFactory().getObject().openSession()){
+        //    AdminUserMapper userMapper = sqlSession.getMapper(AdminUserMapper.class);
+        //    SubMapper subMapper = sqlSession.getMapper(SubMapper.class);
+        //
+        //    MiniType type = miniService.getMiniType(request);
+        //    BigInteger uid = userMapper.queryUIdByOpenId(type.name(), openid);
+        //    int i = subMapper.incrCnt(uid, tplId);
+        //    if(i != 1)throw new BaseException(10500, "操作失败");
+        //
+        //    sqlSession.commit();
+        //}
 
         return new HashMap<String, Object>(){{
             put("code", 200);

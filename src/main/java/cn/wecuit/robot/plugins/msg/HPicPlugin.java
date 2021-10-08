@@ -1,15 +1,14 @@
 package cn.wecuit.robot.plugins.msg;
 
-import cn.wecuit.mybatis.entity.MyBatis;
+import cn.wecuit.backen.utils.SpringUtil;
 import cn.wecuit.robot.data.Storage;
-import cn.wecuit.robot.data.mapper.PictureMapper;
+import cn.wecuit.robot.mapper.RbPicMapper;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.message.MessageReceipt;
 import net.mamoe.mirai.message.code.MiraiCode;
 import net.mamoe.mirai.message.data.MessageChain;
-import org.apache.ibatis.session.SqlSession;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -193,40 +192,39 @@ public class HPicPlugin extends MessagePluginImpl {
 
         log.info("获取纸片人数据");
 
-        try (SqlSession sqlSession = MyBatis.getSqlSessionFactory().openSession()){
-            PictureMapper pictureMapper = sqlSession.getMapper(PictureMapper.class);
 
-            StringBuilder picStr = new StringBuilder();
-            for (int i = 0; i < num; i++) {
+        RbPicMapper picMapper = SpringUtil.getBean(RbPicMapper.class);
 
-                Integer j = pictureMapper.queryPosBylevel(level);
-                if(j==null){
-                    subject.sendMessage(levelArr[levelInt] + "分类下没有图片╮(╯▽╰)╭");
-                    return true;
-                }
-                Map<String, String> picture = pictureMapper.getByPosLevel(level, j);
-                String imageId = picture.get("id");
-                picStr.append("[mirai:image:").append(imageId).append("]");
-                sqlSession.commit();
+        StringBuilder picStr = new StringBuilder();
+        for (int i = 0; i < num; i++) {
+
+            Integer j = picMapper.queryPosBylevel(level);
+            if(j==null){
+                subject.sendMessage(levelArr[levelInt] + "分类下没有图片╮(╯▽╰)╭");
+                return true;
             }
-
-            // Map<String, Object> detail = JsonUtil.string2Obj(picture.get("info"), Map.class);
-            // int artwork = (int)detail.get("artwork");
-            // String title = (String)detail.get("title");
-            // String author = (String)detail.get("author");
-            // [mirai:image:{9B077392-DA4F-D5E8-F16A-C4304DDCF819}.gif]
-            MessageChain picMsg = MiraiCode.deserializeMiraiCode(picStr.toString());
-            // imageId = imageId.replaceAll("\\{|}|-|\\.jpg|\\.png", "");
-
-            // imgXml = imgXml
-            //         .replace("#title#", title)
-            //         .replace("#artwork#", Integer.toString(artwork))
-            //         .replace("#author#", author)
-            //         .replace("#imageId#", imageId);
-            MessageReceipt messageReceipt = subject.sendMessage(picMsg);
-
-            new MessageRecall(messageReceipt, (int)groupConfig.get("recallTime")).start();  // 撤回
+            Map<String, String> picture = picMapper.getByPosLevel(level, j);
+            String imageId = picture.get("id");
+            picStr.append("[mirai:image:").append(imageId).append("]");
         }
+
+        // Map<String, Object> detail = JsonUtil.string2Obj(picture.get("info"), Map.class);
+        // int artwork = (int)detail.get("artwork");
+        // String title = (String)detail.get("title");
+        // String author = (String)detail.get("author");
+        // [mirai:image:{9B077392-DA4F-D5E8-F16A-C4304DDCF819}.gif]
+        MessageChain picMsg = MiraiCode.deserializeMiraiCode(picStr.toString());
+        // imageId = imageId.replaceAll("\\{|}|-|\\.jpg|\\.png", "");
+
+        // imgXml = imgXml
+        //         .replace("#title#", title)
+        //         .replace("#artwork#", Integer.toString(artwork))
+        //         .replace("#author#", author)
+        //         .replace("#imageId#", imageId);
+        MessageReceipt messageReceipt = subject.sendMessage(picMsg);
+
+        new MessageRecall(messageReceipt, (int)groupConfig.get("recallTime")).start();  // 撤回
+
 
         return true;
     }

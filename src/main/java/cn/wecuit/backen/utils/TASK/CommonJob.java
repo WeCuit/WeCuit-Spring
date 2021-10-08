@@ -1,10 +1,9 @@
 package cn.wecuit.backen.utils.TASK;
 
 import cn.wecuit.backen.services.NewsService;
+import cn.wecuit.robot.RobotMain;
 import cn.wecuit.robot.data.NewsStorage;
 import cn.wecuit.robot.plugins.msg.NewsPlugin;
-import cn.wecuit.backen.utils.NewsUtil;
-import cn.wecuit.backen.utils.RobotUtil;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.Job;
@@ -37,7 +36,6 @@ public class CommonJob implements Job {
 
         if(jobExecutionContext.getPreviousFireTime() == null){
             // 第一次执行
-            RobotUtil.start();
         }
 
         // 普通任务内容
@@ -49,8 +47,11 @@ public class CommonJob implements Job {
             newsService.pullNews();
 
         if(minute % 9 == 0) {
-            if(RobotUtil.id != 0L)
+            //if(RobotUtil.id != 0L)
+            //    newsService.newsNotice(NewsPlugin.getEnabledList());
+            if(RobotMain.getBot() != null){
                 newsService.newsNotice(NewsPlugin.getEnabledList());
+            }
             // PixivTask.pullTask();
         }
 

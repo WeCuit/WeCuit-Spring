@@ -1,9 +1,8 @@
 package cn.wecuit.robot.data;
 
-import cn.wecuit.mybatis.entity.MyBatis;
-import cn.wecuit.robot.data.mapper.NewsMapper;
+import cn.wecuit.backen.utils.SpringUtil;
+import cn.wecuit.robot.services.RbNewsService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.session.SqlSession;
 
 /**
  * @Author jiyec
@@ -15,28 +14,19 @@ public class NewsStorage {
 
     public static boolean isNewsExist(String md5){
 
-        try(SqlSession sqlSession = MyBatis.getSqlSessionFactory().openSession()){
-            NewsMapper mapper = sqlSession.getMapper(NewsMapper.class);
-            int i = mapper.selCnt(md5);
-            return i>0;
-        }
+        RbNewsService newsService = SpringUtil.getBean(RbNewsService.class);
+        return newsService.isNewsExist(md5);
     }
     public static boolean addNews(String md5){
 
-        try(SqlSession sqlSession = MyBatis.getSqlSessionFactory().openSession()){
-            NewsMapper mapper = sqlSession.getMapper(NewsMapper.class);
-            int i = mapper.addNoticed(md5);
-            sqlSession.commit();
-            return i>0;
-        }
+        RbNewsService newsService = SpringUtil.getBean(RbNewsService.class);
+        return newsService.addNoticed(md5);
     }
     public static void delOutDate(){
-        try(SqlSession sqlSession = MyBatis.getSqlSessionFactory().openSession()){
-            NewsMapper mapper = sqlSession.getMapper(NewsMapper.class);
-            int i = mapper.delOutDate();
-            sqlSession.commit();
-            log.info("删除了{}条数据", i);
-        }
+
+        RbNewsService newsService = SpringUtil.getBean(RbNewsService.class);
+        int i = newsService.delOutDated();
+        log.info("删除了{}条数据", i);
     }
 
 }
