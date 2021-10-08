@@ -3,8 +3,16 @@ package cn.wecuit.robot.plugins.msg;
 import cn.wecuit.robot.MainHandleJava;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.io.support.ResourcePatternResolver;
+import org.springframework.core.type.classreading.CachingMetadataReaderFactory;
+import org.springframework.core.type.classreading.MetadataReader;
+import org.springframework.core.type.classreading.MetadataReaderFactory;
+import org.springframework.util.ClassUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -23,11 +31,30 @@ public class MenuPlugin extends MessagePluginImpl {
 
     static{
         pluginList = new LinkedList<String>(){{
-            String plugins = MainHandleJava.class.getResource("plugins/msg").getPath();
-            String[] list = new File(plugins).list((dir, name) -> !name.contains("$") && !name.contains("Message") && name.endsWith("Plugin.class"));
 
-            for (String s : list) {
-                add("msg." + s.substring(0, s.indexOf("Plugin")));
+            ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
+            final String BASE_PACKAGE = "cn.wecuit.robot.plugins.msg";
+            final String RESOURCE_PATTERN = "/*.class";
+            String pattern = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX +
+                    ClassUtils.convertClassNameToResourcePath(BASE_PACKAGE) + RESOURCE_PATTERN;
+            try {
+                Resource[] resources = resourcePatternResolver.getResources(pattern);
+                // MetadataReader 的工厂类
+                MetadataReaderFactory readerFactory = new CachingMetadataReaderFactory(resourcePatternResolver);
+                for (Resource resource : resources) {
+                    // 用于读取类信息
+                    MetadataReader metadataReader = readerFactory.getMetadataReader(resource);
+                    // 扫描到的class
+                    String classname = metadataReader.getClassMetadata().getClassName();
+                    String pluginName = classname.substring(classname.indexOf("plugins.") + 8);
+                    if(!pluginName.contains("$")
+                            && pluginName.endsWith("Plugin")
+                            && !pluginName.contains("Event")
+                            && !pluginName.contains("msg.Message"))
+                        add(pluginName.substring(0, pluginName.indexOf("Plugin")));
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }};
 

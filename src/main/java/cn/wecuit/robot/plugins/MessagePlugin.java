@@ -27,8 +27,10 @@ public class MessagePlugin extends EventPluginImpl{
         // 机器人发送，忽略
         if(e.getSender().getId() == e.getBot().getId()) return;
 
+        // 去除多余空格
         String[] temp = e.getMessage().contentToString().replaceAll("  ", " ").split(" ");
 
+        // 指令集转为List
         List<String> cmds = new LinkedList<>(Arrays.asList(temp));
 
         Class<? extends MessagePluginImpl> pluginClazz;

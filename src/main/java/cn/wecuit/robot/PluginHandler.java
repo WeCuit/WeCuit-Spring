@@ -1,14 +1,26 @@
 package cn.wecuit.robot;
 
+import cn.wecuit.backen.utils.SpringUtil;
 import cn.wecuit.robot.entity.EventType;
+import cn.wecuit.robot.entity.MainCmd;
 import cn.wecuit.robot.plugins.EventPlugin;
 import cn.wecuit.robot.plugins.EventPluginImpl;
 import cn.wecuit.robot.plugins.msg.MessagePlugin;
 import cn.wecuit.robot.plugins.msg.MessagePluginImpl;
 import lombok.extern.slf4j.Slf4j;
 import net.mamoe.mirai.event.Event;
+import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.io.support.ResourcePatternResolver;
+import org.springframework.core.type.classreading.CachingMetadataReaderFactory;
+import org.springframework.core.type.classreading.MetadataReader;
+import org.springframework.core.type.classreading.MetadataReaderFactory;
+import org.springframework.util.ClassUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -20,18 +32,26 @@ import java.util.*;
 public class PluginHandler {
     // 插件列表确保首字母大写
     private static final List<String> pluginList = new LinkedList<String>(){{
-        String plugins = MainHandleJava.class.getResource("plugins/msg").getPath();
-        String[] list = new File(plugins).list((dir, name) -> !name.contains("$") && !name.contains("Message") && name.endsWith("Plugin.class"));
-
-        for (String s : list) {
-            add("msg." + s.substring(0, s.indexOf("Plugin")));
-        }
-        plugins = MainHandleJava.class.getResource("plugins").getPath();
-        list = new File(plugins).list((dir, name) -> !name.contains("$") && !name.contains("Event") && name.endsWith("Plugin.class"));
-
-        for (String s : list) {
-            add(s.substring(0, s.indexOf("Plugin")));
-        }
+        //ResourceLoader resourceLoader = new DefaultResourceLoader();
+        //
+        //String[] list;
+        //try {
+        //
+        //
+        //    list = resourceLoader.getResource("classpath:cn/wecuit/robot/plugins/msg").getFile().list((dir, name) -> !name.contains("$") && !name.contains("Message") && name.endsWith("Plugin.class"));
+        //
+        //    for (String s : list) {
+        //        add("msg." + s.substring(0, s.indexOf("Plugin")));
+        //    }
+        //    list = resourceLoader.getResource("classpath:cn/wecuit/robot/plugins").getFile().list((dir, name) -> !name.contains("$") && !name.contains("Event") && name.endsWith("Plugin.class"));
+        //
+        //    for (String s : list) {
+        //        add(s.substring(0, s.indexOf("Plugin")));
+        //    }
+        //
+        //} catch (IOException e) {
+        //    e.printStackTrace();
+        //}
     }};
 
     // 插件主指令  [指令-类]
@@ -46,6 +66,39 @@ public class PluginHandler {
 
     public static void register(){
         log.info("注册插件指令");
+
+        //TODO: https://www.cnblogs.com/woyujiezhen/p/14245785.html
+        ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
+        final String BASE_PACKAGE = "cn.wecuit.robot.plugins";
+        final String RESOURCE_PATTERN = "/**/*.class";
+        String pattern = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX +
+                ClassUtils.convertClassNameToResourcePath(BASE_PACKAGE) + RESOURCE_PATTERN;
+        try {
+            Resource[] resources = resourcePatternResolver.getResources(pattern);
+            //MetadataReader 的工厂类
+            MetadataReaderFactory readerFactory = new CachingMetadataReaderFactory(resourcePatternResolver);
+            for (Resource resource : resources) {
+                //用于读取类信息
+                MetadataReader metadataReader = readerFactory.getMetadataReader(resource);
+                //扫描到的class
+                String classname = metadataReader.getClassMetadata().getClassName();
+                String pluginName = classname.substring(classname.indexOf("plugins.") + 8);
+                if(!pluginName.contains("$")
+                        && pluginName.endsWith("Plugin")
+                        && !pluginName.contains("Event")
+                        && !pluginName.contains("msg.Message")
+                )
+                    pluginList.add(pluginName.substring(0, pluginName.indexOf("Plugin")));
+                //Class<?> clazz = Class.forName(classname);
+                ////判断是否有指定主解
+                //if (clazz.isAnnotationPresent(MainCmd.class)) {
+                //    pluginList.add("");
+                //}
+            }
+            log.info("插件数目： {}", pluginList.size());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         pluginList.forEach(p->{
             log.info("注册插件：{}", p);
