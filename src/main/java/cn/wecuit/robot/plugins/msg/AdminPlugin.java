@@ -1,8 +1,9 @@
 package cn.wecuit.robot.plugins.msg;
 
 import cn.wecuit.robot.data.Storage;
-import lombok.Getter;
-import org.jetbrains.annotations.NotNull;
+import cn.wecuit.robot.entity.MainCmd;
+import cn.wecuit.robot.entity.RobotPlugin;
+import cn.wecuit.robot.entity.SubCmd;
 
 import java.util.HashMap;
 import java.util.List;
@@ -14,42 +15,16 @@ import java.util.stream.Collectors;
  * @Date 2021/5/19 10:48
  * @Version 1.0
  **/
-public class AdminPlugin extends MessagePluginImpl {
+@RobotPlugin
+@MainCmd(keyword = "管理系统", desc = "机器人管理系统")
+public class AdminPlugin extends MsgPluginImpl {
 
     private static final List<String> adminList = Storage.adminList;
     private static final Map<String, Object> pluginData = new HashMap<String, Object>(){{
         put("adminList", adminList);
     }};
 
-    // 二级指令
-    @Getter
-    private final Map<String, String> subCmdList = new HashMap<String, String>(){{
-        put("添加管理", "addAdmin");
-        put("删除管理", "delAdmin");
-        put("管理列表", "listAdmin");
-    }};
-    // 需要注册为一级指令的 指令
-    @Getter
-    private final Map<String, String> registerAsFirstCmd = new HashMap<String, String>(){{
-
-    }};
-
-    // 本插件一级指令
-    @Override
-    public String getMainCmd() {
-        return "管理系统";
-    }
-
-    @Override
-    public @NotNull String getHelp() {
-        return "添加管理 id --- 添加新管理\n删除管理 id --- 删除旧管理";
-    }
-
-    @Override
-    public List<String> getGlobalCmd() {
-        return null;
-    }
-
+    @SubCmd(keyword = "添加管理", desc = "添加机器人管理员")
     public boolean addAdmin(){
         if(!isSuperAdmin()){
             event.getSubject().sendMessage("权限不足");
@@ -65,6 +40,7 @@ public class AdminPlugin extends MessagePluginImpl {
         }
         return true;
     }
+    @SubCmd(keyword = "删除管理", desc = "删除指定机器人管理员")
     public boolean delAdmin(){
         if(!isSuperAdmin()){
             event.getSubject().sendMessage("权限不足");
@@ -76,6 +52,7 @@ public class AdminPlugin extends MessagePluginImpl {
         event.getSubject().sendMessage("OK");
         return true;
     }
+    @SubCmd(keyword = "列出管理", desc = "列出所有机器人管理员")
     public boolean listAdmin(){
         if(!isSuperAdmin()){
             event.getSubject().sendMessage("权限不足");

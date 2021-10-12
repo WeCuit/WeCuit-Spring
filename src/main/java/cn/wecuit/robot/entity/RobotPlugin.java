@@ -6,14 +6,13 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * 用于标记类为机器人插件
+ *
  * @Author jiyec
- * @Date 2021/10/8 21:07
+ * @Date 2021/10/10 17:36
  * @Version 1.0
- * @description 一级主指令
  **/
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface MainCmd {
-    String keyword();   // 指令
-    String desc();      // 描述
+public @interface RobotPlugin {
 }

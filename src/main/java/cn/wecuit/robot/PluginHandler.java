@@ -1,17 +1,9 @@
 package cn.wecuit.robot;
 
-import cn.wecuit.backen.utils.SpringUtil;
-import cn.wecuit.robot.entity.EventType;
-import cn.wecuit.robot.entity.MainCmd;
-import cn.wecuit.robot.plugins.EventPlugin;
-import cn.wecuit.robot.plugins.EventPluginImpl;
-import cn.wecuit.robot.plugins.msg.MessagePlugin;
-import cn.wecuit.robot.plugins.msg.MessagePluginImpl;
+import cn.wecuit.robot.entity.*;
 import lombok.extern.slf4j.Slf4j;
 import net.mamoe.mirai.event.Event;
-import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.core.type.classreading.CachingMetadataReaderFactory;
@@ -19,8 +11,9 @@ import org.springframework.core.type.classreading.MetadataReader;
 import org.springframework.core.type.classreading.MetadataReaderFactory;
 import org.springframework.util.ClassUtils;
 
-import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.*;
 
 /**
@@ -30,44 +23,26 @@ import java.util.*;
  **/
 @Slf4j
 public class PluginHandler {
+
+    // 注册事件   [事件 - method]
+    private static final Map<String, Method> registeredEvent = new HashMap<>();
+    public static final Map<String, Object> cmd2plugin = new HashMap<>();
+    // 全局调用插件 (在指令未匹配到插件时调用)   [Object[]{clazz, method}]
+    public static final List<Method> cmd2plugin3 = new ArrayList<>();
+
+
     // 插件列表确保首字母大写
-    private static final List<String> pluginList = new LinkedList<String>(){{
-        //ResourceLoader resourceLoader = new DefaultResourceLoader();
-        //
-        //String[] list;
-        //try {
-        //
-        //
-        //    list = resourceLoader.getResource("classpath:cn/wecuit/robot/plugins/msg").getFile().list((dir, name) -> !name.contains("$") && !name.contains("Message") && name.endsWith("Plugin.class"));
-        //
-        //    for (String s : list) {
-        //        add("msg." + s.substring(0, s.indexOf("Plugin")));
-        //    }
-        //    list = resourceLoader.getResource("classpath:cn/wecuit/robot/plugins").getFile().list((dir, name) -> !name.contains("$") && !name.contains("Event") && name.endsWith("Plugin.class"));
-        //
-        //    for (String s : list) {
-        //        add(s.substring(0, s.indexOf("Plugin")));
-        //    }
-        //
-        //} catch (IOException e) {
-        //    e.printStackTrace();
-        //}
-    }};
+    private static final List<String> pluginList = new LinkedList<>();
 
     // 插件主指令  [指令-类]
-    public static final Map<String, Class<? extends MessagePluginImpl>> cmd2plugin1 = new HashMap<>();
+    public static final Map<String, Class<?>> cmd2plugin1 = new HashMap<>();
     // 插件的次级指令注册为主指令  [指令 - Object[]{clazz, method}]
     public static final Map<String, Object[]> cmd2plugin2 = new HashMap<>();
-    // 全局调用插件 (在指令未匹配到插件时调用)   [Object[]{clazz, method}]
-    public static final List<Object[]> cmd2plugin3 = new ArrayList<>();
 
-    // 其它事件   [事件 - clazz]
-    private static final Map<String, Class<? extends EventPluginImpl>> otherEvent = new HashMap<>();
 
     public static void register(){
         log.info("注册插件指令");
 
-        //TODO: https://www.cnblogs.com/woyujiezhen/p/14245785.html
         ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
         final String BASE_PACKAGE = "cn.wecuit.robot.plugins";
         final String RESOURCE_PATTERN = "/**/*.class";
@@ -86,79 +61,57 @@ public class PluginHandler {
                 if(!pluginName.contains("$")
                         && pluginName.endsWith("Plugin")
                         && !pluginName.contains("Event")
-                        && !pluginName.contains("msg.Message")
-                )
+                        && !pluginName.contains("msg.Message"))
                     pluginList.add(pluginName.substring(0, pluginName.indexOf("Plugin")));
-                //Class<?> clazz = Class.forName(classname);
-                ////判断是否有指定主解
-                //if (clazz.isAnnotationPresent(MainCmd.class)) {
-                //    pluginList.add("");
-                //}
+
+                Class<?> clazz = Class.forName(classname);
+
+                //判断是否有指定注解
+                if (clazz.isAnnotationPresent(RobotPlugin.class)) {
+                    Method[] methods = clazz.getMethods();
+                    Map<String, Object> cmdMap = new HashMap<>();
+                    if(clazz.isAnnotationPresent(MainCmd.class)){
+                        // 有主指令
+                        MainCmd mainCmd = clazz.getAnnotation(MainCmd.class);
+                        String keyword = mainCmd.keyword();
+                        StringBuilder desc = new StringBuilder(mainCmd.desc()).append("\n");
+                        cmd2plugin.put(keyword, cmdMap);
+                        for (Method method : methods) {
+                            if (method.isAnnotationPresent(SubCmd.class)) {
+                                SubCmd subCmd = method.getAnnotation(SubCmd.class);
+                                String keyword1 = subCmd.keyword();
+                                if("".equals(keyword1)){
+                                    keyword1 = "全局监听";
+                                    cmd2plugin3.add(method);
+                                }else if(subCmd.regAsMainCmd()){
+                                    // 注册为主指令
+                                    cmd2plugin.put(keyword1, method);
+                                }else{
+                                    // 加入二级指令
+                                    cmdMap.put(keyword1, method);
+                                }
+                                desc.append(keyword1).append(" - ").append(subCmd.desc()).append("\n");
+                            }
+                        }
+                        cmdMap.put("?", desc.toString());
+                    }else {
+                        // 非指令类型插件
+                        for (Method method : methods) {
+                            //method.getAnnotation();
+                            if (method.isAnnotationPresent(RobotEventHandle.class)) {
+                                RobotEventHandle annotation = method.getAnnotation(RobotEventHandle.class);
+                                registeredEvent.put(annotation.event().name(), method);
+                            }
+                        }
+                    }
+                }
             }
-            log.info("插件数目： {}", pluginList.size());
-        } catch (IOException e) {
+            log.info("事件插件数目： {}", registeredEvent.size());
+            log.info("指令插件数目： {}", cmd2plugin.size());
+        } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
-
-        pluginList.forEach(p->{
-            log.info("注册插件：{}", p);
-            try {
-                Class<?> clazz = Class.forName(MainHandleJava.class.getPackage().getName() + ".plugins." + p + "Plugin");
-
-                Class<?> superclass = clazz.getSuperclass();
-
-                if("MessagePluginImpl".equals(superclass.getSimpleName())){
-                    registerMsgPlugin((Class<? extends MessagePluginImpl>) clazz);
-                }else{
-                    registerEventPlugin((Class<? extends EventPluginImpl> )clazz);
-                }
-
-
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            } catch (InstantiationException e) {
-                e.printStackTrace();
-            } catch (NoSuchMethodException e) {
-                e.printStackTrace();
-            }
-        });
-
-        log.info("插件指令注册完毕");
-    }
-    private static void registerEventPlugin(Class<? extends EventPluginImpl> clazz) throws InstantiationException, IllegalAccessException {
-
-        EventPlugin plugin = clazz.newInstance();
-        for (EventType eventType : plugin.event()) {
-            otherEvent.put(eventType.name(), clazz);
-        }
-    }
-    private static void registerMsgPlugin(Class<? extends MessagePluginImpl> clazz) throws InstantiationException, IllegalAccessException, NoSuchMethodException {
-        // 插件实例
-        MessagePlugin plugin = clazz.newInstance();
-
-        // 增加  [指令 ---> 对象] 关联
-        cmd2plugin1.put(plugin.getMainCmd(), clazz);
-
-        // 注册"插件中需要注册为一级指令"的指令
-        Map<String, String> registerCmd = plugin.getRegisterAsFirstCmd();
-        if(registerCmd != null)
-            registerCmd.forEach((k, v)-> {
-                try {
-                    cmd2plugin2.put(k, new Object[]{clazz, clazz.getMethod(v)});
-                } catch (NoSuchMethodException e) {
-                    e.printStackTrace();
-                }
-            });
-
-        // 注册全局指令
-        List<String> globalCmd = plugin.getGlobalCmd();
-        if(null != globalCmd)
-            for (String s : globalCmd) {
-                cmd2plugin3.add(new Object[]{clazz, clazz.getMethod(s)});
-            }
-
+        log.info("插件注册完毕");
     }
 
     public static void event(Event e){
@@ -166,24 +119,17 @@ public class PluginHandler {
         e.getClass().getName()       --- net.mamoe.mirai.event.events.MemberMuteEvent
         e.getClass().getSimpleName() --- MemberMuteEvent
          */
-        // System.out.println(e.getClass().getSimpleName());
-
         try {
             String eventType = e.getClass().getSimpleName();
-            Class<? extends EventPluginImpl> clazz = otherEvent.get(eventType);
-            if(clazz!=null){
-                EventPlugin plugin = clazz.newInstance();
-
-                plugin.init(e);
-                plugin.handle();
+            Method method = registeredEvent.get(eventType);
+            if(method != null){
+                method.invoke(method.getDeclaringClass().newInstance(), e);
             }else{
-                log.info("EventType: {}", eventType);
+                log.info("事件无匹配 - EventType: {}", eventType);
             }
 
-        } catch (InstantiationException instantiationException) {
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException instantiationException) {
             instantiationException.printStackTrace();
-        } catch (IllegalAccessException illegalAccessException) {
-            illegalAccessException.printStackTrace();
         }
     }
 

@@ -1,6 +1,9 @@
 package cn.wecuit.robot.plugins.msg;
 
 import cn.wecuit.robot.data.DataHandle;
+import cn.wecuit.robot.entity.MainCmd;
+import cn.wecuit.robot.entity.RobotPlugin;
+import cn.wecuit.robot.entity.SubCmd;
 import lombok.extern.slf4j.Slf4j;
 import net.mamoe.mirai.Mirai;
 import net.mamoe.mirai.contact.Group;
@@ -18,7 +21,14 @@ import java.util.regex.PatternSyntaxException;
  * @Version 1.0
  **/
 @Slf4j
-public class BanPlugin extends MessagePluginImpl {
+@RobotPlugin
+@MainCmd(keyword = "屏蔽系统", desc = "消息屏蔽撤回Admin:\\n\" +\n" +
+        "                \"添加违禁表达式 表达式\\n\" +\n" +
+        "                \"查看违禁表达式\\n\" +\n" +
+        "                \"删除违禁表达式 id\\n\" +\n" +
+        "                \"清空违禁表达式\\n\" +\n" +
+        "                \"测试违禁表达式 内容\\n")
+public class BanPlugin extends MsgPluginImpl {
 
     private static final Map<String, List<String>> banRuleItems = new HashMap<>();
     // private static final List<String> enabledList = new ArrayList<>();
@@ -28,56 +38,7 @@ public class BanPlugin extends MessagePluginImpl {
         // put("enabledList", enabledList);
     }};
 
-    @Override
-    public String getMainCmd() {
-        return "屏蔽系统";
-    }
-
-    @Override
-    public Map<String, String> getSubCmdList() {
-        return new HashMap<String, String>(){{
-            put("添加违禁表达式", "addRuleItem");
-            put("查看违禁表达式", "viewRuleItem");
-            put("删除违禁表达式", "delRuleItem");
-            put("清空违禁表达式", "clearRuleItem");
-            put("测试违禁表达式", "testRuleItem");
-        }};
-    }
-
-    @Override
-    public Map<String, String> getRegisterAsFirstCmd() {
-        return null;
-    }
-
-    @Override
-    public @NotNull String getHelp() {
-        return "Admin:\n" +
-                "添加违禁表达式 表达式\n" +
-                "查看违禁表达式\n" +
-                "删除违禁表达式 id\n" +
-                "清空违禁表达式\n" +
-                "测试违禁表达式 内容\n";
-    }
-
-    @Override
-    public void initPluginData(Map<String, Object> config) {
-        Object banRuleItems = config.get("banRuleItems");
-        if(banRuleItems instanceof Map) {
-            Map<String, List<String>> items = (Map<String, List<String>>) banRuleItems;
-            if (items != null)
-                BanPlugin.banRuleItems.putAll(items);
-        }
-        // List<String> enabledList1 = (List<String>) config.get("enabledList");
-        // enabledList.addAll(enabledList1);
-    }
-
-    @Override
-    public List<String> getGlobalCmd() {
-        return new LinkedList<String>(){{
-            add("msgCheck");
-        }};
-    }
-
+    @SubCmd(keyword = "添加违禁表达式")
     public void addRuleItem(){
         if(!isAdmin())return;
 
@@ -95,6 +56,7 @@ public class BanPlugin extends MessagePluginImpl {
         }
     }
 
+    @SubCmd(keyword = "查看违禁表达式")
     public void viewRuleItem(){
         if(!isAdmin())return;
 
@@ -106,6 +68,7 @@ public class BanPlugin extends MessagePluginImpl {
         event.getSubject().sendMessage(msg.toString());
     }
 
+    @SubCmd(keyword = "删除违禁表达式")
     public void delRuleItem(){
         if(!isAdmin())return;
 
@@ -128,6 +91,7 @@ public class BanPlugin extends MessagePluginImpl {
 
     }
 
+    @SubCmd(keyword = "清空违禁表达式")
     public void clearRuleItem(){
         if(!isAdmin())return;
 
@@ -138,6 +102,7 @@ public class BanPlugin extends MessagePluginImpl {
 
     }
 
+    @SubCmd(keyword = "测试违禁表达式")
     public void testRuleItem(){
         if(!isAdmin())return;
 
@@ -153,6 +118,7 @@ public class BanPlugin extends MessagePluginImpl {
         event.getSubject().sendMessage("没有匹配");
     }
 
+    @SubCmd(keyword = "")
     public boolean msgCheck(){
         Group group = event.getBot().getGroup(event.getSubject().getId());
         MemberPermission botPermission = group.getBotPermission();
@@ -173,6 +139,18 @@ public class BanPlugin extends MessagePluginImpl {
                 }
             }
         return false;
+    }
+
+    @Override
+    public void initPluginData(Map<String, Object> config) {
+        Object banRuleItems = config.get("banRuleItems");
+        if(banRuleItems instanceof Map) {
+            Map<String, List<String>> items = (Map<String, List<String>>) banRuleItems;
+            if (items != null)
+                BanPlugin.banRuleItems.putAll(items);
+        }
+        // List<String> enabledList1 = (List<String>) config.get("enabledList");
+        // enabledList.addAll(enabledList1);
     }
 
     public void updatePluginData(){

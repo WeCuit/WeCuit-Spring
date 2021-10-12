@@ -65,7 +65,7 @@ public class NewsController {
      * 拉取新闻操作 [对普通用户不可见]
      */
     @GetMapping("/doPull")
-    @SaCheckRole("admin")
+    //@SaCheckRole("admin")
     public void doPullAction() {
         newsService.pullNews();
     }

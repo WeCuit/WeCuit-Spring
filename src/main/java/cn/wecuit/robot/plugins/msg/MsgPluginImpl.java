@@ -4,7 +4,6 @@ import cn.wecuit.robot.data.DataHandle;
 import lombok.SneakyThrows;
 import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.message.MessageReceipt;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Map;
@@ -14,7 +13,7 @@ import java.util.Map;
  * @Date 2021/5/19 10:34
  * @Version 1.0
  **/
-public abstract class MessagePluginImpl implements MessagePlugin {
+public abstract class MsgPluginImpl implements MsgPlugin {
 
     protected MessageEvent event;
     // 在全局指令传入时，此属性为null
@@ -25,18 +24,6 @@ public abstract class MessagePluginImpl implements MessagePlugin {
         this.cmds = cmds;
     }
 
-    @Override
-    public abstract @NotNull String getHelp();
-
-    @Override
-    public void defaultAction() {
-
-    }
-
-    @Override
-    public Map<String, String> getRegisterAsFirstCmd() {
-        return null;
-    }
 
     @Override
     public void initPluginData(Map<String, Object> config) {

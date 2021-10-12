@@ -1,6 +1,9 @@
 package cn.wecuit.robot.plugins.msg;
 
 import cn.wecuit.robot.data.Storage;
+import cn.wecuit.robot.entity.MainCmd;
+import cn.wecuit.robot.entity.RobotPlugin;
+import cn.wecuit.robot.entity.SubCmd;
 import lombok.extern.slf4j.Slf4j;
 import net.mamoe.mirai.message.MessageReceipt;
 import org.jetbrains.annotations.NotNull;
@@ -15,40 +18,13 @@ import java.util.Map;
  * @Version 1.0
  **/
 @Slf4j
-public class RecallPlugin extends MessagePluginImpl {
+@RobotPlugin
+@MainCmd(keyword = "撤回系统", desc = Storage.name + "撤回 - 撤回" + Storage.name + "发出的最后一条消息")
+public class RecallPlugin extends MsgPluginImpl {
 
     private static final Map<String, Object> pluginData = new HashMap<>();
 
-    // 二级指令
-    private static final Map<String, String> subCmdList = new HashMap<String, String>(){{
-    }};
-
-    // 需要注册为一级指令的 指令
-    private static final Map<String, String> registerCmd = new HashMap<String, String>(){{
-        put(Storage.name + "撤回", "doRecall");
-    }};
-
-    // 本插件一级指令
-    @Override
-    public String getMainCmd() {
-        return "撤回系统";
-    }
-
-    @Override
-    public @NotNull String getHelp() {
-        return "这是测试帮助信息";
-    }
-
-    @Override
-    public Map<String, String> getSubCmdList() {
-        return subCmdList;
-    }
-
-    @Override
-    public Map<String, String> getRegisterAsFirstCmd() {
-        return registerCmd;
-    }
-
+    @SubCmd(keyword = Storage.name + "撤回", regAsMainCmd = true)
     public boolean doRecall(){
         long id = event.getSubject().getId();
         MessageReceipt message = Storage.getMessage(id);
@@ -69,10 +45,6 @@ public class RecallPlugin extends MessagePluginImpl {
         pluginData.putAll(config);  // 置入
     }
 
-    @Override
-    public List<String> getGlobalCmd() {
-        return null;
-    }
 
     public void updatePluginData() {
         super.updatePluginData(pluginData);

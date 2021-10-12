@@ -1,13 +1,26 @@
 package cn.wecuit.robot.services.impl;
 
+import cn.wecuit.backen.utils.JsonUtil;
+import cn.wecuit.backen.utils.NewsUtil;
 import cn.wecuit.robot.mapper.MetaMapper;
 import cn.wecuit.robot.pojo.Meta;
 import cn.wecuit.robot.services.RbNewsService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.io.*;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @Author jiyec
@@ -15,9 +28,12 @@ import java.util.Date;
  * @Version 1.0
  **/
 @Service
+@Slf4j
 public class RbNewsServiceImpl implements RbNewsService {
     @Resource
     MetaMapper metaMapper;
+    @Value("${wecuit.data-path}")
+    private String BASE_DATA_PATH;
 
     @Override
     public boolean isNewsExist(String md5) {
@@ -38,5 +54,16 @@ public class RbNewsServiceImpl implements RbNewsService {
         return metaMapper.delete(new QueryWrapper<Meta>() {{
             lt("value", String.valueOf(new Date().getTime()));
         }});
+    }
+
+    /**
+     * 获取每个学院最新的新闻
+     * @param dayRange  最近 [dayRange] 天的新闻
+     * @return
+     * @throws IOException
+     */
+    public List<Map<String, String>> getLatestNews(int dayRange) throws IOException {
+        String listPath = BASE_DATA_PATH + "/WeCuit/cache/news/list";
+        return NewsUtil.getLatestNews(listPath, dayRange);
     }
 }

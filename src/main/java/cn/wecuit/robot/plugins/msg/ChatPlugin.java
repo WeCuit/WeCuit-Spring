@@ -1,6 +1,9 @@
 package cn.wecuit.robot.plugins.msg;
 
 import cn.wecuit.backen.utils.SpringUtil;
+import cn.wecuit.robot.entity.MainCmd;
+import cn.wecuit.robot.entity.RobotPlugin;
+import cn.wecuit.robot.entity.SubCmd;
 import cn.wecuit.robot.provider.WSeg;
 import cn.wecuit.robot.services.RbDictService;
 import lombok.Getter;
@@ -20,43 +23,16 @@ import java.util.stream.Collectors;
  * @Version 1.0
  **/
 @Slf4j
-public class ChatPlugin extends MessagePluginImpl {
+@RobotPlugin
+@MainCmd(keyword = "聊天功能", desc = "Admin:\n发送[聊天功能 开启]可开启指定群聊的聊天功能")
+public class ChatPlugin extends MsgPluginImpl {
 
     private static final List<String> enabledList = new ArrayList<>();
     private static final Map<String, Object> pluginData = new HashMap<String, Object>(){{
         put("enabledList", enabledList);
     }};
 
-    // 二级指令
-    @Getter
-    private final Map<String, String> subCmdList = new HashMap<String, String>(){{
-        put("开启", "enableMode");
-        put("关闭", "disableMode");
-    }};
-    // 需要注册为一级指令的 指令
-    @Getter
-    private final Map<String, String> registerAsFirstCmd = new HashMap<String, String>(){{
-
-    }};
-
-    // 本插件一级指令
-    @Override
-    public String getMainCmd() {
-        return "聊天功能";
-    }
-
-    @Override
-    public @NotNull String getHelp() {
-        return "Admin:\n发送[聊天功能 开启]可开启指定群聊的聊天功能";
-    }
-
-    @Override
-    public List<String> getGlobalCmd() {
-        return new ArrayList<String>(){{
-            add("chat");
-        }};
-    }
-
+    @SubCmd(keyword = "")
     public boolean chat(){
 
         String msg = event.getMessage().contentToString();
@@ -93,6 +69,7 @@ public class ChatPlugin extends MessagePluginImpl {
         return false;
     }
 
+    @SubCmd(keyword = "开启")
     public boolean enableMode(){
         String subjectId = Long.toString(event.getSubject().getId());
         boolean allowChat = enabledList.contains(subjectId);
@@ -106,6 +83,7 @@ public class ChatPlugin extends MessagePluginImpl {
         return true;
     }
 
+    @SubCmd(keyword = "关闭")
     public boolean disableMode(){
         String subjectId = Long.toString(event.getSubject().getId());
         boolean allowChat = enabledList.contains(subjectId);

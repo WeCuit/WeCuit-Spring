@@ -4,6 +4,7 @@ package cn.wecuit.backen.utils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -41,7 +42,7 @@ public class NewsUtil {
 
             for(File file: files){
                 // 读取内容
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
                 StringBuilder content = new StringBuilder();
                 String line;
                 while((line=bufferedReader.readLine()) != null){
@@ -63,7 +64,6 @@ public class NewsUtil {
         });
         return latestNews;
     }
-
     private static List<Map<String, String>> getLatestItem(String json, int dayRange, String source){
 
         SimpleDateFormat dateFormat1 = new SimpleDateFormat("yyyy-MM-dd");
@@ -79,7 +79,7 @@ public class NewsUtil {
         Stream<Map<String, String>> mapStream = list.stream().filter(m -> {
             try {
                 String date = m.get("date");
-                Long newsTime = date.length() > 5 ? dateFormat1.parse(date).getTime()/1000 : dateFormat2.parse(date).getTime()/1000;
+                long newsTime = date.length() > 5 ? dateFormat1.parse(date).getTime()/1000 : dateFormat2.parse(date).getTime()/1000;
                 if(nowTime - newsTime <= 3600L * 24 * dayRange)
                 {
                     log.debug("现在时间：{} 新闻时间：{}", nowTime, newsTime);
@@ -94,8 +94,8 @@ public class NewsUtil {
             }
             return false;
         });
-        List<Map<String, String>> collect = mapStream.collect(Collectors.toList());
 
-        return collect;
+        return mapStream.collect(Collectors.toList());
     }
+
 }

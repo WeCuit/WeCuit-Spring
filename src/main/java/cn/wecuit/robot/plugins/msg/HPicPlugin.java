@@ -2,6 +2,9 @@ package cn.wecuit.robot.plugins.msg;
 
 import cn.wecuit.backen.utils.SpringUtil;
 import cn.wecuit.robot.data.Storage;
+import cn.wecuit.robot.entity.MainCmd;
+import cn.wecuit.robot.entity.RobotPlugin;
+import cn.wecuit.robot.entity.SubCmd;
 import cn.wecuit.robot.mapper.RbPicMapper;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -25,24 +28,14 @@ import java.util.stream.Collectors;
  * @Version 1.0
  **/
 @Slf4j
-public class HPicPlugin extends MessagePluginImpl {
-
-    // 二级指令
-    @Getter
-    private final Map<String, String> subCmdList = new HashMap<String, String>(){{
-        put("开启", "enablePic");
-        put("关闭", "disablePic");
-    }};
-    // 需要注册为一级指令的 指令
-    @Getter
-    private final Map<String, String> registerAsFirstCmd = new HashMap<String, String>(){{
-        put("抽(.*?)[点丶份张幅](.*?)的?(|r18)[纸色瑟涩\uD83D\uDC0D][片图圖\uD83E\uDD2E][|人]", "randZprPic");
-    }};
+@RobotPlugin
+@MainCmd(keyword = "色图系统", desc = "图片系统：\nAdmin:\n  纸片人 开启 [(放空|普通)/性感/H/所有]\n  纸片人 关闭\n\n普通用户：\n  来张色图 -- 开启状态下可用（20秒后自动撤回）")
+public class HPicPlugin extends MsgPluginImpl {
 
     // 配置
     // 群号 - 配置
     private static final Map<String, Map<String, Object>> config = new HashMap<>();
-    private static Pattern zprCompile = Pattern.compile("来(.*?)[点丶份张幅](.*?)的?(|r18)[色瑟涩\uD83D\uDC0D][图圖\uD83E\uDD2E]");
+    private static final Pattern zprCompile = Pattern.compile("来(.*?)[点丶份张幅](.*?)的?(|r18)[色瑟涩\uD83D\uDC0D][图圖\uD83E\uDD2E]");
     private static int maxSend = 10;
     private static boolean isR18Enable = false;
 
@@ -53,17 +46,7 @@ public class HPicPlugin extends MessagePluginImpl {
         put("config", config);
     }};
 
-    // 本插件一级指令
-    @Override
-    public String getMainCmd() {
-        return "纸片人";
-    }
-
-    @Override
-    public @NotNull String getHelp() {
-        return "图片系统：\nAdmin:\n  纸片人 开启 [(放空|普通)/性感/H/所有]\n  纸片人 关闭\n\n普通用户：\n  来张色图 -- 开启状态下可用（20秒后自动撤回）";
-    }
-
+    @SubCmd(keyword = "开启")
     public boolean enablePic(){
         Contact subject = event.getSubject();
         String subjectId = Long.toString(subject.getId());
@@ -108,6 +91,7 @@ public class HPicPlugin extends MessagePluginImpl {
         return true;
     }
 
+    @SubCmd(keyword = "关闭")
     public boolean disablePic(){
 
         Contact subject = event.getSubject();
@@ -123,6 +107,7 @@ public class HPicPlugin extends MessagePluginImpl {
         return true;
     }
 
+    @SubCmd(keyword = "抽(.*?)[点丶份张幅](.*?)的?(|r18)[纸色瑟涩\uD83D\uDC0D][片图圖\uD83E\uDD2E][|人]")
     public boolean randZprPic(){
         Contact subject = event.getSubject();
         String subjectId = Long.toString(subject.getId());
@@ -278,8 +263,4 @@ public class HPicPlugin extends MessagePluginImpl {
         HPicPlugin.config.putAll((Map<String, Map<String, Object>>) config.get("config"));  // 置入
     }
 
-    @Override
-    public List<String> getGlobalCmd() {
-        return null;
-    }
 }

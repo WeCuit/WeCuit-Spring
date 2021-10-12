@@ -2,135 +2,132 @@ package cn.wecuit.robot.plugins;
 
 import cn.wecuit.robot.PluginHandler;
 import cn.wecuit.robot.entity.EventType;
-import cn.wecuit.robot.plugins.msg.MessagePluginImpl;
+import cn.wecuit.robot.entity.RobotEventHandle;
+import cn.wecuit.robot.entity.RobotPlugin;
+import cn.wecuit.robot.plugins.msg.MsgPlugin;
+import lombok.extern.slf4j.Slf4j;
 import net.mamoe.mirai.event.events.MessageEvent;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.lang.reflect.Parameter;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * @Author jiyec
  * @Date 2021/6/16 8:39
  * @Version 1.0
  **/
-public class MessagePlugin extends EventPluginImpl{
-    @Override
-    public void handle(){
+@Slf4j
+@RobotPlugin
+public class MessagePlugin {
+    @RobotEventHandle(event = EventType.GroupMessageEvent)
+    public void handleMsg(MessageEvent event) {
 
-        MessageEvent e = (MessageEvent) event;
         // 机器人发送，忽略
-        if(e.getSender().getId() == e.getBot().getId()) return;
+        if (event.getSender().getId() == event.getBot().getId()) return;
 
         // 去除多余空格
-        String[] temp = e.getMessage().contentToString().replaceAll("  ", " ").split(" ");
+        String[] temp = event.getMessage().contentToString().replaceAll("  ", " ").split(" ");
 
         // 指令集转为List
         List<String> cmds = new LinkedList<>(Arrays.asList(temp));
 
-        Class<? extends MessagePluginImpl> pluginClazz;
-        Object[] pluginInfo;
         String cmd = cmds.get(0);
         cmds.remove(0);
 
-        Map<String, Class<? extends MessagePluginImpl>> cmd2plugin1 = PluginHandler.cmd2plugin1;
-        Map<String, Object[]> cmd2plugin2 = PluginHandler.cmd2plugin2;
-        List<Object[]> cmd2plugin3 = PluginHandler.cmd2plugin3;
-        if(null != (pluginClazz = cmd2plugin1.get(cmd)))                // 优先查找插件指令
-            pluginHandle(pluginClazz, cmds, e);
-        else if(null != (pluginInfo = cmd2plugin2.get(cmd))){           // 查找插件子指令
-            pluginHandle(pluginInfo, cmds, e);
-        }else {
-            AtomicBoolean exc = new AtomicBoolean(false);
-            cmd2plugin2.forEach((s, m) -> {
-                if (exc.get()) return;
-
-                // 正则匹配  查找插件子指令
-                try{
-                    if(Pattern.compile(s).matcher(cmd).matches()){
-                        exc.set(true);
-                        pluginHandle(m, cmds, e);
-                    }
-                }catch (Exception ignored){
+        Map<String, Object> cmd2plugin = PluginHandler.cmd2plugin;
+        List<Method> cmd2plugin3 = PluginHandler.cmd2plugin3;
+        Set<String> keys = cmd2plugin.keySet();
+        Object action = null;
+        for (String key : keys) {
+            // 正则匹配指令
+            try {
+                Pattern compile = Pattern.compile(key);
+                if(compile.matcher(cmd).matches()){
+                    action = cmd2plugin.get(key);
+                    break;
                 }
-            });
-
-            if (!exc.get()) {
-                // 其它处理
-                for (Object[] objects : cmd2plugin3) {
-                    if (pluginHandle(objects, null, e))
-                        break;
-                }
+            }catch (PatternSyntaxException e){
+                log.error("正则预编译指令失败：{}", key);
+                e.printStackTrace();
             }
         }
-    }
-
-    // 注册为一级指令的处理
-    private boolean pluginHandle(Object[] pluginInfo, List<String> cmds, MessageEvent event){
+        if (action == null) {
+            // 没有找到指令
+            event.getSubject().sendMessage("未找到指令，应该交给全区监听方法处理");
+            cmd2plugin3.forEach(m->{
+                try {
+                    m.invoke(m.getDeclaringClass().newInstance(), event);
+                } catch (IllegalAccessException | InvocationTargetException | InstantiationException e) {
+                    e.printStackTrace();
+                }
+            });
+            return;
+        }
         try {
-            Class<? extends MessagePluginImpl> clazz = (Class<? extends MessagePluginImpl>)pluginInfo[0];
-
-            // 获取 INSTANCE
-            cn.wecuit.robot.plugins.msg.MessagePlugin plugin = clazz.newInstance();
-
-            // 初始化
-            plugin.init(event, cmds);
-
-            // 调用
-            return (boolean)((Method)pluginInfo[1]).invoke(plugin);
+            if (action instanceof Method) {
+                // 指令对应方法
+                Method method = (Method) action;
+                Parameter[] parameters = method.getParameters();
+                Object[] args = new Object[parameters.length];
+                for (int i = 0; i < parameters.length; i++) {
+                    String name = parameters[i].getType().getSimpleName();
+                    if(EventType.GroupMessageEvent.name().equals(name)){
+                        args[i] = event;
+                    }else if("List".equals(name)){
+                        args[i] = cmds;
+                    }else{
+                        log.info("无法识别的参数类型：{} - {}", name, parameters[i].getType().getName());
+                    }
+                }
+                method.invoke(method.getDeclaringClass().newInstance(), args);
+            } else if (action instanceof Map) {
+                Map<String, Object> subCmd = ((Map<String, Object>) action);
+                String c = cmds.get(0);
+                cmds.remove(0);
+                // 帮助指令
+                if ("?".equals(c) || "？".equals(c)) {
+                    Object data = subCmd.get("?");
+                    event.getSubject().sendMessage("帮助信息：\n" + data);
+                    return;
+                }
+                // 可能为操作指令
+                Object ac = subCmd.get(c);
+                // 指令不存在
+                if (ac == null) {
+                    event.getSubject().sendMessage("指令有误");
+                    return;
+                }
+                // 指令匹配
+                if (ac instanceof Method) {
+                    // 指令对应方法
+                    Method method = (Method) ac;
+                    Parameter[] parameters = method.getParameters();
+                    Object[] args = new Object[parameters.length];
+                    for (int i = 0; i < parameters.length; i++) {
+                        String name = parameters[i].getType().getSimpleName();
+                        if(EventType.GroupMessageEvent.name().equals(name)){
+                            args[i] = event;
+                        }else if("List".equals(name)){
+                            args[i] = cmds;
+                        }else{
+                            log.info("无法识别的参数类型：{} - {}", name, parameters[i].getType().getName());
+                        }
+                    }
+                    MsgPlugin o = (MsgPlugin) method.getDeclaringClass().newInstance();
+                    o.init(event, cmds);
+                    method.invoke(o, args);
+                }
+            }
 
         } catch (IllegalAccessException | InvocationTargetException | InstantiationException e) {
             e.printStackTrace();
         }
 
-        return false;
-    }
-    // 普通指令处理
-    private void pluginHandle(Class<? extends MessagePluginImpl> pluginClazz, List<String> cmds, MessageEvent event){
-
-        if(cmds.size()==0)return;
-
-        try {
-            // 获取 INSTANCE
-            cn.wecuit.robot.plugins.msg.MessagePlugin plugin = pluginClazz.newInstance();
-
-            plugin.init(event, cmds);
-
-            String subCmd = cmds.get(0);
-            cmds.remove(0);
-
-            // 请求帮助
-            if("?".equals(subCmd) || "？".equals(subCmd)){
-                event.getSubject().sendMessage(plugin.getHelp());
-                return;
-            }
-
-            Map<String, String> subCmdList = plugin.getSubCmdList();
-
-            if(!subCmdList.containsKey(subCmd)) {
-                event.getSubject().sendMessage("这格式似乎不对呀~(>_<。)＼");
-                return;
-            }
-
-            String cmd = subCmdList.get(subCmd);
-            Method method = pluginClazz.getMethod(cmd);
-            method.invoke(plugin);
-
-        } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException | InstantiationException e) {
-            e.printStackTrace();
-        }
-
-        // 获取 Plugin对象
     }
 
-
-    @Override
-    public EventType[] event() {
-        return new EventType[]{EventType.GroupMessageEvent};
-    }
 }

@@ -1,5 +1,8 @@
 package cn.wecuit.robot.plugins.msg;
 
+import cn.wecuit.robot.entity.MainCmd;
+import cn.wecuit.robot.entity.RobotPlugin;
+import cn.wecuit.robot.entity.SubCmd;
 import cn.wecuit.robot.eventHandle.StudyEventKt;
 import kotlin.Unit;
 import kotlin.coroutines.Continuation;
@@ -18,36 +21,16 @@ import java.util.Map;
  * @Date 2021/5/19 10:48
  * @Version 1.0
  **/
-public class StudyPlugin extends MessagePluginImpl {
+@RobotPlugin
+@MainCmd(keyword = "学习系统", desc = "Admin:\n发送[学习模式 开启]可在指定群聊开启学习模式\n\n普通用户：\n发送[*学习 xxx]可对xxx进行学习")
+public class StudyPlugin extends MsgPluginImpl {
 
     private static final List<String> enabledList = new ArrayList<>();
     private static final Map<String, Object> pluginData = new HashMap<String, Object>(){{
         put("enabledList", enabledList);
     }};
 
-    // 二级指令
-    @Getter
-    private final Map<String, String> subCmdList = new HashMap<String, String>(){{
-        put("开启", "enableMode");
-    }};
-
-    // 需要注册为一级指令的 指令
-    @Getter
-    private final Map<String, String> registerAsFirstCmd = new HashMap<String, String>(){{
-        put("*学习", "study");
-    }};
-
-    // 本插件一级指令
-    @Override
-    public String getMainCmd() {
-        return "学习系统";
-    }
-
-    @Override
-    public @NotNull String getHelp() {
-        return "Admin:\n发送[学习模式 开启]可在指定群聊开启学习模式\n\n普通用户：\n发送[*学习 xxx]可对xxx进行学习";
-    }
-
+    @SubCmd(keyword = "开启")
     public boolean enableMode(){
 
         long senderId = event.getSender().getId();
@@ -68,6 +51,7 @@ public class StudyPlugin extends MessagePluginImpl {
         return true;
     }
 
+    @SubCmd(keyword = "关闭")
     public boolean disableMode(){
 
         long senderId = event.getSender().getId();
@@ -89,6 +73,7 @@ public class StudyPlugin extends MessagePluginImpl {
         return true;
     }
 
+    @SubCmd(keyword = "*学习", regAsMainCmd = true)
     public void study() {
 
         if(enabledList.contains(Long.toString(event.getSubject().getId())))
@@ -113,15 +98,9 @@ public class StudyPlugin extends MessagePluginImpl {
         return id == 1690127128L;
     }
 
-
     // 初始化插件数据[从外部到内部]
     public void initPluginData(Map<String, Object> config){
         enabledList.addAll((List<String>)config.get("enabledList"));  // 置入
-    }
-
-    @Override
-    public List<String> getGlobalCmd() {
-        return null;
     }
 
     public void updatePluginData() {

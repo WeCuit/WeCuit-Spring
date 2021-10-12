@@ -1,9 +1,15 @@
 package cn.wecuit.robot.plugins.msg;
 
 import cn.wecuit.backen.services.NewsService;
+import cn.wecuit.backen.utils.SpringUtil;
+import cn.wecuit.robot.entity.MainCmd;
+import cn.wecuit.robot.entity.RobotPlugin;
+import cn.wecuit.robot.entity.SubCmd;
 import cn.wecuit.robot.provider.NewsProvider;
 import cn.wecuit.backen.utils.NewsUtil;
+import cn.wecuit.robot.services.RbNewsService;
 import lombok.Getter;
+import net.mamoe.mirai.event.events.GroupMessageEvent;
 import net.mamoe.mirai.message.data.LightApp;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,46 +27,19 @@ import java.util.Map;
  * @Date 2021/5/19 10:48
  * @Version 1.0
  **/
-public class NewsPlugin extends MessagePluginImpl {
+@RobotPlugin
+@MainCmd(keyword = "新闻系统", desc = "Admin:\n\nUser:\n查询 n -- 查询n天之内的新闻")
+public class NewsPlugin extends MsgPluginImpl {
 
     @Value("${wecuit.data-path}")
     String BASE_DATA_PATH;
-
-    @Resource
-    NewsService newsService;
 
     private static final List<String> enabledList = new ArrayList<>();
     private static final Map<String, Object> pluginData = new HashMap<String, Object>(){{
         put("enabledList", enabledList);
     }};
 
-    // 二级指令
-    @Getter
-    private final Map<String, String> subCmdList = new HashMap<String, String>(){{
-        put("开启推送", "enablePush");
-        put("关闭推送", "disablePush");
-        put("推送测试", "pushTest");
-        put("添加推送目标", "addPushTarget");
-        put("查询", "query");
-    }};
-
-    // 需要注册为一级指令的 指令
-    @Getter
-    private final Map<String, String> registerAsFirstCmd = new HashMap<String, String>(){{
-
-    }};
-
-    // 本插件一级指令
-    @Override
-    public String getMainCmd() {
-        return "新闻系统";
-    }
-
-    @Override
-    public @NotNull String getHelp() {
-        return "Admin:\n开启/关闭推送 -- 开启/关闭对应群聊的新闻推送功能\n推送测试 -- 在当前群进行一次推送测试\n添加推送目标 群号 -- 添加指定群号到推送列表\n\nUser:\n查询 n -- 查询n天之内的新闻";
-    }
-
+    @SubCmd(keyword = "开启推送", desc = "开启对应群聊的新闻推送功能")
     public boolean enablePush(){
         long senderId = event.getSender().getId();
         if(!checkAdmin(senderId))
@@ -78,6 +57,7 @@ public class NewsPlugin extends MessagePluginImpl {
         return true;
     }
 
+    @SubCmd(keyword = "关闭推送", desc = "关闭对应群聊的新闻推送功能")
     public boolean disablePush(){
         long senderId = event.getSender().getId();
         if(!checkAdmin(senderId))
@@ -95,6 +75,7 @@ public class NewsPlugin extends MessagePluginImpl {
         return true;
     }
 
+    @SubCmd(keyword = "添加推送目标", desc = "参数[群号]，添加指定群号到推送列表")
     public boolean addPushTarget(){
         long senderId = event.getSender().getId();
         if(!checkAdmin(senderId))
@@ -116,26 +97,26 @@ public class NewsPlugin extends MessagePluginImpl {
     }
 
     // 推送测试
+    @SubCmd(keyword = "推送测试", desc = "在当前群进行一次推送测试")
     public boolean pushTest() throws IOException {
         long senderId = event.getSender().getId();
         if(!checkAdmin(senderId))
             event.getSubject().sendMessage("没有权限");
         String subjectId = Long.toString(event.getSubject().getId());
+        NewsService newsService = SpringUtil.getBean(NewsService.class);
         newsService.newsNotice(new ArrayList<String>(){{add(subjectId);}});
         return true;
     }
 
-    public boolean query(){
-        String temp = BASE_DATA_PATH + "/WeCuit";
-        String cachePath = temp + "/cache";
-        String listPath = cachePath + "/news/list";
-
+    @SubCmd(keyword = "查询", desc = "参数[n]，查询n天之内的新闻")
+    public boolean query(GroupMessageEvent event, List<String> cmds){
         try{
             int dayRange = 1;
             if(cmds.size() > 0)
                 dayRange = Integer.parseInt(cmds.get(0));
 
-            List<Map<String, String>> todayNews = NewsUtil.getLatestNews(listPath, dayRange);
+            RbNewsService newsService = SpringUtil.getBean(RbNewsService.class);
+            List<Map<String, String>> todayNews = newsService.getLatestNews(dayRange);
 
             if(todayNews.size() == 0) {
                 event.getSubject().sendMessage("没有" + dayRange + "天之内的新闻");
@@ -173,8 +154,4 @@ public class NewsPlugin extends MessagePluginImpl {
         enabledList.addAll((List<String>)config.get("enabledList"));  // 置入
     }
 
-    @Override
-    public List<String> getGlobalCmd() {
-        return null;
-    }
 }

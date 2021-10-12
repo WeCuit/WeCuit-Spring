@@ -1,7 +1,7 @@
 package cn.wecuit.robot.data;
 
 import cn.wecuit.backen.utils.SpringUtil;
-import cn.wecuit.robot.plugins.msg.MessagePluginImpl;
+import cn.wecuit.robot.plugins.msg.MsgPluginImpl;
 import cn.wecuit.robot.pojo.PluginData;
 import cn.wecuit.robot.services.RbPluginService;
 import lombok.extern.slf4j.Slf4j;
@@ -35,7 +35,7 @@ public class DataHandle {
                 if(pluginConfig == null)return;
 
                 try {
-                    Class<? extends MessagePluginImpl> clazz = (Class<? extends MessagePluginImpl>) Class.forName("cn.wecuit.robot.plugins.msg." + pluginName);
+                    Class<? extends MsgPluginImpl> clazz = (Class<? extends MsgPluginImpl>) Class.forName("cn.wecuit.robot.plugins.msg." + pluginName);
 
                     Method setPluginData = clazz.getMethod("initPluginData", Map.class);
                     setPluginData.invoke(clazz.newInstance(), pluginConfig);
