@@ -13,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 public class NewsStorage {
 
     public static boolean isNewsExist(String md5){
-
         RbNewsService newsService = SpringUtil.getBean(RbNewsService.class);
         return newsService.isNewsExist(md5);
     }

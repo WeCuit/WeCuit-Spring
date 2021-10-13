@@ -1,6 +1,5 @@
 package cn.wecuit.robot.services.impl;
 
-import cn.wecuit.backen.utils.JsonUtil;
 import cn.wecuit.backen.utils.NewsUtil;
 import cn.wecuit.robot.mapper.MetaMapper;
 import cn.wecuit.robot.pojo.Meta;
@@ -12,15 +11,8 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.io.*;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @Author jiyec
@@ -45,15 +37,13 @@ public class RbNewsServiceImpl implements RbNewsService {
 
     @Override
     public boolean addNoticed(String md5) {
-        int insert = metaMapper.insert(new Meta(null, md5, String.valueOf(new Date().getTime())));
+        int insert = metaMapper.insert(new Meta(null, "_transient_timeout-" + md5, String.valueOf(System.currentTimeMillis())));
         return insert == 1;
     }
 
     @Override
     public int delOutDated() {
-        return metaMapper.delete(new QueryWrapper<Meta>() {{
-            lt("value", String.valueOf(new Date().getTime()));
-        }});
+        return metaMapper.delNoticedNewsBeforeToday();
     }
 
     /**
