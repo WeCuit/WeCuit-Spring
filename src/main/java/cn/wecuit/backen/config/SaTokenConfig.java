@@ -30,7 +30,7 @@ public class SaTokenConfig implements WebMvcConfigurer {
 
             // 根据路由划分模块，不同模块不同鉴权
             // SaRouter.match("/user/**", () -> StpUtil.checkPermission("user"));
-            SaRouter.match(Collections.singletonList("/admin/**"), Arrays.asList("/admin/user/login", "/admin/user/reg", "/admin/auth/mini/**"), ()->{
+            SaRouter.match(Collections.singletonList("/admin/**"), Arrays.asList("/admin/user/login", "/admin/user/reg", "/admin/auth/mini/**", "/admin/test/123"), ()->{
                 StpUtil.checkLogin();   // 检测登录
                 StpUtil.checkPermission("login");   //检测ADMIN登录
             });

@@ -20,11 +20,11 @@ public class RobotMain {
     @Getter
     private static Bot bot;
 
-    public static void init(Long id, String pass){
+    public static void init(Long id, String pass, String path){
         init(id, pass, new BotConfiguration() {{
             // 配置，例如：
-            fileBasedDeviceInfo(RobotMain.class.getResource("/robot/").getPath()+ "device.json");
-            setCacheDir(new File(RobotMain.class.getResource("/robot/cache/" + id).getFile()));
+            fileBasedDeviceInfo(path + "/robot/device.json");
+            setCacheDir(new File(path + "/robot/cache/" + id));
         }});
     }
 

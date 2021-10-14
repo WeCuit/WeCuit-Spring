@@ -1,6 +1,9 @@
 package cn.wecuit.robot.plugins.msg;
 
 import cn.wecuit.robot.data.Storage;
+import cn.wecuit.robot.entity.MainCmd;
+import cn.wecuit.robot.entity.RobotPlugin;
+import cn.wecuit.robot.entity.SubCmd;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -10,39 +13,20 @@ import java.util.*;
  * @Date 2021/6/16 20:04
  * @Version 1.0
  **/
-public class SwitchPlugin extends MessagePluginImpl{
+@RobotPlugin
+@MainCmd(keyword = "开关系统", desc = "Admin:\\n\" +\n" +
+        "                \"退群提醒 开启/关闭 --- 有人退群时提醒\\n\" +\n" +
+        "                \"退群屏蔽 开启/关闭 --- 有人退群后加入黑名单")
+public class SwitchPlugin extends MsgPluginImpl {
     public final static List<String> quitNoticeList = new LinkedList<>();
     public final static List<String> quitBanList = new LinkedList<>();
     private final static Map<String, List<String>> banUser = new HashMap<>();
 
-    @Override
-    public Map<String, String> getSubCmdList() {
-        return new HashMap<String, String>(){{
-            put("退群提醒", "quitNotice");
-            put("退群屏蔽", "quitBan");
-        }};
-    }
-
-    @Override
-    public String getMainCmd() {
-        return "开关系统";
-    }
-
-    @Override
-    public @NotNull String getHelp() {
-        return "Admin:\n" +
-                "退群提醒 开启/关闭 --- 有人退群时提醒\n" +
-                "退群屏蔽 开启/关闭 --- 有人退群后加入黑名单";
-    }
-
-    @Override
-    public List<String> getGlobalCmd() {
-        return null;
-    }
-
+    @SubCmd(keyword = "退群提醒")
     public void quitNotice(){
         quitHandle(quitNoticeList);
     }
+    @SubCmd(keyword = "退群屏蔽")
     public void quitBan(){
         quitHandle(quitBanList);
     }

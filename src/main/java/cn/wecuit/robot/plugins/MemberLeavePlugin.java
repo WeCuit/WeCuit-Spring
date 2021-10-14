@@ -2,6 +2,8 @@ package cn.wecuit.robot.plugins;
 
 import cn.wecuit.robot.data.Storage;
 import cn.wecuit.robot.entity.EventType;
+import cn.wecuit.robot.entity.RobotEventHandle;
+import cn.wecuit.robot.entity.RobotPlugin;
 import cn.wecuit.robot.plugins.msg.SwitchPlugin;
 import net.mamoe.mirai.event.events.MemberLeaveEvent;
 
@@ -10,13 +12,13 @@ import net.mamoe.mirai.event.events.MemberLeaveEvent;
  * @Date 2021/6/15 22:31
  * @Version 1.0
  **/
-public class MemberLeavePlugin extends EventPluginImpl{
-    @Override
-    public void handle() {
+@RobotPlugin
+public class MemberLeavePlugin {
 
-        MemberLeaveEvent e = (MemberLeaveEvent) event;
-        String gId = Long.toString(e.getGroupId());
-        String msg = e.getMember().getNick();
+    @RobotEventHandle(event = EventType.MemberLeaveEvent)
+    public void handleEvent(MemberLeaveEvent event){
+        String gId = Long.toString(event.getGroupId());
+        String msg = event.getMember().getNick();
         boolean notice = SwitchPlugin.quitNoticeList.contains(gId);
         boolean ban = SwitchPlugin.quitBanList.contains(gId);
         if (ban || notice)
@@ -24,15 +26,11 @@ public class MemberLeavePlugin extends EventPluginImpl{
 
         if(ban) {
             msg += Storage.name + "用小本本记起来了，再也进不来了!";
-            SwitchPlugin.banNewUser(gId, Long.toString(e.getMember().getId()));
+            SwitchPlugin.banNewUser(gId, Long.toString(event.getMember().getId()));
         }
 
         if (ban || notice)
-            e.getGroup().sendMessage(msg);
+            event.getGroup().sendMessage(msg);
     }
 
-    @Override
-    public EventType[] event() {
-        return new EventType[]{EventType.Quit};
-    }
 }

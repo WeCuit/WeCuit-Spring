@@ -1,10 +1,10 @@
 package cn.wecuit.robot.provider;
 
-import cn.wecuit.mybatis.entity.MyBatis;
+import cn.wecuit.backen.utils.SpringUtil;
 import cn.wecuit.robot.RobotMain;
-import cn.wecuit.robot.data.mapper.PictureMapper;
 import cn.wecuit.backen.utils.HTTP.HttpUtil;
 import cn.wecuit.backen.utils.JsonUtil;
+import cn.wecuit.robot.services.RbPictureService;
 import lombok.extern.slf4j.Slf4j;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.message.data.Image;
@@ -55,27 +55,11 @@ public class PixivTask {
                 log.info("ImageId: {}", imageId);
 
                 // 插入数据库
-                SqlSession sqlSession = null;
-                try{
-                    sqlSession = MyBatis.getSqlSessionFactory().openSession();
-                    PictureMapper pictureMapper = sqlSession.getMapper(PictureMapper.class);
-                    int i = pictureMapper.addPic(imageId, JsonUtil.obj2String(detail), level);
+                RbPictureService pictureService = SpringUtil.getBean(RbPictureService.class);
+                boolean add = pictureService.add(imageId, detail, String.valueOf(level));
 
-                    if(i == 1){
-                        if(1 != pictureMapper.increCntByLevel(1, level)) {
-                            // 加一失败
-                            int insert = pictureMapper.addMeta(level);
-                            if(insert != 1)
-                                log.info("异常");
-                        }
-                    }
-                    sqlSession.commit();
-                }catch (Exception e){
-                    if(null != sqlSession)
-                        sqlSession.rollback();
-                }finally {
-                    if(null != sqlSession)
-                    sqlSession.close();
+                if(add){
+                    pictureService.increCntByLevel(level);
                 }
             }
 

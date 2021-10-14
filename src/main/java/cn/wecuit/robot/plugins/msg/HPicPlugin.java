@@ -1,15 +1,17 @@
 package cn.wecuit.robot.plugins.msg;
 
-import cn.wecuit.mybatis.entity.MyBatis;
+import cn.wecuit.backen.utils.SpringUtil;
 import cn.wecuit.robot.data.Storage;
-import cn.wecuit.robot.data.mapper.PictureMapper;
+import cn.wecuit.robot.entity.MainCmd;
+import cn.wecuit.robot.entity.RobotPlugin;
+import cn.wecuit.robot.entity.SubCmd;
+import cn.wecuit.robot.mapper.RbPicMapper;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.message.MessageReceipt;
 import net.mamoe.mirai.message.code.MiraiCode;
 import net.mamoe.mirai.message.data.MessageChain;
-import org.apache.ibatis.session.SqlSession;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -26,24 +28,14 @@ import java.util.stream.Collectors;
  * @Version 1.0
  **/
 @Slf4j
-public class HPicPlugin extends MessagePluginImpl {
-
-    // 二级指令
-    @Getter
-    private final Map<String, String> subCmdList = new HashMap<String, String>(){{
-        put("开启", "enablePic");
-        put("关闭", "disablePic");
-    }};
-    // 需要注册为一级指令的 指令
-    @Getter
-    private final Map<String, String> registerAsFirstCmd = new HashMap<String, String>(){{
-        put("抽(.*?)[点丶份张幅](.*?)的?(|r18)[纸色瑟涩\uD83D\uDC0D][片图圖\uD83E\uDD2E][|人]", "randZprPic");
-    }};
+@RobotPlugin
+@MainCmd(keyword = "色图系统", desc = "图片系统：\nAdmin:\n  纸片人 开启 [(放空|普通)/性感/H/所有]\n  纸片人 关闭\n\n普通用户：\n  来张色图 -- 开启状态下可用（20秒后自动撤回）")
+public class HPicPlugin extends MsgPluginImpl {
 
     // 配置
     // 群号 - 配置
     private static final Map<String, Map<String, Object>> config = new HashMap<>();
-    private static Pattern zprCompile = Pattern.compile("来(.*?)[点丶份张幅](.*?)的?(|r18)[色瑟涩\uD83D\uDC0D][图圖\uD83E\uDD2E]");
+    private static final Pattern zprCompile = Pattern.compile("来(.*?)[点丶份张幅](.*?)的?(|r18)[色瑟涩\uD83D\uDC0D][图圖\uD83E\uDD2E]");
     private static int maxSend = 10;
     private static boolean isR18Enable = false;
 
@@ -54,17 +46,7 @@ public class HPicPlugin extends MessagePluginImpl {
         put("config", config);
     }};
 
-    // 本插件一级指令
-    @Override
-    public String getMainCmd() {
-        return "纸片人";
-    }
-
-    @Override
-    public @NotNull String getHelp() {
-        return "图片系统：\nAdmin:\n  纸片人 开启 [(放空|普通)/性感/H/所有]\n  纸片人 关闭\n\n普通用户：\n  来张色图 -- 开启状态下可用（20秒后自动撤回）";
-    }
-
+    @SubCmd(keyword = "开启")
     public boolean enablePic(){
         Contact subject = event.getSubject();
         String subjectId = Long.toString(subject.getId());
@@ -109,6 +91,7 @@ public class HPicPlugin extends MessagePluginImpl {
         return true;
     }
 
+    @SubCmd(keyword = "关闭")
     public boolean disablePic(){
 
         Contact subject = event.getSubject();
@@ -124,6 +107,7 @@ public class HPicPlugin extends MessagePluginImpl {
         return true;
     }
 
+    @SubCmd(keyword = "抽(.*?)[点丶份张幅](.*?)的?(|r18)[纸色瑟涩\uD83D\uDC0D][片图圖\uD83E\uDD2E][|人]")
     public boolean randZprPic(){
         Contact subject = event.getSubject();
         String subjectId = Long.toString(subject.getId());
@@ -193,40 +177,39 @@ public class HPicPlugin extends MessagePluginImpl {
 
         log.info("获取纸片人数据");
 
-        try (SqlSession sqlSession = MyBatis.getSqlSessionFactory().openSession()){
-            PictureMapper pictureMapper = sqlSession.getMapper(PictureMapper.class);
 
-            StringBuilder picStr = new StringBuilder();
-            for (int i = 0; i < num; i++) {
+        RbPicMapper picMapper = SpringUtil.getBean(RbPicMapper.class);
 
-                Integer j = pictureMapper.queryPosBylevel(level);
-                if(j==null){
-                    subject.sendMessage(levelArr[levelInt] + "分类下没有图片╮(╯▽╰)╭");
-                    return true;
-                }
-                Map<String, String> picture = pictureMapper.getByPosLevel(level, j);
-                String imageId = picture.get("id");
-                picStr.append("[mirai:image:").append(imageId).append("]");
-                sqlSession.commit();
+        StringBuilder picStr = new StringBuilder();
+        for (int i = 0; i < num; i++) {
+
+            Integer j = picMapper.queryPosBylevel(level);
+            if(j==null){
+                subject.sendMessage(levelArr[levelInt] + "分类下没有图片╮(╯▽╰)╭");
+                return true;
             }
-
-            // Map<String, Object> detail = JsonUtil.string2Obj(picture.get("info"), Map.class);
-            // int artwork = (int)detail.get("artwork");
-            // String title = (String)detail.get("title");
-            // String author = (String)detail.get("author");
-            // [mirai:image:{9B077392-DA4F-D5E8-F16A-C4304DDCF819}.gif]
-            MessageChain picMsg = MiraiCode.deserializeMiraiCode(picStr.toString());
-            // imageId = imageId.replaceAll("\\{|}|-|\\.jpg|\\.png", "");
-
-            // imgXml = imgXml
-            //         .replace("#title#", title)
-            //         .replace("#artwork#", Integer.toString(artwork))
-            //         .replace("#author#", author)
-            //         .replace("#imageId#", imageId);
-            MessageReceipt messageReceipt = subject.sendMessage(picMsg);
-
-            new MessageRecall(messageReceipt, (int)groupConfig.get("recallTime")).start();  // 撤回
+            Map<String, String> picture = picMapper.getByPosLevel(level, j);
+            String imageId = picture.get("id");
+            picStr.append("[mirai:image:").append(imageId).append("]");
         }
+
+        // Map<String, Object> detail = JsonUtil.string2Obj(picture.get("info"), Map.class);
+        // int artwork = (int)detail.get("artwork");
+        // String title = (String)detail.get("title");
+        // String author = (String)detail.get("author");
+        // [mirai:image:{9B077392-DA4F-D5E8-F16A-C4304DDCF819}.gif]
+        MessageChain picMsg = MiraiCode.deserializeMiraiCode(picStr.toString());
+        // imageId = imageId.replaceAll("\\{|}|-|\\.jpg|\\.png", "");
+
+        // imgXml = imgXml
+        //         .replace("#title#", title)
+        //         .replace("#artwork#", Integer.toString(artwork))
+        //         .replace("#author#", author)
+        //         .replace("#imageId#", imageId);
+        MessageReceipt messageReceipt = subject.sendMessage(picMsg);
+
+        new MessageRecall(messageReceipt, (int)groupConfig.get("recallTime")).start();  // 撤回
+
 
         return true;
     }
@@ -280,8 +263,4 @@ public class HPicPlugin extends MessagePluginImpl {
         HPicPlugin.config.putAll((Map<String, Map<String, Object>>) config.get("config"));  // 置入
     }
 
-    @Override
-    public List<String> getGlobalCmd() {
-        return null;
-    }
 }

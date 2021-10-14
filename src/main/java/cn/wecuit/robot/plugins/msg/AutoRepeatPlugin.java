@@ -1,5 +1,8 @@
 package cn.wecuit.robot.plugins.msg;
 
+import cn.wecuit.robot.entity.MainCmd;
+import cn.wecuit.robot.entity.RobotPlugin;
+import cn.wecuit.robot.entity.SubCmd;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -13,31 +16,13 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @Date 2021/6/22 22:18
  * @Version 1.0
  **/
-public class AutoRepeatPlugin extends MessagePluginImpl{
+@RobotPlugin
+@MainCmd(keyword = "复读系统", desc = "机器人的复读操作")
+public class AutoRepeatPlugin extends MsgPluginImpl {
 
     private final static Map<Long, Repeat> data = new HashMap<>();
-    @Override
-    public String getMainCmd() {
-        return null;
-    }
 
-    @Override
-    public Map<String, String> getSubCmdList() {
-        return null;
-    }
-
-    @Override
-    public List<String> getGlobalCmd() {
-        return new ArrayList<String>(){{
-            add("repeat");
-        }};
-    }
-
-    @Override
-    public @NotNull String getHelp() {
-        return "默认开启，无法关闭\n监控到连续3条相同消息，我会复读一次";
-    }
-
+    @SubCmd(keyword = "", desc="默认开启，无法关闭\n监控到连续3条相同消息，我会复读一次")
     public boolean repeat(){
         String content = event.getMessage().serializeToMiraiCode();
         long group = event.getSubject().getId();
