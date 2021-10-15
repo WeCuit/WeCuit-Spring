@@ -127,7 +127,6 @@ public class PluginHandler {
             }else{
                 log.info("事件无匹配 - EventType: {}", eventType);
             }
-
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException instantiationException) {
             instantiationException.printStackTrace();
         }

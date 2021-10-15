@@ -58,7 +58,7 @@ public class MessagePlugin {
         }
         if (action == null) {
             // 没有找到指令
-            event.getSubject().sendMessage("未找到指令，应该交给全区监听方法处理");
+            log.info("未找到指令，应该交给全区监听方法处理");
             cmd2plugin3.forEach(m->{
                 try {
                     m.invoke(m.getDeclaringClass().newInstance(), event);
