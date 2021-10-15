@@ -54,5 +54,7 @@ jobs:
             docker login --username=${{ secrets.DOCKER_USERNAME }} --password ${{ secrets.DOCKER_PASSWORD }} registry.cn-hangzhou.aliyuncs.com
             # 拉取最新latest版本镜像
             docker pull ${{ secrets.DOCKER_REPOSITORY }}:latest
+            cd /root/docker
+            docker-compose up -d spring
             # 运行最新latest版本镜像
-            docker run -d -p 8888:8080 ${{ secrets.DOCKER_REPOSITORY }}:latest
+            # docker run -d -p 8888:8080 ${{ secrets.DOCKER_REPOSITORY }}:latest

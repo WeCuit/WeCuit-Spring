@@ -91,11 +91,7 @@ public class NewsServiceImpl implements NewsService {
                     // 新的新闻
                     NewsStorage.addNews(md5);
 
-                    // 构造小程序完毕
-                    if (noticeList.size() == 0)
-                        log.info("没有需要推送的群");
                     noticeList.forEach((id) -> {
-                        log.info("id: {}", id);
                         Group group = RobotMain.getBot().getGroup(Long.parseLong(id));
                         if (group != null) {
                             try {
