@@ -74,7 +74,6 @@ public class HttpUtil2 {
                 .setSSLSocketFactory(sslCSF)
                 .build();
 
-
         // 创建客户端
         httpClient = HttpClients.custom()
                 .setConnectionManager(cm)
@@ -86,7 +85,7 @@ public class HttpUtil2 {
         // 默认配置
         unBuildConfig = RequestConfig.custom().setConnectTimeout(Timeout.ofSeconds(5))
                 .setResponseTimeout(Timeout.ofSeconds(5))
-//                 .setProxy(new HttpHost("127.0.0.1", 8888))
+                // .setProxy(new HttpHost("127.0.0.1", 8888))
                 .setCircularRedirectsAllowed(true);
         localContext.setCookieStore(httpCookieStore);
     }
@@ -302,7 +301,10 @@ public class HttpUtil2 {
         return getString(Objects.requireNonNull(doPost(url, params, null, CHARSET, localContext)), CHARSET);
     }
     public byte[] doPostJson2Byte(String url, String s) throws IOException {
-        CloseableHttpResponse closeableHttpResponse = this.doPostJson2CHR(url, s);
+        return doPostJson2Byte(url, null, s);
+    }
+    public byte[] doPostJson2Byte(String url, Map<String, String> headers, String s) throws IOException {
+        CloseableHttpResponse closeableHttpResponse = this.doPostJson2CHR(url, headers, s);
         InputStream content = closeableHttpResponse.getEntity().getContent();
         ByteArrayOutputStream arrayOutputStream = new ByteArrayOutputStream();
         byte[] chunk = new byte[1024];
@@ -312,8 +314,10 @@ public class HttpUtil2 {
         }
         return arrayOutputStream.toByteArray();
     }
-    public CloseableHttpResponse doPostJson2CHR(String url, String body) throws IOException {
+    public CloseableHttpResponse doPostJson2CHR(String url, Map<String, String> headers, String body) throws IOException {
         HttpPost httpPost = new HttpPost(url);
+        if(headers != null)
+            headers.forEach(httpPost::setHeader);
         HttpEntity entity = EntityBuilder.create().setText(body).build();
         httpPost.setEntity(entity);
         httpPost.setHeader("Content-Type", "application/json");

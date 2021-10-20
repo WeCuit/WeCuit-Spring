@@ -43,6 +43,7 @@ public class PluginHandler {
     public static void register(){
         log.info("注册插件指令");
 
+        // TODO: 更换扫描方式为 https://github.com/ronmamo/reflections
         ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
         final String BASE_PACKAGE = "cn.wecuit.robot.plugins";
         final String RESOURCE_PATTERN = "/**/*.class";

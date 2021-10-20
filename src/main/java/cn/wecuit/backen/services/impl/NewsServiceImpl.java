@@ -81,10 +81,10 @@ public class NewsServiceImpl implements NewsService {
         // 获取最新新闻列表
         List<Map<String, String>> latestNews = NewsUtil.getLatestNews(cachePath + "/news/list", 1);
         latestNews.forEach(news -> {
-            String link = news.get("link");
+            //String link = news.get("link");
             String title = news.get("title");
             try {
-                byte[] bytes = RSAUtils.genMD5((link + title).getBytes(StandardCharsets.UTF_8));
+                byte[] bytes = RSAUtils.genMD5(title.getBytes(StandardCharsets.UTF_8));
                 String md5 = HexUtil.byte2HexStr(bytes);
 
                 if (!NewsStorage.isNewsExist(md5)) {
