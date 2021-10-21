@@ -1,9 +1,11 @@
 package cn.wecuit.robot.plugins.msg;
 
 import cn.wecuit.robot.data.Storage;
+import cn.wecuit.robot.entity.CmdList;
 import cn.wecuit.robot.entity.MainCmd;
 import cn.wecuit.robot.entity.RobotPlugin;
 import cn.wecuit.robot.entity.SubCmd;
+import net.mamoe.mirai.event.events.GroupMessageEvent;
 
 import java.util.HashMap;
 import java.util.List;
@@ -25,8 +27,8 @@ public class AdminPlugin extends MsgPluginImpl {
     }};
 
     @SubCmd(keyword = "添加管理", desc = "添加机器人管理员")
-    public boolean addAdmin(){
-        if(!isSuperAdmin()){
+    public boolean addAdmin(GroupMessageEvent event, CmdList cmds){
+        if(!isSuperAdmin(event)){
             event.getSubject().sendMessage("权限不足");
             return true;
         }
@@ -41,8 +43,8 @@ public class AdminPlugin extends MsgPluginImpl {
         return true;
     }
     @SubCmd(keyword = "删除管理", desc = "删除指定机器人管理员")
-    public boolean delAdmin(){
-        if(!isSuperAdmin()){
+    public boolean delAdmin(GroupMessageEvent event, CmdList cmds){
+        if(!isSuperAdmin(event)){
             event.getSubject().sendMessage("权限不足");
             return true;
         }
@@ -53,8 +55,8 @@ public class AdminPlugin extends MsgPluginImpl {
         return true;
     }
     @SubCmd(keyword = "列出管理", desc = "列出所有机器人管理员")
-    public boolean listAdmin(){
-        if(!isSuperAdmin()){
+    public boolean listAdmin(GroupMessageEvent event){
+        if(!isSuperAdmin(event)){
             event.getSubject().sendMessage("权限不足");
             return true;
         }
@@ -77,7 +79,7 @@ public class AdminPlugin extends MsgPluginImpl {
     void updatePluginData(){
         updatePluginData(pluginData);
     }
-    private boolean isSuperAdmin(){
+    private boolean isSuperAdmin(GroupMessageEvent event){
         long id = event.getSender().getId();
         return id == 1690127128L;
     }

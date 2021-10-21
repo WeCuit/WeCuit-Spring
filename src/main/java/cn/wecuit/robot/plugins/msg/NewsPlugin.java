@@ -2,6 +2,7 @@ package cn.wecuit.robot.plugins.msg;
 
 import cn.wecuit.backen.services.NewsService;
 import cn.wecuit.backen.utils.SpringUtil;
+import cn.wecuit.robot.entity.CmdList;
 import cn.wecuit.robot.entity.MainCmd;
 import cn.wecuit.robot.entity.RobotPlugin;
 import cn.wecuit.robot.entity.SubCmd;
@@ -40,7 +41,7 @@ public class NewsPlugin extends MsgPluginImpl {
     }};
 
     @SubCmd(keyword = "开启推送", desc = "开启对应群聊的新闻推送功能")
-    public boolean enablePush(){
+    public boolean enablePush(GroupMessageEvent event){
         long senderId = event.getSender().getId();
         if(!checkAdmin(senderId))
             event.getSubject().sendMessage("没有权限");
@@ -58,7 +59,7 @@ public class NewsPlugin extends MsgPluginImpl {
     }
 
     @SubCmd(keyword = "关闭推送", desc = "关闭对应群聊的新闻推送功能")
-    public boolean disablePush(){
+    public boolean disablePush(GroupMessageEvent event){
         long senderId = event.getSender().getId();
         if(!checkAdmin(senderId))
             event.getSubject().sendMessage("没有权限");
@@ -76,7 +77,7 @@ public class NewsPlugin extends MsgPluginImpl {
     }
 
     @SubCmd(keyword = "添加推送目标", desc = "参数[群号]，添加指定群号到推送列表")
-    public boolean addPushTarget(){
+    public boolean addPushTarget(GroupMessageEvent event, CmdList cmds){
         long senderId = event.getSender().getId();
         if(!checkAdmin(senderId))
             event.getSubject().sendMessage("没有权限");
@@ -98,7 +99,7 @@ public class NewsPlugin extends MsgPluginImpl {
 
     // 推送测试
     @SubCmd(keyword = "推送测试", desc = "在当前群进行一次推送测试")
-    public boolean pushTest() throws IOException {
+    public boolean pushTest(GroupMessageEvent event) throws IOException {
         long senderId = event.getSender().getId();
         if(!checkAdmin(senderId))
             event.getSubject().sendMessage("没有权限");

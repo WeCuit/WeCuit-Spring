@@ -1,9 +1,11 @@
 package cn.wecuit.robot.plugins.msg;
 
+import cn.wecuit.robot.entity.CmdList;
 import cn.wecuit.robot.entity.MainCmd;
 import cn.wecuit.robot.entity.RobotPlugin;
 import cn.wecuit.robot.entity.SubCmd;
 import cn.wecuit.robot.eventHandle.RepeatEventJava;
+import net.mamoe.mirai.event.events.GroupMessageEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +22,7 @@ public class RepeatPlugin extends MsgPluginImpl {
     private static final List<Long> repeatList = new ArrayList<>();
 
     @SubCmd(keyword = "开启")
-    public boolean enableMode(){
+    public boolean enableMode(GroupMessageEvent event){
         long id = event.getSubject().getId();
         if(repeatList.contains(id))return true;
         repeatList.add(id);

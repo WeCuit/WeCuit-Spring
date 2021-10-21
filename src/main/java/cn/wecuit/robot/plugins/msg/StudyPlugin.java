@@ -1,5 +1,6 @@
 package cn.wecuit.robot.plugins.msg;
 
+import cn.wecuit.robot.entity.CmdList;
 import cn.wecuit.robot.entity.MainCmd;
 import cn.wecuit.robot.entity.RobotPlugin;
 import cn.wecuit.robot.entity.SubCmd;
@@ -9,6 +10,7 @@ import kotlin.coroutines.Continuation;
 import kotlin.coroutines.CoroutineContext;
 import kotlin.coroutines.EmptyCoroutineContext;
 import lombok.Getter;
+import net.mamoe.mirai.event.events.GroupMessageEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -31,7 +33,7 @@ public class StudyPlugin extends MsgPluginImpl {
     }};
 
     @SubCmd(keyword = "开启")
-    public boolean enableMode(){
+    public boolean enableMode(GroupMessageEvent event){
 
         long senderId = event.getSender().getId();
         if(!checkAdmin(senderId)) {
@@ -52,7 +54,7 @@ public class StudyPlugin extends MsgPluginImpl {
     }
 
     @SubCmd(keyword = "关闭")
-    public boolean disableMode(){
+    public boolean disableMode(GroupMessageEvent event){
 
         long senderId = event.getSender().getId();
         if(!checkAdmin(senderId)) {
@@ -74,7 +76,7 @@ public class StudyPlugin extends MsgPluginImpl {
     }
 
     @SubCmd(keyword = "*学习", regAsMainCmd = true)
-    public void study() {
+    public void study(GroupMessageEvent event) {
 
         if(enabledList.contains(Long.toString(event.getSubject().getId())))
             // 交由Kotlin处理

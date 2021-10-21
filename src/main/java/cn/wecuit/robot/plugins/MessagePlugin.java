@@ -120,7 +120,6 @@ public class MessagePlugin {
                         }
                     }
                     MsgPlugin o = (MsgPlugin) method.getDeclaringClass().newInstance();
-                    o.init(event, cmdList);
                     method.invoke(o, args);
                 }
             }

@@ -13,8 +13,6 @@ import java.util.Map;
  **/
 public interface MsgPlugin {
 
-    void init(MessageEvent event, List<String> cmds);
-
     // 初始化插件数据[从外部到内部]
     void initPluginData(Map<String, Object> config);
 
