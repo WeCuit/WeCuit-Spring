@@ -18,6 +18,7 @@
         <mp.version>3.4.3.1</mp.version>
         <swagger.version>3.0.3</swagger.version>
         <mirai.version>2.7.1</mirai.version>
+        <kotlin.version>1.5.20</kotlin.version>
     </properties>
     <dependencies>
         <dependency>
@@ -184,6 +185,13 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <fork>true</fork>
+                </configuration>
             </plugin>
         </plugins>
     </build>

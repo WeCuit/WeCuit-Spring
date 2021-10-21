@@ -75,11 +75,12 @@ public class UserController {
     }
 
     @ApiOperation(value = "用户菜单")
-    @GetMapping("/admin/routes")
+    @GetMapping("/routes")
     public Map<String, Object> userMenu(){
         List<String> list = adminUserService.userMenu(StpUtil.getLoginIdAsLong());
         return new HashMap<String, Object>(){{
             put("authedRoutes", list);
         }};
     }
+
 }

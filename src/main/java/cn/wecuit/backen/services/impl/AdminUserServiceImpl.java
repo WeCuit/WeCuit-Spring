@@ -95,6 +95,11 @@ public class AdminUserServiceImpl implements AdminUserService {
     @Override
     public boolean modifyInfoById(long id, AdminUser user) {
         user.setId(id);
+        String password = user.getPassword();
+        if(password != null && password.length() > 6){
+            BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+            user.setPassword(passwordEncoder.encode(password));
+        }
         int i = adminUserMapper.updateById(user);
         return i == 1;
     }
