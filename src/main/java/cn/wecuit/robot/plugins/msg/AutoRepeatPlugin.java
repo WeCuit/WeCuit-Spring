@@ -1,8 +1,10 @@
 package cn.wecuit.robot.plugins.msg;
 
+import cn.wecuit.robot.entity.CmdList;
 import cn.wecuit.robot.entity.MainCmd;
 import cn.wecuit.robot.entity.RobotPlugin;
 import cn.wecuit.robot.entity.SubCmd;
+import net.mamoe.mirai.event.events.GroupMessageEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -23,7 +25,7 @@ public class AutoRepeatPlugin extends MsgPluginImpl {
     private final static Map<Long, Repeat> data = new HashMap<>();
 
     @SubCmd(keyword = "", desc="默认开启，无法关闭\n监控到连续3条相同消息，我会复读一次")
-    public boolean repeat(){
+    public boolean repeat(GroupMessageEvent event){
         String content = event.getMessage().serializeToMiraiCode();
         long group = event.getSubject().getId();
         Repeat repeat = data.get(group);

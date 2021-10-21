@@ -15,15 +15,6 @@ import java.util.Map;
  **/
 public abstract class MsgPluginImpl implements MsgPlugin {
 
-    protected MessageEvent event;
-    // 在全局指令传入时，此属性为null
-    protected List<String> cmds;
-
-    public final void init(MessageEvent event, List<String> cmds){
-        this.event = event;
-        this.cmds = cmds;
-    }
-
 
     @Override
     public void initPluginData(Map<String, Object> config) {

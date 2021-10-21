@@ -1,9 +1,11 @@
 package cn.wecuit.robot.plugins.msg;
 
+import cn.wecuit.robot.entity.CmdList;
 import cn.wecuit.robot.entity.MainCmd;
 import cn.wecuit.robot.entity.RobotPlugin;
 import cn.wecuit.robot.entity.SubCmd;
 import lombok.extern.slf4j.Slf4j;
+import net.mamoe.mirai.event.events.GroupMessageEvent;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,7 +23,7 @@ public class TestPlugin extends MsgPluginImpl {
     private static final Map<String, Object> pluginData = new HashMap<>();
 
     @SubCmd(keyword = "二级", desc = "二级指令")
-    public boolean testSecond(){
+    public boolean testSecond(GroupMessageEvent event, CmdList cmdList){
         event.getSubject().sendMessage("测试指令触发");
         pluginData.put("test", "123");
         updatePluginData(pluginData);

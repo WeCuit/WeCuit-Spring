@@ -1,10 +1,12 @@
 package cn.wecuit.robot.plugins.msg;
 
 import cn.wecuit.robot.data.Storage;
+import cn.wecuit.robot.entity.CmdList;
 import cn.wecuit.robot.entity.MainCmd;
 import cn.wecuit.robot.entity.RobotPlugin;
 import cn.wecuit.robot.entity.SubCmd;
 import lombok.extern.slf4j.Slf4j;
+import net.mamoe.mirai.event.events.GroupMessageEvent;
 import net.mamoe.mirai.message.MessageReceipt;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,7 +27,7 @@ public class RecallPlugin extends MsgPluginImpl {
     private static final Map<String, Object> pluginData = new HashMap<>();
 
     @SubCmd(keyword = Storage.name + "撤回", regAsMainCmd = true)
-    public boolean doRecall(){
+    public boolean doRecall(GroupMessageEvent event){
         long id = event.getSubject().getId();
         MessageReceipt message = Storage.getMessage(id);
         if(message!=null) {
