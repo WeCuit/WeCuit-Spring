@@ -7,6 +7,7 @@ import cn.wecuit.robot.entity.RobotEventHandle;
 import cn.wecuit.robot.entity.RobotPlugin;
 import cn.wecuit.robot.plugins.msg.MsgPlugin;
 import lombok.extern.slf4j.Slf4j;
+import net.mamoe.mirai.event.events.GroupMessageEvent;
 import net.mamoe.mirai.event.events.MessageEvent;
 
 import java.lang.reflect.InvocationTargetException;
@@ -27,7 +28,6 @@ import java.util.regex.PatternSyntaxException;
 public class MessagePlugin {
     @RobotEventHandle(event = EventType.GroupMessageEvent)
     public void handleMsg(MessageEvent event) {
-
         // 机器人发送，忽略
         if (event.getSender().getId() == event.getBot().getId()) return;
 
@@ -58,8 +58,8 @@ public class MessagePlugin {
             }
         }
         if (action == null) {
-            // 没有找到指令
-            log.info("未找到指令，应该交给全区监听方法处理");
+            // 没有找到一级指令，交给全局监听方法处理
+            log.info("未找到指令，应该交给全局监听方法处理");
             cmd2plugin3.forEach(m->{
                 try {
                     m.invoke(m.getDeclaringClass().newInstance(), event);
@@ -69,6 +69,12 @@ public class MessagePlugin {
             });
             return;
         }
+
+        if(event instanceof GroupMessageEvent){
+            GroupMessageEvent ge = (GroupMessageEvent) event;
+            if(ge.getGroup().getBotMuteRemaining() != 0)return;
+        }
+
         try {
             if (action instanceof Method) {
                 // 一级指令对应方法
