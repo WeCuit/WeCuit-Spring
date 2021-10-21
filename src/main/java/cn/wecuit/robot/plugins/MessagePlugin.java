@@ -1,6 +1,7 @@
 package cn.wecuit.robot.plugins;
 
 import cn.wecuit.robot.PluginHandler;
+import cn.wecuit.robot.entity.CmdList;
 import cn.wecuit.robot.entity.EventType;
 import cn.wecuit.robot.entity.RobotEventHandle;
 import cn.wecuit.robot.entity.RobotPlugin;
@@ -34,10 +35,10 @@ public class MessagePlugin {
         String[] temp = event.getMessage().contentToString().replaceAll("  ", " ").split(" ");
 
         // 指令集转为List
-        List<String> cmds = new LinkedList<>(Arrays.asList(temp));
+        CmdList cmdList = new CmdList(Arrays.asList(temp));
 
-        String cmd = cmds.get(0);
-        cmds.remove(0);
+        String cmd = cmdList.get(0);
+        cmdList.remove(0);
 
         Map<String, Object> cmd2plugin = PluginHandler.cmd2plugin;
         List<Method> cmd2plugin3 = PluginHandler.cmd2plugin3;
@@ -70,7 +71,7 @@ public class MessagePlugin {
         }
         try {
             if (action instanceof Method) {
-                // 指令对应方法
+                // 一级指令对应方法
                 Method method = (Method) action;
                 Parameter[] parameters = method.getParameters();
                 Object[] args = new Object[parameters.length];
@@ -78,8 +79,8 @@ public class MessagePlugin {
                     String name = parameters[i].getType().getSimpleName();
                     if(EventType.GroupMessageEvent.name().equals(name)){
                         args[i] = event;
-                    }else if("List".equals(name)){
-                        args[i] = cmds;
+                    }else if("CmdList".equals(name)){
+                        args[i] = cmdList;
                     }else{
                         log.info("无法识别的参数类型：{} - {}", name, parameters[i].getType().getName());
                     }
@@ -87,8 +88,8 @@ public class MessagePlugin {
                 method.invoke(method.getDeclaringClass().newInstance(), args);
             } else if (action instanceof Map) {
                 Map<String, Object> subCmd = ((Map<String, Object>) action);
-                String c = cmds.get(0);
-                cmds.remove(0);
+                String c = cmdList.get(0);
+                cmdList.remove(0);
                 // 帮助指令
                 if ("?".equals(c) || "？".equals(c)) {
                     Object data = subCmd.get("?");
@@ -113,13 +114,13 @@ public class MessagePlugin {
                         if(EventType.GroupMessageEvent.name().equals(name)){
                             args[i] = event;
                         }else if("List".equals(name)){
-                            args[i] = cmds;
+                            args[i] = cmdList;
                         }else{
                             log.info("无法识别的参数类型：{} - {}", name, parameters[i].getType().getName());
                         }
                     }
                     MsgPlugin o = (MsgPlugin) method.getDeclaringClass().newInstance();
-                    o.init(event, cmds);
+                    o.init(event, cmdList);
                     method.invoke(o, args);
                 }
             }

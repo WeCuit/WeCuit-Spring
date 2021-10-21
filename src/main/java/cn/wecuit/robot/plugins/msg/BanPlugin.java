@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.mamoe.mirai.Mirai;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.MemberPermission;
+import net.mamoe.mirai.event.events.GroupMessageEvent;
 import net.mamoe.mirai.message.MessageReceipt;
 import org.jetbrains.annotations.NotNull;
 
@@ -22,12 +23,7 @@ import java.util.regex.PatternSyntaxException;
  **/
 @Slf4j
 @RobotPlugin
-@MainCmd(keyword = "屏蔽系统", desc = "消息屏蔽撤回Admin:\\n\" +\n" +
-        "                \"添加违禁表达式 表达式\\n\" +\n" +
-        "                \"查看违禁表达式\\n\" +\n" +
-        "                \"删除违禁表达式 id\\n\" +\n" +
-        "                \"清空违禁表达式\\n\" +\n" +
-        "                \"测试违禁表达式 内容\\n")
+@MainCmd(keyword = "屏蔽系统", desc = "消息屏蔽")
 public class BanPlugin extends MsgPluginImpl {
 
     private static final Map<String, List<String>> banRuleItems = new HashMap<>();
@@ -102,7 +98,7 @@ public class BanPlugin extends MsgPluginImpl {
 
     }
 
-    @SubCmd(keyword = "测试违禁表达式")
+    @SubCmd(keyword = "测试违禁表达式", desc = "测试违禁表达式 内容")
     public void testRuleItem(){
         if(!isAdmin())return;
 
@@ -119,7 +115,7 @@ public class BanPlugin extends MsgPluginImpl {
     }
 
     @SubCmd(keyword = "")
-    public boolean msgCheck(){
+    public boolean msgCheck(GroupMessageEvent event){
         Group group = event.getBot().getGroup(event.getSubject().getId());
         MemberPermission botPermission = group.getBotPermission();
         // 机器人是普通用户
