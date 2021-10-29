@@ -11,9 +11,11 @@ import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.MemberPermission;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
 import net.mamoe.mirai.message.MessageReceipt;
-import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -115,7 +117,7 @@ public class BanPlugin extends MsgPluginImpl {
         event.getSubject().sendMessage("没有匹配");
     }
 
-    @SubCmd(keyword = "")
+    @SubCmd
     public boolean msgCheck(GroupMessageEvent event){
         Group group = event.getBot().getGroup(event.getSubject().getId());
         MemberPermission botPermission = group.getBotPermission();

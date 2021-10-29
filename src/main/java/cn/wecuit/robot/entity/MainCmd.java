@@ -14,6 +14,13 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface MainCmd {
-    String keyword();   // 指令
-    String desc();      // 描述
+    /**
+     * 指令匹配关键词
+     */
+    String keyword();
+
+    /**
+     * 指令描述
+     */
+    String desc();
 }

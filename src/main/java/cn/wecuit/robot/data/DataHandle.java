@@ -23,59 +23,57 @@ import java.util.Map;
 public class DataHandle {
 
     // 初始化部分数据
-    public static void init(Bot bot){
-            RbPluginService rbPluginService = SpringUtil.getBean(RbPluginService.class);
+    public static void init(Bot bot) {
+        RbPluginService rbPluginService = SpringUtil.getBean(RbPluginService.class);
 
-            List<PluginData> allPlugin = rbPluginService.getAllPlugin();
-            // 初始化插件数据
-            allPlugin.forEach(plugin->{
-                String pluginName = plugin.getName();
-                Map<String, Object> pluginConfig = plugin.getConfig();
+        List<PluginData> allPlugin = rbPluginService.getAllPlugin();
+        // 初始化插件数据
+        allPlugin.forEach(plugin -> {
+            String pluginName = plugin.getName();
+            Map<String, Object> pluginConfig = plugin.getConfig();
 
-                if(pluginConfig == null)return;
+            if (pluginConfig == null) return;
 
-                try {
-                    Class<? extends MsgPluginImpl> clazz = (Class<? extends MsgPluginImpl>) Class.forName("cn.wecuit.robot.plugins.msg." + pluginName);
+            try {
+                Class<? extends MsgPluginImpl> clazz = (Class<? extends MsgPluginImpl>) Class.forName("cn.wecuit.robot.plugins.msg." + pluginName);
 
-                    Method setPluginData = clazz.getMethod("initPluginData", Map.class);
-                    setPluginData.invoke(clazz.newInstance(), pluginConfig);
-                } catch (NoSuchMethodException e) {
-                    e.printStackTrace();
-                } catch (ClassNotFoundException e) {
-                    boolean b = rbPluginService.delPlugin(pluginName);
-                    log.info("未找到插件：{}, 尝试删除，删除状态：{}", pluginName, b);
-                    // e.printStackTrace();
-                } catch (InvocationTargetException e) {
-                    e.printStackTrace();
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                } catch (InstantiationException e) {
-                    e.printStackTrace();
-                }
-
-            });
-
+                Method setPluginData = clazz.getMethod("initPluginData", Map.class);
+                setPluginData.invoke(clazz.newInstance(), pluginConfig);
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                boolean b = rbPluginService.delPlugin(pluginName);
+                log.info("未找到插件：{}, 尝试删除，删除状态：{}", pluginName, b);
+                // e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
-    public static void updatePluginData(Map<String, Object> pluginData){
+    public static void updatePluginData(Map<String, Object> pluginData) {
         String className = Thread.currentThread().getStackTrace()[3].getClassName();
         className = className.substring(className.lastIndexOf(".") + 1);
 
-            RbPluginService rbPluginService = SpringUtil.getBean(RbPluginService.class);
-            boolean i = rbPluginService.update(className, pluginData);
-            if(!i){
-                i = rbPluginService.add(className, pluginData);
-            }
-            if(!i){
-                log.error("updatePluginData Failed!");
-            }else{
-                log.info("updatePluginData SUCCESS!");
-            }
+        RbPluginService rbPluginService = SpringUtil.getBean(RbPluginService.class);
+        boolean i = rbPluginService.update(className, pluginData);
+        if (!i) {
+            i = rbPluginService.add(className, pluginData);
+        }
+        if (!i) {
+            log.error("updatePluginData Failed!");
+        } else {
+            log.info("updatePluginData SUCCESS!");
+        }
 
 
     }
 
-    public static boolean isAdmin(String id){
+    public static boolean isAdmin(String id) {
         return Storage.adminList.contains(id);
     }
 }
