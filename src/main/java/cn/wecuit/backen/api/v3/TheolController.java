@@ -1,6 +1,7 @@
 package cn.wecuit.backen.api.v3;
 
 import cn.wecuit.backen.exception.BaseException;
+import cn.wecuit.backen.response.ResponseCode;
 import cn.wecuit.backen.utils.HTTP.HttpUtil;
 import cn.wecuit.backen.utils.HTTP.HttpUtil2;
 import cn.wecuit.backen.utils.HTTP.HttpUtilEntity;
@@ -8,12 +9,11 @@ import cn.wecuit.backen.utils.TheolUtil;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.ParseException;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.util.HashMap;
@@ -28,13 +28,13 @@ import java.util.Map;
 @RequestMapping("/Theol")
 public class TheolController {
     @Resource
-    HttpServletRequest request;
-    @Resource
     HttpServletResponse response;
+    @Value("${wecuit.data-path}")
+    String DATA_PATH;
 
-    @RequestMapping("/courseList")
-    public Map<String, Object> courseListAction() throws IOException, ParseException {
-        String cookie = request.getParameter("cookie");
+    @PostMapping("/courseList")
+    public Map<String, Object> courseListAction(@RequestBody Map<String, String> body) throws IOException, ParseException {
+        String cookie = body.get("cookie");
 
         HttpUtil2 httpUtil2 = new HttpUtil2();
         Map<String, String> headers = new HashMap<String, String>(){{
@@ -51,18 +51,18 @@ public class TheolController {
             ret.put("code", 21401);
             ret.put("theolCookie", c.toString());
         }else if(httpUtilEntity.getBody().contains("Permission Denied")){
-            ret.put("code", 21401);
-            ret.put("errMsg", "教学平台未登录");
+            throw new BaseException(ResponseCode.Theol_NOT_LOGIN);
         }else{
-            ret.put("code", 2000);
+            ret.put("code", 200);
             ret.put("list", TheolUtil.courseListHandle(httpUtilEntity.getBody()));
         }
         return ret;
     }
 
-    public Map<String, Object> loginAction() throws IOException, ParseException {
-        StringBuilder sso_tgc = new StringBuilder("TGC=").append(request.getParameter("SSO_TGC")).append(";");
-        String theolCookie = request.getParameter("theolCookie");
+    @PostMapping("/login")
+    public Map<String, Object> loginAction(@RequestBody Map<String, String> body) throws IOException, ParseException {
+        StringBuilder sso_tgc = new StringBuilder("TGC=").append(body.get("SSO_TGC")).append(";");
+        String theolCookie = body.get("theolCookie");
 
         Map<String, String> headers = new HashMap<String, String>(){{
             put("cookie", sso_tgc.append(theolCookie).toString());
@@ -79,18 +79,18 @@ public class TheolController {
             ret.put("code", 200);
         }else{
             ret.put("code", 12401);
-            ret.put("error", "SSO未登录");
+            ret.put("msg", "SSO未登录");
         }
-return ret;
+        return ret;
     }
 
-    public Map<String, Object> dirTreeAction() throws IOException, ParseException {
-        String lid = request.getParameter("lid");
+    @GetMapping("/dirTree")
+    public Map<String, Object> dirTreeAction(@RequestParam String lid) throws IOException, ParseException {
         String url ="http://jxpt.cuit.edu.cn/meol/common/script/xmltree.jsp?lid=" + lid + "&groupid=4&_=1716";
         // 免权限，可直接获取
-        String body = HttpUtil.doGet(url);
+        String body1 = HttpUtil.doGet(url);
 
-        Map<String, Object> map = TheolUtil.dirTreeHandle(body);
+        Map<String, Object> map = TheolUtil.dirTreeHandle(body1);
 
         return new HashMap<String, Object>(){{
             put("code", 200);
@@ -99,10 +99,11 @@ return ret;
 
     }
 
-    public Map<String, Object> folderListAction() throws IOException, ParseException {
-        String lid = request.getParameter("lid");
-        String folderId = request.getParameter("folderId");
-        String theolCookie = request.getParameter("theolCookie");
+    @PostMapping("/folderList")
+    public Map<String, Object> folderListAction(@RequestBody Map<String, String> body) throws IOException, ParseException {
+        String lid = body.get("lid");
+        String folderId = body.get("folderId");
+        String theolCookie = body.get("theolCookie");
 
         String url = "http://jxpt.cuit.edu.cn/meol/common/script/listview.jsp?lid=" + lid + "&folderid=" + folderId;
         String html = new HttpUtil2().doGet2(url, new HashMap<String, String>() {{
@@ -113,18 +114,18 @@ return ret;
         Map<String, Object> map = TheolUtil.folderListHandle(html);
 
         return new HashMap<String, Object>(){{
-            put("code", 2000);
+            put("code", 200);
             put("dir", map);
         }};
 
     }
 
-    public void downloadFileAction() throws IOException, ParseException {
-        String fileId = request.getParameter("fileId");
-        String resId = request.getParameter("resId");
-        String lid = request.getParameter("lid");
-        String cookie = request.getParameter("cookie");
-        String fileAddr = request.getServletContext().getInitParameter("CACHE_PATH") + "/files/theol_" + fileId + "_" + resId + "_" +lid;
+    @GetMapping("/downloadFile/1.*")
+    public void downloadFileAction(@RequestParam String fileId,
+                                   @RequestParam String resId,
+                                   @RequestParam String lid,
+                                   @RequestParam String cookie) throws IOException, ParseException {
+        String fileAddr = DATA_PATH + "/files/theol_" + fileId + "_" + resId + "_" +lid;
 
         // GET ContentType
         String attr_link = "http://jxpt.cuit.edu.cn/meol/common/script/attribute_file.jsp?lid=" + lid + "&resid=" + resId;

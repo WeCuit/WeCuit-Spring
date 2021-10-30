@@ -33,6 +33,7 @@ public enum ResponseCode {
     USER_NOT_AUTHORIZED(403, "用户无权限"),
     USER_TOKEN_INVALID(405, "token无效"),
 
+    Theol_NOT_LOGIN(21401, "教学平台未登录"),
     /**
      * 文章
      */
