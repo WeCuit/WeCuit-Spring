@@ -6,10 +6,8 @@ import cn.wecuit.backen.utils.*;
 import cn.wecuit.backen.utils.HTTP.HttpUtil;
 import cn.wecuit.robot.RobotMain;
 import cn.wecuit.robot.data.NewsStorage;
-import cn.wecuit.robot.provider.NewsProvider;
 import lombok.extern.slf4j.Slf4j;
 import net.mamoe.mirai.contact.Group;
-import net.mamoe.mirai.message.data.LightApp;
 import org.apache.hc.core5.http.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,9 +22,13 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -92,7 +94,14 @@ public class NewsServiceImpl implements NewsService {
                         Group group = RobotMain.getBot().getGroup(Long.parseLong(id));
                         if (group != null) {
                             try {
-                                group.sendMessage(new LightApp(NewsProvider.genLightJson(news)));
+                                String path = "pages/articleView/articleView";
+                                String finalPath = path + "?path=" + news.get("link")
+                                        + "&source=" + news.get("source")
+                                        + "&domain=" + news.get("domain");
+                                String encode = URLEncoder.encode(finalPath, "UTF-8");
+                                String url = "https://m.q.qq.com/a/p/1111006861?s=" + encode;
+                                group.sendMessage(news.get("title") + "\n"+url);
+                                //group.sendMessage(new LightApp(NewsProvider.genLightJson(news)));
                             } catch (UnsupportedEncodingException e) {
                                 e.printStackTrace();
                             }

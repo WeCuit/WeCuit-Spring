@@ -6,18 +6,13 @@ import cn.wecuit.robot.entity.CmdList;
 import cn.wecuit.robot.entity.MainCmd;
 import cn.wecuit.robot.entity.RobotPlugin;
 import cn.wecuit.robot.entity.SubCmd;
-import cn.wecuit.robot.provider.NewsProvider;
-import cn.wecuit.backen.utils.NewsUtil;
 import cn.wecuit.robot.services.RbNewsService;
-import lombok.Getter;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
-import net.mamoe.mirai.message.data.LightApp;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 
-import javax.annotation.Resource;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -126,7 +121,14 @@ public class NewsPlugin extends MsgPluginImpl {
 
             todayNews.forEach(news->{
                 try {
-                    event.getSubject().sendMessage(new LightApp(NewsProvider.genLightJson(news)));
+                    String path = "pages/articleView/articleView";
+                    String finalPath = path + "?path=" + news.get("link")
+                            + "&source=" + news.get("source")
+                            + "&domain=" + news.get("domain");
+                    String encode = URLEncoder.encode(finalPath, "UTF-8");
+                    String url = "https://m.q.qq.com/a/p/1111006861?s=" + encode;
+                    event.getSubject().sendMessage(news.get("title") + "\n"+url);
+                    //event.getSubject().sendMessage(new LightApp(NewsProvider.genLightJson(news)));
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 }

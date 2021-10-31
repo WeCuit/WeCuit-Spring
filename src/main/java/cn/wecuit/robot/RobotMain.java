@@ -25,6 +25,7 @@ public class RobotMain {
             // 配置，例如：
             fileBasedDeviceInfo(path + "/robot/device.json");
             setCacheDir(new File(path + "/robot/cache/" + id));
+            setProtocol(MiraiProtocol.ANDROID_WATCH);
         }});
     }
 
