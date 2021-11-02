@@ -4,6 +4,7 @@ import cn.wecuit.backen.exception.BaseException;
 import cn.wecuit.backen.response.BaseResponse;
 import cn.wecuit.backen.services.JszxService;
 import cn.wecuit.backen.utils.CCUtil;
+import cn.wecuit.backen.utils.HTTP.HttpRequestConfig;
 import cn.wecuit.backen.utils.HTTP.HttpUtil2;
 import cn.wecuit.backen.utils.HTTP.HttpUtilEntity;
 import cn.wecuit.backen.utils.JsonUtil;
@@ -43,9 +44,7 @@ public class JszxController {
         headers.put("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.0 Safari/537.36 Edg/84.0.521.0");
         headers.put("Cookie", cookie);
 
-        HttpUtil2 http = new HttpUtil2(new HashMap<String, Object>() {{
-            put("redirection", 0);
-        }});
+        HttpUtil2 http = new HttpUtil2(new HttpRequestConfig() {{ setMaxRedirects(0);}});
         HttpUtilEntity resp = http.doGetEntity("http://jszx-jxpt.cuit.edu.cn/Jxgl/Xs/netks/sj.asp?jkdk=Y", headers, "gb2312");
         if (resp.getStatusCode() != 200)
             throw new BaseException(20401, "计算中心还未登录");
@@ -89,9 +88,7 @@ public class JszxController {
         String cookie = body.get("cookie");
         String link = body.get("link");
 
-        HttpUtil2 http = new HttpUtil2(new HashMap<String, Object>() {{
-            put("redirection", 0);
-        }});
+        HttpUtil2 http = new HttpUtil2(new HttpRequestConfig() {{ setMaxRedirects(0);}});
         String reqUrl = "http://jszx-jxpt.cuit.edu.cn/Jxgl/Xs/netks/sjDb.asp?" + link;
         Map<String, String> headers = new HashMap<>();
         headers.put("cookie", cookie);
@@ -124,9 +121,7 @@ public class JszxController {
         headers.put("cookie", cookie);
         headers.put("referer", "http://jszx-jxpt.cuit.edu.cn/");
 
-        HttpUtil2 http = new HttpUtil2(new HashMap<String, Object>() {{
-            put("redirection", 0);
-        }});
+        HttpUtil2 http = new HttpUtil2(new HttpRequestConfig() {{ setMaxRedirects(0);}});
         String url = "http://jszx-jxpt.cuit.edu.cn/Jxgl/Xs/netks/editSjRs.asp";
         HttpUtilEntity httpUtilEntity = http.doPostEntity(url, form, headers, "GB2312");
         if (200 != httpUtilEntity.getStatusCode()) throw new BaseException(20401, "未登录");

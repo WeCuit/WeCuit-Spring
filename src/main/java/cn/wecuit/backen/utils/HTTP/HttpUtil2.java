@@ -16,6 +16,7 @@ import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.impl.cookie.BasicClientCookie;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
 import org.apache.hc.client5.http.protocol.HttpClientContext;
@@ -57,7 +58,6 @@ public class HttpUtil2 {
 
     // 采用静态代码块，初始化部分配置，再根据配置生成默认httpClient对象
     static {
-
         // SSL准备
         SSLContext sslContext;
         SSLConnectionSocketFactory sslCSF = null;
@@ -85,7 +85,7 @@ public class HttpUtil2 {
         // 默认配置
         unBuildConfig = RequestConfig.custom().setConnectTimeout(Timeout.ofSeconds(5))
                 .setResponseTimeout(Timeout.ofSeconds(5))
-                 //.setProxy(new HttpHost("127.0.0.1", 8888))
+                 .setProxy(new HttpHost("127.0.0.1", 8888))
                 .setCircularRedirectsAllowed(true);
         localContext.setCookieStore(httpCookieStore);
     }
@@ -100,14 +100,12 @@ public class HttpUtil2 {
      *
      * @param config
      */
-    public HttpUtil2(Map<String, Object> config) {
+    public HttpUtil2(HttpRequestConfig config) {
         // 自定义配置
-        if (config.containsKey("redirection")) {
-            unBuildConfig.setMaxRedirects((int) config.get("redirection"));
-            unBuildConfig.setRedirectsEnabled((int) config.get("redirection") != 0);
-        }
-        localContext.setRequestConfig(unBuildConfig.build());
+        unBuildConfig.setMaxRedirects(config.getMaxRedirects());
+        unBuildConfig.setRedirectsEnabled(config.getMaxRedirects() != 0);
 
+        localContext.setRequestConfig(unBuildConfig.build());
     }
 
     /**
@@ -122,6 +120,16 @@ public class HttpUtil2 {
             cookies.put(cookie.getName(), cookie.getValue());
         }
         return cookies;
+    }
+
+    /**
+     * 添加Cookie
+     *
+     */
+    public void addCookie(String name, String value, String domain) {
+        BasicClientCookie cookie = new BasicClientCookie(name, value);
+        cookie.setDomain(domain);
+        httpCookieStore.addCookie(cookie);
     }
 
     /**

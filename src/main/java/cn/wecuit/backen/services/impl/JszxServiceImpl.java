@@ -1,6 +1,7 @@
 package cn.wecuit.backen.services.impl;
 
 import cn.wecuit.backen.services.JszxService;
+import cn.wecuit.backen.utils.HTTP.HttpRequestConfig;
 import cn.wecuit.backen.utils.HTTP.HttpUtil2;
 import cn.wecuit.backen.utils.HTTP.HttpUtilEntity;
 import org.apache.hc.core5.http.ParseException;
@@ -75,9 +76,7 @@ public class JszxServiceImpl implements JszxService {
 
     @Override
     public boolean checkLogin(String cookie) {
-        HttpUtil2 http = new HttpUtil2(new HashMap<String, Object>() {{
-            put("redirection", 0);
-        }});
+        HttpUtil2 http = new HttpUtil2(new HttpRequestConfig() {{ setMaxRedirects(0);}});
         try {
             HttpUtilEntity entity = http.doGetEntity("http://login.cuit.edu.cn/Login/qqLogin.asp", new HashMap<String, String>() {{
                 put("cookie", cookie);

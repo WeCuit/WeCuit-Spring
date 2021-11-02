@@ -1,8 +1,8 @@
 package cn.wecuit.backen.api.v3;
 
 import cn.wecuit.backen.response.BaseResponse;
-import cn.wecuit.backen.response.ResponseResult;
 import cn.wecuit.backen.services.JwglService;
+import cn.wecuit.backen.utils.HTTP.HttpRequestConfig;
 import cn.wecuit.backen.utils.HTTP.HttpUtil2;
 import cn.wecuit.backen.utils.HTTP.HttpUtilEntity;
 import org.apache.hc.core5.http.ParseException;
@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @Author jiyec
@@ -48,9 +48,7 @@ public class JwglController {
         headers.put("cookie", cookie);
         String home_url = "http://jwgl-cuit-edu-cn.webvpn.cuit.edu.cn:8118/eams/home.action";
 
-        HttpUtil2 http = new HttpUtil2(new HashMap<String, Object>() {{
-            put("redirection", 0);
-        }});
+        HttpUtil2 http = new HttpUtil2(new HttpRequestConfig() {{ setMaxRedirects(0);}});
         HttpUtilEntity resp = http.doGetEntity(home_url, headers);
 
         Map<String, Object> result = new HashMap<>();

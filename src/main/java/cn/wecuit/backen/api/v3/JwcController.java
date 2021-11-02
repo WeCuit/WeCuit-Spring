@@ -1,13 +1,16 @@
 package cn.wecuit.backen.api.v3;
 
 import cn.wecuit.backen.response.BaseResponse;
+import cn.wecuit.backen.utils.HTTP.HttpRequestConfig;
 import cn.wecuit.backen.utils.HTTP.HttpUtil2;
 import cn.wecuit.backen.utils.JwcUtil;
 import org.apache.hc.core5.http.ParseException;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -23,9 +26,7 @@ public class JwcController {
     @PostMapping("/labAll")
     public Map<String, Object> labAll(@RequestBody Map<String, String> body) throws IOException, ParseException {
 
-        HttpUtil2 http = new HttpUtil2(new HashMap<String, Object>() {{
-            put("redirection", 0);
-        }});
+        HttpUtil2 http = new HttpUtil2(new HttpRequestConfig() {{ setMaxRedirects(0);}});
         String html = http.doGet("http://jxgl.cuit.edu.cn/Jxgl/Js/sysYxgl/Cx/sysHz.asp", body, "gb2312");
 
         //数据解析
@@ -49,9 +50,7 @@ public class JwcController {
             cxZc:                        ----周次
             Lb: 1                        ----类别
         */
-        HttpUtil2 http = new HttpUtil2(new HashMap<String, Object>() {{
-            put("redirection", 0);
-        }});
+        HttpUtil2 http = new HttpUtil2(new HttpRequestConfig() {{ setMaxRedirects(0);}});
         String html = http.doGet("http://jxgl.cuit.edu.cn/Jxgl/Js/sysYxgl/Cx/sysKb.asp", body, "gb2312");
         html = html.replace("请输入实验室名称", "").replace("<br>", "").replace("　　", " ");
 

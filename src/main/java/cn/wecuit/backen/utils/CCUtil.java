@@ -1,6 +1,7 @@
 package cn.wecuit.backen.utils;
 
 import cn.wecuit.backen.exception.BaseException;
+import cn.wecuit.backen.utils.HTTP.HttpRequestConfig;
 import cn.wecuit.backen.utils.HTTP.HttpUtil2;
 import cn.wecuit.backen.utils.HTTP.HttpUtilEntity;
 import org.apache.hc.core5.http.ParseException;
@@ -29,9 +30,7 @@ public class CCUtil {
         Map<String, String> headers = new HashMap<>();
         headers.put("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.0 Safari/537.36 Edg/84.0.521.0");
         if(null != cookie) headers.put("cookie", cookie);
-        HttpUtil2 http = new HttpUtil2(new HashMap<String, Object>(){{
-            put("redirection", 0);
-        }});
+        HttpUtil2 http = new HttpUtil2(new HttpRequestConfig() {{ setMaxRedirects(0);}});
         //    loginPage
         HttpUtilEntity httpUtilEntity = http.doGetEntity("http://login.cuit.edu.cn/Login/xLogin/Login.asp", headers, "GB2312");
 

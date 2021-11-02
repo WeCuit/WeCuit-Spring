@@ -2,6 +2,7 @@ package cn.wecuit.backen.api.v3;
 
 import cn.wecuit.backen.exception.BaseException;
 import cn.wecuit.backen.response.ResponseCode;
+import cn.wecuit.backen.utils.HTTP.HttpRequestConfig;
 import cn.wecuit.backen.utils.HTTP.HttpUtil;
 import cn.wecuit.backen.utils.HTTP.HttpUtil2;
 import cn.wecuit.backen.utils.HTTP.HttpUtilEntity;
@@ -69,9 +70,7 @@ public class TheolController {
             put("referer", "http://jxpt.cuit.edu.cn/");
         }};
 
-        HttpUtilEntity httpUtilEntity = new HttpUtil2(new HashMap<String, Object>(){{
-            put("redirection", 2);
-        }}).doGetEntity("https://sso.cuit.edu.cn/authserver/login?service=http://jxpt.cuit.edu.cn/meol/homepage/common/sso_login.jsp;" + theolCookie, headers, "GBK");
+        HttpUtilEntity httpUtilEntity = new HttpUtil2(new HttpRequestConfig() {{ setMaxRedirects(2);}}).doGetEntity("https://sso.cuit.edu.cn/authserver/login?service=http://jxpt.cuit.edu.cn/meol/homepage/common/sso_login.jsp;" + theolCookie, headers, "GBK");
         int statusCode = httpUtilEntity.getStatusCode();
 
         Map<String, Object> ret = new HashMap<>();

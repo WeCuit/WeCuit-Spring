@@ -2,6 +2,7 @@ package cn.wecuit.backen.services.impl;
 
 import cn.wecuit.backen.exception.BaseException;
 import cn.wecuit.backen.services.JwglService;
+import cn.wecuit.backen.utils.HTTP.HttpRequestConfig;
 import cn.wecuit.backen.utils.HTTP.HttpUtil2;
 import cn.wecuit.backen.utils.HTTP.HttpUtilEntity;
 import cn.wecuit.backen.utils.JsonUtil;
@@ -32,9 +33,7 @@ public class JwglServiceImpl implements JwglService {
         headers.put("referer", "http://jwgl-cuit-edu-cn.webvpn.cuit.edu.cn:8118/");
         headers.put("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.85 Safari/537.36 Edg/90.0.818.49");
 
-        HttpUtil2 http = new HttpUtil2(new HashMap<String, Object>() {{
-            put("redirection", 0);
-        }});
+        HttpUtil2 http = new HttpUtil2(new HttpRequestConfig() {{ setMaxRedirects(0);}});
         // 发送请求
         HttpUtilEntity resp = http.doGetEntity(url, headers);
 
@@ -78,9 +77,7 @@ public class JwglServiceImpl implements JwglService {
             put("template", "report_latest_mode");
         }};
 
-        HttpUtil2 http = new HttpUtil2(new HashMap<String, Object>() {{
-            put("redirection", 0);
-        }});
+        HttpUtil2 http = new HttpUtil2(new HttpRequestConfig() {{ setMaxRedirects(0);}});
         String url = "http://jwgl-cuit-edu-cn.webvpn.cuit.edu.cn:8118/eams/teach/grade/course/person!myHistory.action";
         HttpUtilEntity httpUtilEntity = http.doPostEntity(url, body, headers);
         if (200 != httpUtilEntity.getStatusCode())
@@ -123,9 +120,7 @@ public class JwglServiceImpl implements JwglService {
         }};
         String url = "http://jwgl-cuit-edu-cn.webvpn.cuit.edu.cn:8118/eams/stdExamTable.action";
 
-        HttpUtil2 httpUtil2 = new HttpUtil2(new HashMap<String, Object>() {{
-            put("redirection", 0);
-        }});
+        HttpUtil2 httpUtil2 = new HttpUtil2(new HttpRequestConfig() {{ setMaxRedirects(0);}});
         HttpUtilEntity httpUtilEntity = httpUtil2.doGetEntity(url, headers);
 
         if (200 != httpUtilEntity.getStatusCode()) throw new BaseException(401, "教务处未登录");
@@ -213,9 +208,7 @@ public class JwglServiceImpl implements JwglService {
             put("cookie", cookie);
         }};
 
-        HttpUtil2 http = new HttpUtil2(new HashMap<String, Object>() {{
-            put("redirection", 0);
-        }});
+        HttpUtil2 http = new HttpUtil2(new HttpRequestConfig() {{ setMaxRedirects(0);}});
         String html = http.doGet("http://jwgl-cuit-edu-cn.webvpn.cuit.edu.cn:8118/eams/stdExamTable!examTable.action?examBatch.id=" + batchId, "GB2312", headers);
         if(!html.contains("考试地点"))throw new BaseException(401, "未登录");
 
@@ -261,9 +254,7 @@ public class JwglServiceImpl implements JwglService {
     private static final Pattern courseOption = Pattern.compile("<option value=\"(.*?)\">(.*?)</option>");
     @Override
     public Map<String, Object> getCourseOption(String cookie) throws IOException, ParseException {
-        HttpUtil2 http = new HttpUtil2(new HashMap<String, Object>(){{
-            put("redirection", 0);
-        }});
+        HttpUtil2 http = new HttpUtil2(new HttpRequestConfig() {{ setMaxRedirects(0);}});
         String url = "http://jwgl-cuit-edu-cn.webvpn.cuit.edu.cn:8118/eams/courseTableForStd.action";
         Map<String, String> header = new HashMap<String, String>(){{
             put("cookie", cookie);
@@ -313,9 +304,7 @@ public class JwglServiceImpl implements JwglService {
     private static Pattern courseTableP = Pattern.compile("if\\(jQuery\\(\"#courseTableType\"\\)\\.val\\(\\)==\"std\"\\)\\{.*?form\\.addInput\\(form,\"ids\",\"(\\d+)\".*?form\\.addInput\\(form,\"ids\",\"(\\d+)\"");
     @Override
     public Map<String, Object> getCourseTable(String cookie, String courseType) throws IOException, ParseException {
-        HttpUtil2 http = new HttpUtil2(new HashMap<String, Object>() {{
-            put("redirection", 0);
-        }});
+        HttpUtil2 http = new HttpUtil2(new HttpRequestConfig() {{ setMaxRedirects(0);}});
         String url = "http://jwgl-cuit-edu-cn.webvpn.cuit.edu.cn:8118/eams/courseTableForStd.action?_=1602082567619";
         Map<String, String> header = new HashMap<String, String>(){{
             put("cookie", cookie);
@@ -356,9 +345,7 @@ public class JwglServiceImpl implements JwglService {
     private static final Pattern startDateP = Pattern.compile("datedifference\\(s1, '(\\d+)-(\\d+)-(\\d+)'\\);");
     private Map<String, String> getStartDateOfTerm() throws IOException, ParseException {
 
-        HttpUtil2 http = new HttpUtil2(new HashMap<String, Object>() {{
-            put("redirection", 0);
-        }});
+        HttpUtil2 http = new HttpUtil2(new HttpRequestConfig() {{ setMaxRedirects(0);}});
         String body = http.doGet("https://jwc.cuit.edu.cn");
         Matcher matcher = startDateP.matcher(body);
         Map<String, String> date = new HashMap<>();

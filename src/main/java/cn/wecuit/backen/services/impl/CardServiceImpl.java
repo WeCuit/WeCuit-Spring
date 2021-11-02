@@ -3,6 +3,7 @@ package cn.wecuit.backen.services.impl;
 import cn.wecuit.backen.exception.BaseException;
 import cn.wecuit.backen.services.CardService;
 import cn.wecuit.backen.utils.CardUtil;
+import cn.wecuit.backen.utils.HTTP.HttpRequestConfig;
 import cn.wecuit.backen.utils.HTTP.HttpUtil2;
 import cn.wecuit.backen.utils.HTTP.HttpUtilEntity;
 import cn.wecuit.backen.utils.URLUtil;
@@ -27,9 +28,7 @@ public class CardServiceImpl implements CardService {
         Map<String, String> headers = new HashMap<>();
         headers.put("cookie", "TGC=" + cookie);
 
-        HttpUtil2 http = new HttpUtil2(new HashMap<String, Object>() {{
-            put("redirection", 0);
-        }});
+        HttpUtil2 http = new HttpUtil2(new HttpRequestConfig() {{ setMaxRedirects(0);}});
         HttpUtilEntity httpUtilEntity = http.doGetEntity("https://sso.cuit.edu.cn/authserver/login?service=http%3a%2f%2fykt.cuit.edu.cn%3a12491%2flogin.aspx", headers);
         if (httpUtilEntity.getStatusCode() != 302) throw new BaseException(12401, "SSO未登录");
         String location = httpUtilEntity.getHeaders().get("Location");
@@ -71,9 +70,7 @@ public class CardServiceImpl implements CardService {
         Map<String, String> sign = CardUtil.genSign(param, "AccWallet");
         param.putAll(sign);
 
-        HttpUtil2 http = new HttpUtil2(new HashMap<String, Object>() {{
-            put("redirection", 0);
-        }});
+        HttpUtil2 http = new HttpUtil2(new HttpRequestConfig() {{ setMaxRedirects(0);}});
         return http.doGet("http://ykt.cuit.edu.cn:12490/QueryAccWallet.aspx", param);
     }
 
@@ -83,9 +80,7 @@ public class CardServiceImpl implements CardService {
         d.put("ContentType", "json");
         d.putAll(sign);
 
-        HttpUtil2 http = new HttpUtil2(new HashMap<String, Object>() {{
-            put("redirection", 0);
-        }});
+        HttpUtil2 http = new HttpUtil2(new HttpRequestConfig() {{ setMaxRedirects(0);}});
         return http.doGet("http://ykt.cuit.edu.cn:12490/QueryDealRec.aspx", d);
     }
 }
