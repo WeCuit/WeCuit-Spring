@@ -33,8 +33,11 @@ public class AutoPrefixUrlMapping extends RequestMappingHandlerMapping {
     private String getPrefix(Class<?> handlerType){
 
         String packageName = handlerType.getPackage().getName();
-        String newPath = packageName.replaceAll(this.apiPackagePath, "");
+        if(packageName.startsWith(this.apiPackagePath))
+            packageName = packageName.replaceAll(this.apiPackagePath, "");
+        else
+            packageName = "";
 
-        return newPath.replace(".","/");
+        return packageName.replace(".","/");
     }
 }
