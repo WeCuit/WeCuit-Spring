@@ -1,0 +1,294 @@
+
+<HTML>
+<HEAD>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <LINK href="Img/main.css" type=text/css rel=stylesheet>
+
+    <style>
+        .td1 {font-size:10.5pt; font-family:宋体;word-break:break-all;line-height:130%; vertical-align: bottom; }
+        .wk {width:248px; height:1px; border-top:#C0C0c0 1px solid; }
+        .wkSS {width:45px; height:1px; border-top:#C0C0C0 1px solid; }
+        .tjR  { border-right:none; }
+        .tjL  { border-left:#ffffff 1px solid; }
+        .tjLR { border-left:#ffffff 1px solid; border-right:none; }
+        .zcSty {color:#D8D8D8; }
+        .Tm {color:#ff0000; margin:0; }
+        .jfTm {color:#0000ff; text-indent:-40px; margin-left:40px; margin-top:0; margin-bottom:0; }
+        .jfTmL {color:#FF0000; margin:0; }
+        .jfJs {text-indent: -48px; margin-left: 48px; margin-top:0; margin-bottom:0; }
+        .zcD {display:inline; width:100px; }
+        .zcP {text-indent: -24px; margin-left: 24px; margin-top:0; margin-bottom:0; }
+        .tdRest {font-size:8px; background-color:#EEEEEE; height:8px; }
+        .rwsA {font-size:12px; }
+        .jfA:link {TEXT-DECORATION: none; color:#0000ff; }
+        .jfA:visited {TEXT-DECORATION: none; color:#0000aa; }
+        .jfA:active {TEXT-DECORATION: none; }
+        .jfA:hover {TEXT-DECORATION: underline; color:#cc0000; }
+
+        .jsA:link    { COLOR: #0000FF; FONT-SIZE: 14px; TEXT-DECORATION: none; }
+        .jsA:visited { COLOR: #0000AA; FONT-SIZE: 14px; TEXT-DECORATION: none; }
+        .jsA:active  { FONT-SIZE: 14px; TEXT-DECORATION: none; }
+        .jsA:hover   { COLOR: #cc0000; FONT-SIZE: 14px; TEXT-DECORATION: underline; }
+
+        .topHRNx { text-align:center; width:1381px; border-bottom:1px outset #000000; }
+        .ftTab { text-align:center; width:1381px; border-bottom:0px outset #000000; font-size:12px; }
+    </style>
+    <script language=javaScript>
+        function preData()
+        {
+            if ('xcfd' == cxKb.Jxb.value)   cxKb.target = '_blank';
+            else   cxKb.target = '_self';
+
+            return true;
+        }
+    </script>
+    <TITLE>实践教学课表_教学运行管理_教学管理系统_成都信息工程大学</TITLE>
+</HEAD>
+<BODY style="font-family:宋体">
+<div align=center><div class=topHRNx><TABLE width=100% cols=1 CellPadding=0 CellSpacing=0 align=center><tr>
+    <td align=Left><p class=topL><form name="cxKb" METHOD="POST" ACTION="sysKb.asp" target="_self" onsubmit="javascript:return preData();" style="margin-top:0; margin-bottom:0;font-size:14px;">
+        <input type=hidden name=cxZtO value="8">
+        <input type=hidden name=cxZcO value="">
+        学期:<input type=text name=Kkxq maxlength=5 style="width:47" value="20211">　<select name=Yx class=Input style="width:105" >
+        <option selected value="0">不限院系</option>
+        <option value="118">大气科学学院</option>
+        <option value="103">电子工程学院</option>
+        <option value="139">电子实验中心</option>
+        <option value="102">管理学院</option>
+        <option value="110">光电技术学院</option>
+        <option value="104">计算机学院</option>
+        <option value="140">计算中心</option>
+        <option value="119">控制工程学院</option>
+        <option value="152">软件工程学院</option>
+        <option value="150">通信工程学院</option>
+        <option value="114">统计学院</option>
+        <option value="106">外国语学院</option>
+        <option value="107">文化艺术学院</option>
+        <option value="158">物流学院</option>
+        <option value="151">网络空间安全学院</option>
+        <option value="101">应用数学学院</option>
+        <option value="105">资源环境学院</option>
+        <option value="142">信息中心</option>
+    </select>
+        <select name=Rw class=Input style="width:77" >
+            <option selected value="1">承担任务</option>
+            <option value="2">负责课程</option>
+            <option value="3">聘用教师</option>
+            <option value="4">所管班级</option>
+        </select>
+        <input type=text name=Sys maxlength=16 style="width:130;color:#CCCCCC" value="请输入实验室名称" onFocus="if (value =='请输入实验室名称'){value ='';this.style.color='#000000';}" onBlur="if (value ==''){value='请输入实验室名称';this.style.color='#CCCCCC';}" title="可输入名称的一部分">　房间:<input type=text name=Fj maxlength=8 style="width:56" value="HSZXB215" title="可只输入房间编号的左边部分">　教学班:<input type=text name=Jxb maxlength=10 style="width:88" value="计算机196" title="可只输入班简名的左边部分">　教师:<input type=text name=Zjjs maxlength=10 style="width:80" value="" title="可只输入姓名的左边部分">　课程:<input type=text name=Jxkc maxlength=20 style="width:102" value="" title="可只输入课程名称的左边部分">　&nbsp;<select name=cxZt class=Input style="width:105" >
+        <option value="0">无时间限制</option>
+        <option selected value="8">未结束授课</option>
+        <option value="9">授课已结束</option>
+        <option value="A">指定周次有课</option>
+        <option value="1">今天有课</option>
+        <option value="2">明天有课</option>
+        <option value="3">后天有课</option>
+        <option value="4">第4天有课</option>
+        <option value="5">第5天有课</option>
+        <option value="6">第6天有课</option>
+        <option value="7">第7天有课</option>
+    </select>
+        第<input type=text name=cxZc maxlength=2 style="width:28;text-align:center;font-weight:bold;" value="">周　<select name=Lb class=Input style="width:123" >
+        <option value="A">理论教学</option>
+        <option selected value="1">实践教学</option>
+        <option value="B">实践教学-计划外</option>
+        <option value="9">理论与实践教学</option>
+        <option value="5">开放实验室</option>
+        <option value="6">教师值班</option>
+        <option value="8">学生值班</option>
+    </select>
+        &nbsp;<input type=submit value="查 询" name=B1 style="width:50;font-size:10.5pt;font-weight:bold">
+    </form></p></td></tr></TABLE></div></div>
+<div align=center><TABLE id=wjTA CellPadding=1 CellSpacing=0 border=1 width=1379 align=center class=tabThinM style="font-size:12px; word-wrap:break-word; word-break:break-all;"><TBODY>
+<TR VALIGN=top ALIGN=left>
+    <TH BGCOLOR=#DDDDDD align="center" rowSpan="2" width=21 valign=bottom>
+        <FONT Style="COLOR: #000000; FONT-FAMILY: 宋体,arial; FONT-SIZE: 14px">节次</FONT></TH>
+    <TH BGCOLOR=#c0c0c0 align=Left colspan=3 valign=bottom style="color:#7777CC; font-weight:normal">&nbsp;※ 房间编号带链接的，点击可查该房间当前的空闲座位</TH>
+    <TH BGCOLOR=#c0c0c0 align=Right colspan=4 valign=bottom style="color:#7777CC; font-weight:normal">
+        　　今天是：2021/11/14 星期日　农历 十月初十　　第2021--2022学年 第1学期　第<b>10</b>周　第<b>70</b>天</TH>
+</TR><TR VALIGN=top ALIGN=left>
+    <TH BGCOLOR=#DDDDDD align="Left" width=250 valign=bottom>
+        <FONT Style="COLOR: #000000; FONT-FAMILY: 宋体,arial; FONT-SIZE: 14px"><div style="width:248">星期一</div></FONT></TH>
+    <TH BGCOLOR=#DDDDDD align="Left" width=250 valign=bottom>
+        <FONT Style="COLOR: #000000; FONT-FAMILY: 宋体,arial; FONT-SIZE: 14px"><div style="width:248">星期二</div></FONT></TH>
+    <TH BGCOLOR=#DDDDDD align="Left" width=250 valign=bottom>
+        <FONT Style="COLOR: #000000; FONT-FAMILY: 宋体,arial; FONT-SIZE: 14px"><div style="width:248">星期三</div></FONT></TH>
+    <TH BGCOLOR=#DDDDDD align="left" width=250 valign=bottom>
+        <FONT Style="COLOR: #000000; FONT-FAMILY: 宋体,arial; FONT-SIZE: 14px"><div style="width:248">星期四</div></FONT></TH>
+    <TH BGCOLOR=#DDDDDD align="Left" width=250 valign=bottom>
+        <FONT Style="COLOR: #000000; FONT-FAMILY: 宋体,arial; FONT-SIZE: 14px"><div style="width:248">星期五</div></FONT></TH>
+    <TH BGCOLOR=#DDDDDD align="Center" width=47 valign=bottom>
+        <FONT Style="COLOR: #000000; FONT-FAMILY: 宋体,arial; FONT-SIZE: 14px"><div style="width:45">星期六</div></FONT></TH>
+    <TH BGCOLOR=#DDDDDD align="Center" width=47 valign=bottom>
+        <FONT Style="COLOR: #000000; FONT-FAMILY: 宋体,arial; FONT-SIZE: 14px"><div style="width:45">星期日</div></FONT></TH>
+</TR>
+<TR VALIGN=bottom ALIGN=left>
+    <TD vAlign=top style="color:#0000FF; text-align:center">上午第一二节课</TD>
+    <TD vAlign=Top>
+        　
+    </TD>
+    <TD vAlign=Top>
+        　
+    </TD>
+    <TD vAlign=Top>
+        　
+    </TD>
+    <TD vAlign=Top>
+        　
+    </TD>
+    <TD vAlign=Top>
+        　
+    </TD>
+    <TD vAlign=Top>
+        　
+    </TD>
+    <TD vAlign=Top>
+        　
+    </TD>
+</TR>
+<TR VALIGN=bottom ALIGN=left>
+    <TD vAlign=top style="color:#0000FF; text-align:center">上午第三四节课</TD>
+    <TD vAlign=Top>
+        　
+    </TD>
+    <TD vAlign=Top>
+        　
+    </TD>
+    <TD vAlign=Top>
+        　
+    </TD>
+    <TD vAlign=Top>
+        　
+    </TD>
+    <TD vAlign=Top>
+        　
+    </TD>
+    <TD vAlign=Top>
+        　
+    </TD>
+    <TD vAlign=Top>
+        　
+    </TD>
+</TR>
+<TR VALIGN=bottom ALIGN=left><TD colspan=8 class=tdRest>&nbsp;</TD></TR>
+<TR VALIGN=bottom ALIGN=left>
+    <TD vAlign=top style="color:#0000FF; text-align:center">下午第五六节课</TD>
+    <TD vAlign=Top>
+        　
+    </TD>
+    <TD vAlign=Top>
+        　
+    </TD>
+    <TD vAlign=Top>
+        　
+    </TD>
+    <TD vAlign=Top>
+        　
+    </TD>
+    <TD vAlign=Top>
+        　
+    </TD>
+    <TD vAlign=Top>
+        　
+    </TD>
+    <TD vAlign=Top>
+        　
+    </TD>
+</TR>
+<TR VALIGN=bottom ALIGN=left>
+    <TD vAlign=top style="color:#0000FF; text-align:center">下午第七八节课</TD>
+    <TD vAlign=Top>
+        　
+    </TD>
+    <TD vAlign=Top>
+        　
+    </TD>
+    <TD vAlign=Top>
+        　
+    </TD>
+    <TD vAlign=Top>
+        　
+    </TD>
+    <TD vAlign=Top>
+        　
+    </TD>
+    <TD vAlign=Top>
+        　
+    </TD>
+    <TD vAlign=Top>
+        　
+    </TD>
+</TR>
+<TR VALIGN=bottom ALIGN=left><TD colspan=8 class=tdRest>&nbsp;</TD></TR>
+<TR VALIGN=bottom ALIGN=left>
+    <TD vAlign=top style="color:#0000FF; text-align:center">晚上第九十节课</TD>
+    <TD vAlign=Top>
+        　
+    </TD>
+    <TD vAlign=Top>
+        　
+    </TD>
+    <TD vAlign=Top>
+        　
+    </TD>
+    <TD vAlign=Top>
+        <p class=Tm>18:30～19:59</p>
+        <p class=jfTmL><b>HSZXB215</b>&nbsp;10-12周</p>
+        <p class=jfJs>林　岗：计算机196(45)</p>
+        　　HTML5程序设计<br></TD>
+    <TD vAlign=Top>
+        　
+    </TD>
+    <TD vAlign=Top>
+        　
+    </TD>
+    <TD vAlign=Top>
+        　
+    </TD>
+</TR>
+<TR VALIGN=bottom ALIGN=left>
+    <TD vAlign=top style="color:#0000FF; text-align:center">晚上第⑾⑿节课</TD>
+    <TD vAlign=Top>
+        <p class=Tm>20:00～21:30</p>
+        <p class=jfTmL><b>HSZXB215</b>&nbsp;第16周</p>
+        <p class=jfJs>林　岗：计算机196(45)</p>
+        　　HTML5程序设计<br></TD>
+    <TD vAlign=Top>
+        　
+    </TD>
+    <TD vAlign=Top>
+        　
+    </TD>
+    <TD vAlign=Top>
+        <p class=Tm>20:00～21:30</p>
+        <p class=jfTmL><b>HSZXB215</b>&nbsp;10-12周</p>
+        <p class=jfJs>林　岗：计算机196(45)</p>
+        　　HTML5程序设计<br></TD>
+    <TD vAlign=Top>
+        　
+    </TD>
+    <TD vAlign=Top>
+        　
+    </TD>
+    <TD vAlign=Top>
+        　
+    </TD>
+</TR>
+</TBODY></TABLE></div><div align=center><TABLE cols=2 border=0 width=1379 align=center style="margin-top:6;font-size:14px;"><TBODY>
+<tr><td width=86>&nbsp;* 说明：(1)</td><td>教学班名称后括号里的数字为其人数，若人数后还有“/<span style="color:#0000FF">数字</span>”，则<span style="color:#0000FF">数字</span>表示其聘用的助教人数，鼠标移至此数字上时，会显示助教的姓名</td></tr>
+<tr><td width=86>&nbsp;　　　　(2)</td><td>理论与实践教学汇总里的“同课同天理论+实践”之计算可能不准确，有可能是A班上K课之理论、B班上K课之实践所造成</td></tr>
+</TBODY></TABLE></div>
+<!---页尾版权开始---->
+<div align=center><table class=ftTab border="0" cellspacing="0" cellpadding="0"  style="MARGIN-TOP: 10px" align="center">
+    <tr><td bgcolor="#ff91b9" height="1"><IMG height=1 src="/Jxgl/images/null.gif" width=1></td></tr>
+    <tr> <td height="6" bgcolor="#ffe8f0"><IMG height=1 src="/Jxgl/images/null.gif" width=1></td></tr>
+    <tr><td align="middle" bgcolor="#fff4f8">
+        <p style="margin-top:2; margin-bottom:4">Copyright(C) 2000--2021 Jwc-Chengdu University Of Information Technology. All rights reserved. </p>
+        <p style="margin-top:4; margin-bottom:4">版权所有-成都信息工程大学－教务处，未经许可、不得转载</p>
+        <p style="margin-top:4; margin-bottom:4">成绩、学籍等业务请联系：教务科-<a style='color:#000000;font-size:12px' href="mailto:jwk@cuit.edu.cn">E-mail:jwk@cuit.edu.cn</a>　　电话：(028)85966362</p>
+    </td></tr>
+</table></div><!---页尾版权结束---->
+</body>
+</html>
+

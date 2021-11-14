@@ -166,14 +166,19 @@ public class JwcUtil {
         jxNodes.forEach(tr->{
             String name = tr.asElement().child(0).text();
             Elements tds = tr.asElement().children();
-            for (int i = 2; i < tds.size(); i++) {
+            for (int i = 1; i < tds.size(); i++) {
 
                 // 星期 $j / 2 , 节次 $name
                 List<String> detail = LAB_DetailHtml2json_td(tds.get(i));
-                if(null != detail)
-                list.put(i / 2 - 1, new HashMap<String, List<String>>(){{
-                    put(name, detail);
-                }});
+                if(null != detail) {
+                    Map<String, List<String>> item = (Map<String, List<String>>)list.get(i - 1);
+                    if(item != null)
+                        item.put(name, detail);
+                    else
+                        list.put(i - 1, new HashMap<String, List<String>>() {{
+                            put(name, detail);
+                        }});
+                }
             }
         });
         return new HashMap<String, Object>(){{

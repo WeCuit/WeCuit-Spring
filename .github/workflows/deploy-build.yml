@@ -56,6 +56,6 @@ jobs:
             # 拉取最新latest版本镜像
             docker pull ${{ secrets.DOCKER_REPOSITORY }}:latest
             cd /root/docker
-            docker-compose up -d spring
+            docker-compose up -d spring_test
             # 运行最新latest版本镜像
-            # docker run -d -p 8888:8080 ${{ secrets.DOCKER_REPOSITORY }}:latest
+            # docker run -d -p 8889:8080 ${{ secrets.DOCKER_REPOSITORY }}:latest
