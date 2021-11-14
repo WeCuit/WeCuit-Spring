@@ -2,10 +2,8 @@ package cn.wecuit.robot.plugins.msg;
 
 import cn.wecuit.robot.data.DataHandle;
 import lombok.SneakyThrows;
-import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.message.MessageReceipt;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -17,8 +15,7 @@ public abstract class MsgPluginImpl implements MsgPlugin {
 
 
     @Override
-    public void initPluginData(Map<String, Object> config) {
-    }
+    public abstract void initPluginData(Map<String, Object> config);
 
     public final void updatePluginData(Map<String, Object> pluginData){
         DataHandle.updatePluginData(pluginData);

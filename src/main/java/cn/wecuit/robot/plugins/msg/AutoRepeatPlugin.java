@@ -1,15 +1,11 @@
 package cn.wecuit.robot.plugins.msg;
 
-import cn.wecuit.robot.entity.CmdList;
 import cn.wecuit.robot.entity.MainCmd;
 import cn.wecuit.robot.entity.RobotPlugin;
 import cn.wecuit.robot.entity.SubCmd;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
-import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -44,6 +40,11 @@ public class AutoRepeatPlugin extends MsgPluginImpl {
             repeat.cnt.set(1);
         }
         return false;
+    }
+
+    @Override
+    public void initPluginData(Map<String, Object> config) {
+
     }
 }
 
