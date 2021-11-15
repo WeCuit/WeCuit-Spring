@@ -84,14 +84,16 @@ public class UniRunPlugin extends MsgPluginImpl {
         for (ClubInfo clubInfo : availableActivityList) {
             sb.append("活动名：").append(clubInfo.getActivityName()).append("\n");
             sb.append("报名人数：").append(clubInfo.getSignInStudent()).append("/").append(clubInfo.getMaxStudent()).append("\n");
+            sb.append("可取消(待确认)：").append(clubInfo.getCancelSign() == 1?"是\n":"否\n");
             sb.append("------\n");
         }
         for (String gid : noticeList) {
             Group group = RobotMain.getBot().getGroup(Long.parseLong(gid));
             if(group != null)
                 group.sendMessage(sb.toString());
+            lastNoticeDay = today;
         }
-        lastNoticeDay = today;
+
     }
 
     @Override

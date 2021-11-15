@@ -24,7 +24,7 @@ public class ClubInfo {
     private String endTime;
     private String optionStatus;
     private String fullActivity;
-    private String cancelSign;
+    private Integer cancelSign;
     private Long yearSemester;
     private Long activityItemId;
     private Long signStatus;

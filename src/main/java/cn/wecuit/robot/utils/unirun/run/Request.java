@@ -5,10 +5,7 @@ import cn.wecuit.backen.utils.JsonUtil;
 import cn.wecuit.robot.utils.unirun.entity.AppConfig;
 import cn.wecuit.robot.utils.unirun.entity.NewRecordBody;
 import cn.wecuit.robot.utils.unirun.entity.Response;
-import cn.wecuit.robot.utils.unirun.entity.ResponseType.ClubInfo;
-import cn.wecuit.robot.utils.unirun.entity.ResponseType.RunStandard;
-import cn.wecuit.robot.utils.unirun.entity.ResponseType.SchoolBound;
-import cn.wecuit.robot.utils.unirun.entity.ResponseType.UserInfo;
+import cn.wecuit.robot.utils.unirun.entity.ResponseType.*;
 import cn.wecuit.robot.utils.unirun.utils.MD5Utils;
 import cn.wecuit.robot.utils.unirun.utils.SignUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -176,6 +173,35 @@ public class Request {
         }
         return null;
     }
+
+    public JoinClubResult joinClub(String studentId, String activityId){
+
+        String API = String.format("https://run-lb.tanmasports.com/v1/clubactivity/joinClubActivity?studentId=%s&activityId=%s", studentId, activityId);
+        try {
+            Map<String, String> headers = new HashMap<>();
+            Map<String, String> params = new HashMap<>();
+            params.put("studentId", studentId);
+            params.put("activityId", activityId);
+
+            String sign = SignUtils.get(params, null);
+
+            headers.put("sign", sign);
+            headers.put("token", token);
+            headers.put("appkey", appKey);
+            headers.put("Content-Type", "application/json; charset=UTF-8");
+
+            String joinResult = http.doGet2(API, headers);
+
+            Response<JoinClubResult> joinClubResponse = JsonUtil.string2Obj(joinResult, new TypeReference<Response<JoinClubResult>>() {});
+            return joinClubResponse.getResponse();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public String recordNew(NewRecordBody body){
         String API = "https://run-lb.tanmasports.com/v1/unirun/save/run/record/new";
         try {
