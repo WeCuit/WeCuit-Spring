@@ -4,6 +4,7 @@ import cn.wecuit.backen.services.NewsService;
 import cn.wecuit.robot.RobotMain;
 import cn.wecuit.robot.data.NewsStorage;
 import cn.wecuit.robot.plugins.msg.NewsPlugin;
+import cn.wecuit.robot.plugins.msg.UniRunPlugin;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -27,6 +28,7 @@ public class WeCuitTask {
     public void newsPullTask(){
         newsService.pullNews();
     }
+
     // 从第5分钟开始每隔10分钟执行一次
     @Scheduled(cron = "0 5/10 * * * ?")
     public void newsNoticeTask(){
@@ -38,5 +40,14 @@ public class WeCuitTask {
                 e.printStackTrace();
             }
         }
+    }
+
+    // 从第20分钟开始每隔2分钟执行一次
+    //@Scheduled(cron = "0/30 * * * * ?")
+    @Scheduled(cron = "0 20/2 7 * * ?")
+    public void clubNoticeTask(){
+        log.info("clubNotice");
+
+        UniRunPlugin.checkClub();
     }
 }

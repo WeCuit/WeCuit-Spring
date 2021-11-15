@@ -55,10 +55,11 @@ public class UniRunMain {
             setSysVersion("10");        // 系统版本
         }};
         Request request = new Request(token, config);
-        long userId = request.getUserId();
+        UserInfo userInfo = request.getUserInfo();
+        long studentId = userInfo.getStudentId();
         List<ClubInfo> list = new ArrayList<>();
-        if (userId != -1) {
-            ClubInfo[] activityList = request.getActivityList(String.valueOf(userId));
+        if (studentId != -1) {
+            ClubInfo[] activityList = request.getActivityList(String.valueOf(studentId));
             for (ClubInfo clubInfo : activityList) {
                 if(clubInfo.getSignInStudent() < clubInfo.getMaxStudent()){
                     list.add(clubInfo);

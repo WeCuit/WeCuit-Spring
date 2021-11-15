@@ -71,7 +71,7 @@ public class Request {
         return null;
     }
 
-    public long getUserId(){
+    public UserInfo getUserInfo(){
         String API = "https://run-lb.tanmasports.com/v1/auth/query/token";
         try {
             Map<String, String> headers = new HashMap<>();
@@ -84,14 +84,14 @@ public class Request {
             Response<UserInfo> userInfoResponse = JsonUtil.string2Obj(tokenInfo, new TypeReference<Response<UserInfo>>() {});
             int code = userInfoResponse.getCode();
             if(code == 10000){
-                return userInfoResponse.getResponse().getUserId();
+                return userInfoResponse.getResponse();
             }
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        return -1;
+        return null;
     }
 
     public SchoolBound[] getSchoolBound(){
@@ -153,7 +153,7 @@ public class Request {
             Map<String, String> headers = new HashMap<>();
             Map<String, String> params = new HashMap<>();
             params.put("queryTime", today);
-            params.put("studentId", "836988");
+            params.put("studentId", studentId);
             params.put("schoolId", "3680");
             params.put("pageNo", "1");
             params.put("pageSize", "15");

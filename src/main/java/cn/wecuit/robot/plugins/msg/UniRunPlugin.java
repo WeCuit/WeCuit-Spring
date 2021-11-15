@@ -10,7 +10,6 @@ import cn.wecuit.robot.utils.unirun.entity.ResponseType.ClubInfo;
 import lombok.extern.slf4j.Slf4j;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
-import org.springframework.scheduling.annotation.Scheduled;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -65,9 +64,7 @@ public class UniRunPlugin extends MsgPluginImpl {
         return true;
     }
 
-    // 从第0分钟开始每隔10分钟执行一次
-    @Scheduled(cron = "0 20/2 7 * * ?")
-    public void checkClub(){
+    public static void checkClub(){
         SimpleDateFormat sdf = new SimpleDateFormat();
         sdf.applyPattern("yyyy-MM-dd");
         Date date = new Date();
@@ -75,7 +72,6 @@ public class UniRunPlugin extends MsgPluginImpl {
 
         // 今天提醒过了
         if(today.equals(lastNoticeDay))return;
-        lastNoticeDay = today;
 
         List<String> noticeList = (List<String>) pluginData.get("noticeList");
         if(noticeList == null)return;
@@ -83,7 +79,7 @@ public class UniRunPlugin extends MsgPluginImpl {
         String token = (String) pluginData.get("token");
         if(token == null)return ;
 
-        StringBuilder sb = new StringBuilder("俱乐部空余\n");
+        StringBuilder sb = new StringBuilder("俱乐部空余情况\n");
         List<ClubInfo> availableActivityList = UniRunMain.getAvailableActivityList(token);
         for (ClubInfo clubInfo : availableActivityList) {
             sb.append("活动名：").append(clubInfo.getActivityName()).append("\n");
@@ -95,6 +91,7 @@ public class UniRunPlugin extends MsgPluginImpl {
             if(group != null)
                 group.sendMessage(sb.toString());
         }
+        lastNoticeDay = today;
     }
 
     @Override
