@@ -37,8 +37,8 @@ public class UniRunPlugin extends MsgPluginImpl {
         return true;
     }
 
-    @SubCmd(keyword = "添加俱乐部提醒", desc = "添加俱乐部提醒")
-    public boolean addNotice(GroupMessageEvent event, CmdList cmdList){
+    @SubCmd(keyword = "添加俱乐部提醒", desc = "在俱乐部有空余时会发送提醒")
+    public boolean addNotice(GroupMessageEvent event){
         List<String> noticeList = (List<String>) pluginData.get("noticeList");
         if(noticeList == null) {
             noticeList = new ArrayList<>();
@@ -52,7 +52,7 @@ public class UniRunPlugin extends MsgPluginImpl {
     }
 
     @SubCmd(keyword = "删除俱乐部提醒", desc = "删除俱乐部提醒")
-    public boolean delNotice(GroupMessageEvent event, CmdList cmdList){
+    public boolean delNotice(GroupMessageEvent event){
         List<String> noticeList = (List<String>) pluginData.get("noticeList");
         if(noticeList == null) {
             noticeList = new ArrayList<>();

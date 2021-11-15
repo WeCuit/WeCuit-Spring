@@ -13,8 +13,10 @@ import net.mamoe.mirai.event.events.MessageEvent;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -54,7 +56,7 @@ public class MessagePlugin {
                 }
             }catch (PatternSyntaxException e){
                 log.error("正则预编译指令失败：{}", key);
-                e.printStackTrace();
+                //e.printStackTrace();
             }
         }
         if (action == null) {
@@ -119,7 +121,7 @@ public class MessagePlugin {
                         String name = parameters[i].getType().getSimpleName();
                         if(EventType.GroupMessageEvent.name().equals(name)){
                             args[i] = event;
-                        }else if("List".equals(name)){
+                        }else if("CmdList".equals(name)){
                             args[i] = cmdList;
                         }else{
                             log.info("无法识别的参数类型：{} - {}", name, parameters[i].getType().getName());
