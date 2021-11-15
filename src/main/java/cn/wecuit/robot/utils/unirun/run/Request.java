@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -25,6 +26,7 @@ import java.util.Map;
 public class Request {
     private final HttpUtil2 http = new HttpUtil2();
     private final String appKey = "389885588s0648fa";
+    private final String HOST = "https://run-lb.tanmasports.com/";
     private String token;
     private AppConfig config;
 
@@ -35,7 +37,7 @@ public class Request {
 
     public UserInfo login(String phone, String password){
         String pass = MD5Utils.stringToMD5(password);
-        String API = "https://run-lb.tanmasports.com/v1/auth/login/password";
+        String API = HOST + "v1/auth/login/password";
         try {
             Map<String, String> body = new HashMap<>();
             body.put("appVersion", config.getAppVersion());
@@ -69,7 +71,7 @@ public class Request {
     }
 
     public UserInfo getUserInfo(){
-        String API = "https://run-lb.tanmasports.com/v1/auth/query/token";
+        String API = HOST + "v1/auth/query/token";
         try {
             Map<String, String> headers = new HashMap<>();
             String sign = SignUtils.get(null, null);
@@ -93,7 +95,7 @@ public class Request {
 
     public SchoolBound[] getSchoolBound(){
 
-        String API = "https://run-lb.tanmasports.com/v1/unirun/querySchoolBound?schoolId=3680";
+        String API = HOST + "v1/unirun/querySchoolBound?schoolId=3680";
         try {
             Map<String, String> headers = new HashMap<>();
             Map<String, String> params = new HashMap<>();
@@ -116,7 +118,7 @@ public class Request {
 
     public RunStandard getRunStandard(){
 
-        String API = "https://run-lb.tanmasports.com/v1/unirun/query/runStandard?schoolId=3680";
+        String API = HOST + "v1/unirun/query/runStandard?schoolId=3680";
         try {
             Map<String, String> headers = new HashMap<>();
             Map<String, String> params = new HashMap<>();
@@ -145,7 +147,7 @@ public class Request {
         Date date = new Date();
         String today = sdf.format(date);
 
-        String API = String.format("https://run-lb.tanmasports.com/v1/clubactivity/queryActivityList?queryTime=%s&studentId=%s&schoolId=%s&pageNo=1&pageSize=15", today, studentId, schoolId);
+        String API = String.format(HOST + "v1/clubactivity/queryActivityList?queryTime=%s&studentId=%s&schoolId=%s&pageNo=1&pageSize=15", today, studentId, schoolId);
         try {
             Map<String, String> headers = new HashMap<>();
             Map<String, String> params = new HashMap<>();
@@ -176,7 +178,7 @@ public class Request {
 
     public JoinClubResult joinClub(String studentId, String activityId){
 
-        String API = String.format("https://run-lb.tanmasports.com/v1/clubactivity/joinClubActivity?studentId=%s&activityId=%s", studentId, activityId);
+        String API = String.format(HOST + "v1/clubactivity/joinClubActivity?studentId=%s&activityId=%s", studentId, activityId);
         try {
             Map<String, String> headers = new HashMap<>();
             Map<String, String> params = new HashMap<>();
@@ -202,8 +204,35 @@ public class Request {
         return null;
     }
 
+
+    public List<SportsClassStudentLearnClockingV0> getMySportsClassClocking(){
+
+        String API = HOST + "v1/sports/class/getMySportsClassClocking";
+        try {
+            Map<String, String> headers = new HashMap<>();
+            Map<String, String> params = new HashMap<>();
+
+            String sign = SignUtils.get(params, null);
+
+            headers.put("sign", sign);
+            headers.put("token", token);
+            headers.put("appkey", appKey);
+            headers.put("Content-Type", "application/json; charset=UTF-8");
+
+            String joinResult = http.doGet2(API, headers);
+
+            Response<List<SportsClassStudentLearnClockingV0>> sportsClassStudentLearnClockingV0Response = JsonUtil.string2Obj(joinResult, new TypeReference<Response<List<SportsClassStudentLearnClockingV0>>>() {});
+            return sportsClassStudentLearnClockingV0Response.getResponse();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public String recordNew(NewRecordBody body){
-        String API = "https://run-lb.tanmasports.com/v1/unirun/save/run/record/new";
+        String API = HOST + "v1/unirun/save/run/record/new";
         try {
             Map<String, String> headers = new HashMap<>();
             String bodyStr = JsonUtil.obj2String(body);

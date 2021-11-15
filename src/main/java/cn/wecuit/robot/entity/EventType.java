@@ -11,5 +11,7 @@ public enum EventType {
     MemberLeaveEvent,
     MessageEvent,
     GroupMessageEvent,
+    UserMessageEvent,
+    FriendMessageEvent,
     MemberJoinRequestEvent
 }

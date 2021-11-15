@@ -101,7 +101,9 @@ public class PluginHandler {
                             //method.getAnnotation();
                             if (method.isAnnotationPresent(RobotEventHandle.class)) {
                                 RobotEventHandle annotation = method.getAnnotation(RobotEventHandle.class);
-                                registeredEvent.put(annotation.event().name(), method);
+                                for (EventType eventType : annotation.event()) {
+                                    registeredEvent.put(eventType.name(), method);
+                                }
                             }
                         }
                     }

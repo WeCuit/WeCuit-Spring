@@ -2,6 +2,8 @@ package cn.wecuit.robot.utils.unirun;
 
 import cn.wecuit.robot.utils.unirun.entity.AppConfig;
 import cn.wecuit.robot.utils.unirun.entity.ResponseType.ClubInfo;
+import cn.wecuit.robot.utils.unirun.entity.ResponseType.JoinClubResult;
+import cn.wecuit.robot.utils.unirun.entity.ResponseType.SportsClassStudentLearnClockingV0;
 import cn.wecuit.robot.utils.unirun.entity.ResponseType.UserInfo;
 import cn.wecuit.robot.utils.unirun.run.Request;
 import lombok.extern.slf4j.Slf4j;
@@ -21,37 +23,24 @@ import java.util.List;
 @Slf4j
 public class UniRunMain {
     public static void main(String[] args) {
-        String phone = "";
-        String password = "";
-        // 型号仓库： https://github.com/KHwang9883/MobileModels
+        String token = "";
         AppConfig config = new AppConfig() {{
             setAppVersion("1.8.0");     // APP版本，一般不做修改
-            setBrand("");         // 手机品牌
-            setMobileType("");   // 型号
+            setBrand("realme");         // 手机品牌
+            setMobileType("RMX2117");   // 型号
             setSysVersion("10");        // 系统版本
         }};
-
-        Request request = new Request("", config);
-        UserInfo userInfo = request.login(phone, password);
-        long userId = userInfo.getUserId();
-        if (userId != -1) {
-            ClubInfo[] activityList = request.getActivityList(String.valueOf(userId));
-            List<ClubInfo> list = new ArrayList<>();
-            for (ClubInfo clubInfo : activityList) {
-                if(clubInfo.getSignInStudent() < clubInfo.getMaxStudent()){
-                    list.add(clubInfo);
-                }
-            }
-        } else {
-            System.out.println("用户Id获取失败");
-        }
+        Request request = new Request(token, config);
+        //UserInfo userInfo = request.login("13107975658", "1222");
+        List<SportsClassStudentLearnClockingV0> mySportsClassClocking = request.getMySportsClassClocking();
+        log.info("{}", mySportsClassClocking);
     }
 
     public static List<ClubInfo> getAvailableActivityList(String token){
         AppConfig config = new AppConfig() {{
             setAppVersion("1.8.0");     // APP版本，一般不做修改
-            setBrand("");         // 手机品牌
-            setMobileType("");   // 型号
+            setBrand("realme");         // 手机品牌
+            setMobileType("RMX2117");   // 型号
             setSysVersion("10");        // 系统版本
         }};
         Request request = new Request(token, config);
@@ -70,4 +59,24 @@ public class UniRunMain {
         }
         return list;
     }
+
+    public static JoinClubResult joinClub(String phone, String password, String activityId){
+        AppConfig config = new AppConfig() {{
+            setAppVersion("1.8.0");     // APP版本，一般不做修改
+            setBrand("realme");         // 手机品牌
+            setMobileType("RMX2117");   // 型号
+            setSysVersion("10");        // 系统版本
+        }};
+        Request request = new Request("", config);
+        UserInfo userInfo = request.login(phone, password);
+        if (userInfo != null) {
+            Long studentId = userInfo.getStudentId();
+            JoinClubResult joinClubResult = request.joinClub(String.valueOf(studentId), activityId);
+            return joinClubResult;
+        } else {
+            log.error("用户登录失败");
+        }
+        return null;
+    }
+
 }

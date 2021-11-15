@@ -5,9 +5,9 @@ name: CI with TEST VERSION
 
 on:
   push:
-    branches: [ master, ci ]
+    branches: [ master, unirun ]
   pull_request:
-    branches: [ master, ci ]
+    branches: [ master ]
 
 jobs:
   build:

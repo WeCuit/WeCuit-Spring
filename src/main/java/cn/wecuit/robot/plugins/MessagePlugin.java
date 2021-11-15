@@ -9,6 +9,7 @@ import cn.wecuit.robot.plugins.msg.MsgPlugin;
 import lombok.extern.slf4j.Slf4j;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
 import net.mamoe.mirai.event.events.MessageEvent;
+import net.mamoe.mirai.event.events.UserMessageEvent;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -28,7 +29,7 @@ import java.util.regex.PatternSyntaxException;
 @Slf4j
 @RobotPlugin
 public class MessagePlugin {
-    @RobotEventHandle(event = EventType.GroupMessageEvent)
+    @RobotEventHandle(event = {EventType.GroupMessageEvent, EventType.UserMessageEvent, EventType.FriendMessageEvent})
     public void handleMsg(MessageEvent event) {
         // 机器人发送，忽略
         if (event.getSender().getId() == event.getBot().getId()) return;
@@ -85,12 +86,15 @@ public class MessagePlugin {
                 Object[] args = new Object[parameters.length];
                 for (int i = 0; i < parameters.length; i++) {
                     String name = parameters[i].getType().getSimpleName();
-                    if(EventType.GroupMessageEvent.name().equals(name)){
+                    if(event instanceof GroupMessageEvent && EventType.GroupMessageEvent.name().equals(name)){
+                        args[i] = event;
+                    }else if(event instanceof UserMessageEvent && EventType.UserMessageEvent.name().equals(name)){
                         args[i] = event;
                     }else if("CmdList".equals(name)){
                         args[i] = cmdList;
-                    }else{
+                    }else {
                         log.info("无法识别的参数类型：{} - {}", name, parameters[i].getType().getName());
+                        return;
                     }
                 }
                 method.invoke(method.getDeclaringClass().newInstance(), args);
@@ -119,12 +123,15 @@ public class MessagePlugin {
                     Object[] args = new Object[parameters.length];
                     for (int i = 0; i < parameters.length; i++) {
                         String name = parameters[i].getType().getSimpleName();
-                        if(EventType.GroupMessageEvent.name().equals(name)){
+                        if(event instanceof GroupMessageEvent && EventType.GroupMessageEvent.name().equals(name)){
+                            args[i] = event;
+                        }else if(event instanceof UserMessageEvent && EventType.UserMessageEvent.name().equals(name)){
                             args[i] = event;
                         }else if("CmdList".equals(name)){
                             args[i] = cmdList;
                         }else{
                             log.info("无法识别的参数类型：{} - {}", name, parameters[i].getType().getName());
+                            return;
                         }
                     }
                     MsgPlugin o = (MsgPlugin) method.getDeclaringClass().newInstance();
