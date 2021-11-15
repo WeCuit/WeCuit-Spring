@@ -12,10 +12,8 @@ import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
 import org.springframework.scheduling.annotation.Scheduled;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * @Author jiyec
@@ -27,6 +25,8 @@ import java.util.Map;
 @MainCmd(keyword = "UR", desc = "UniRun插件")
 public class UniRunPlugin extends MsgPluginImpl {
     private static final Map<String, Object> pluginData = new HashMap<>();
+
+    private static String lastNoticeDay = null;
 
     @SubCmd(keyword = "更新token", desc = "更新token")
     public boolean updateToken(GroupMessageEvent event, CmdList cmdList){
@@ -68,6 +68,15 @@ public class UniRunPlugin extends MsgPluginImpl {
     // 从第0分钟开始每隔10分钟执行一次
     @Scheduled(cron = "0 20/2 7 * * ?")
     public void checkClub(){
+        SimpleDateFormat sdf = new SimpleDateFormat();
+        sdf.applyPattern("yyyy-MM-dd");
+        Date date = new Date();
+        String today = sdf.format(date);
+
+        // 今天提醒过了
+        if(today.equals(lastNoticeDay))return;
+        lastNoticeDay = today;
+
         List<String> noticeList = (List<String>) pluginData.get("noticeList");
         if(noticeList == null)return;
 
