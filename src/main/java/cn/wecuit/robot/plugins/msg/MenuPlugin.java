@@ -4,7 +4,7 @@ import cn.wecuit.robot.PluginHandler;
 import cn.wecuit.robot.entity.MainCmd;
 import cn.wecuit.robot.entity.RobotPlugin;
 import cn.wecuit.robot.entity.SubCmd;
-import net.mamoe.mirai.event.events.GroupMessageEvent;
+import net.mamoe.mirai.event.events.MessageEvent;
 
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class MenuPlugin extends MsgPluginImpl {
 
     @SubCmd(keyword = "菜单", regAsMainCmd = true, desc = "一级指令")
-    public boolean getMenu(GroupMessageEvent event){
+    public boolean getMenu(MessageEvent event){
         final StringBuilder menuStr = new StringBuilder();
         AtomicInteger i = new AtomicInteger();
         menuStr.append("详细说明在下面列表名称中加第二参数“？”，中间记得加空格哟~(>_<。)比如：「菜单系统 ?」\n--------------\n");

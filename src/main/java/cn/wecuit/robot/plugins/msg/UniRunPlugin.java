@@ -1,5 +1,6 @@
 package cn.wecuit.robot.plugins.msg;
 
+import cn.wecuit.backen.utils.JsonUtil;
 import cn.wecuit.robot.RobotMain;
 import cn.wecuit.robot.entity.CmdList;
 import cn.wecuit.robot.entity.MainCmd;
@@ -7,16 +8,21 @@ import cn.wecuit.robot.entity.RobotPlugin;
 import cn.wecuit.robot.entity.SubCmd;
 import cn.wecuit.robot.utils.unirun.UniRunMain;
 import cn.wecuit.robot.utils.unirun.entity.ResponseType.ClubInfo;
+import cn.wecuit.robot.utils.unirun.entity.ResponseType.JoinClubResult;
+import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.mamoe.mirai.contact.Group;
+import net.mamoe.mirai.contact.NormalMember;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
+import net.mamoe.mirai.event.events.GroupTempMessageEvent;
 import net.mamoe.mirai.event.events.UserMessageEvent;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @Author jiyec
@@ -48,7 +54,7 @@ public class UniRunPlugin extends MsgPluginImpl {
             pluginData.put("noticeList", noticeList);
         }
         String gid = String.valueOf(event.getSubject().getId());
-        if(noticeList.contains(gid)){
+        if (noticeList.contains(gid)) {
             event.getSubject().sendMessage("已存在！");
             return true;
         }
@@ -73,35 +79,40 @@ public class UniRunPlugin extends MsgPluginImpl {
         return true;
     }
 
-    @SubCmd(keyword = "自动参与俱乐部", desc = "自动参与俱乐部 手机号 密码 关键词1 关键词2")
-    public boolean addAutoJoin(UserMessageEvent event, CmdList cmds) {
-        if(event == null)return false;
+    @SubCmd(keyword = "自动参与俱乐部", desc = "自动参与俱乐部 手机号 密码 校区 关键词\n关键词可选")
+    public boolean addAutoJoin(GroupTempMessageEvent event, CmdList cmds) {
+        if (event == null) return false;
         Map<String, AutoJoin> autoJoinList = (Map<String, AutoJoin>) pluginData.get("autoJoinList");
         if (autoJoinList == null) {
             autoJoinList = new HashMap<>();
             pluginData.put("autoJoinList", autoJoinList);
         }
-        if(cmds.size() < 2){
+        if (cmds.size() < 3) {
             event.getSubject().sendMessage("参数不够");
             return true;
         }
         String phone = cmds.get(0);
         String password = cmds.get(1);
-        String keyword1 = null;
-        if(cmds.size() > 2)
-                keyword1 = cmds.get(2);
-        String keyword2 = null;
-        if(cmds.size() > 3)
-            keyword2 = cmds.get(3);
+        String location = cmds.get(2);
+        String keyword = null;
+        if (cmds.size() > 3)
+            keyword = cmds.get(3);
         String qqid = String.valueOf(event.getSender().getId());
-        AutoJoin autoJoin = new AutoJoin(phone, password, keyword1, keyword2);
-        autoJoinList.put(qqid, autoJoin);
-
-        if (autoJoinList.containsKey(qqid)) {
-            event.getSender().sendMessage("加入成功");
-        } else {
-            event.getSender().sendMessage("加入失败");
+        AutoJoin autoJoin = new AutoJoin(String.valueOf(event.getGroup().getId()), phone, password, location, keyword);
+        String msg;
+        if(autoJoinList.containsKey(qqid)){
+            log.info("{}", autoJoinList.get(qqid).getPhone());
+            msg = "更新成功";
+        }else{
+            msg = "加入成功";
         }
+        autoJoinList.put(qqid, autoJoin);
+        if (!autoJoinList.containsKey(qqid)) {
+            msg = "加入失败";
+        }
+        event.getSender().sendMessage(msg);
+
+        updatePluginData(pluginData);
         return true;
     }
 
@@ -142,7 +153,7 @@ public class UniRunPlugin extends MsgPluginImpl {
         StringBuilder sb = new StringBuilder("俱乐部空余情况\n");
         List<ClubInfo> availableActivityList = UniRunMain.getAvailableActivityList(token);
         // 无可用
-        if(availableActivityList.size() == 0)return;
+        if (availableActivityList.size() == 0) return;
 
         for (ClubInfo clubInfo : availableActivityList) {
             sb.append("活动名：").append(clubInfo.getActivityName()).append("\n");
@@ -160,44 +171,53 @@ public class UniRunPlugin extends MsgPluginImpl {
         }
 
         // 自动加入
-        //Map<String, AutoJoin> autoJoinList = (Map<String, AutoJoin>) pluginData.get("autoJoinList");
-        //if (autoJoinList != null) {
-        //    autoJoinList.forEach((qqid, autoJoin) -> {
-        //        // 过滤出包含关键词的俱乐部
-        //        String keyword1 = autoJoin.getKeyword1();
-        //        String keyword2 = autoJoin.getKeyword2();
-        //        List<ClubInfo> keyActList = availableActivityList.stream().filter(activity -> {
-        //            boolean result = true;
-        //            if (keyword1 != null)
-        //                result = activity.getActivityName().contains(keyword1);
-        //            if (keyword2 != null)
-        //                result = result && activity.getActivityName().contains(keyword2);
-        //            return result;
-        //        }).collect(Collectors.toList());
-        //
-        //        // 空
-        //        if (keyActList.size() == 0) return;
-        //
-        //        // 取第一个
-        //        Long activityId = keyActList.get(0).getClubActivityId();
-        //        // 加入
-        //        JoinClubResult joinClubResult = UniRunMain.joinClub(autoJoin.getPhone(), autoJoin.getPassword(), String.valueOf(activityId));
-        //        if (joinClubResult == null) return;
-        //
-        //        // 获取friend
-        //        Friend friend = RobotMain.getBot().getFriend(Long.parseLong(qqid));
-        //        if (friend != null)
-        //            friend.sendMessage("俱乐部参加结果：" + joinClubResult.getMessage());
-        //    });
-        //    // 清空自动加入
-        //    autoJoinList.clear();
-        //}
-        //// 更新
-        //new UniRunPlugin().updatePluginData(pluginData);
+        Map<String, AutoJoin> autoJoinList = (Map<String, AutoJoin>) pluginData.get("autoJoinList");
+        if (autoJoinList != null) {
+            autoJoinList.forEach((qqid, autoJoin) -> {
+                // 过滤出包含关键词的俱乐部
+                String location = autoJoin.getLocation();
+                String keyword = autoJoin.getKeyword();
+                List<ClubInfo> keyActList = availableActivityList.stream().filter(activity -> {
+                    boolean result = activity.getActivityName().contains(location);
+                    if (keyword != null)
+                        result = result && activity.getActivityName().contains(keyword);
+                    return result;
+                }).collect(Collectors.toList());
+
+                // 空
+                if (keyActList.size() == 0) return;
+
+                // 取第一个
+                Long activityId = keyActList.get(0).getClubActivityId();
+                String groupId = autoJoin.getGroupId();
+                Group group = RobotMain.getBot().getGroup(Long.parseLong(groupId));
+                // 加入
+                JoinClubResult joinClubResult = UniRunMain.joinClub(autoJoin.getPhone(), autoJoin.getPassword(), String.valueOf(activityId));
+
+                if (group != null) {
+                    NormalMember normalMember = group.get(Long.parseLong(qqid));
+                    if (normalMember != null)
+                        if (joinClubResult == null) {
+                            normalMember.sendMessage("俱乐部参加结果：null\n" + "测试阶段，本次执行后您将被移出参加队列，如有需要请重新发送加入指令");
+                        } else
+                            normalMember.sendMessage("俱乐部参加结果：" + joinClubResult.getMessage() + "\n" + "测试阶段，本次执行后您将被移出参加队列，如有需要请重新发送加入指令");
+                }
+            });
+            // 清空自动加入
+            autoJoinList.clear();
+        }
+        // 更新
+        new UniRunPlugin().updatePluginData(pluginData);
     }
 
     @Override
     public void initPluginData(Map<String, Object> config) {
+        Map<String, AutoJoin> autoJoinList = (Map<String, AutoJoin>)config.get("autoJoinList");
+        if(autoJoinList != null){
+            autoJoinList = JsonUtil.string2Obj(JsonUtil.obj2String(autoJoinList), new TypeReference<Map<String, AutoJoin>>() {
+            });
+        }
+        config.put("autoJoinList", autoJoinList);
         pluginData.putAll(config);  // 置入
     }
 }
@@ -206,8 +226,9 @@ public class UniRunPlugin extends MsgPluginImpl {
 @AllArgsConstructor
 @NoArgsConstructor
 class AutoJoin {
+    private String groupId;
     private String phone;
     private String password;
-    private String keyword1;
-    private String keyword2;
+    private String location;
+    private String keyword;
 }
