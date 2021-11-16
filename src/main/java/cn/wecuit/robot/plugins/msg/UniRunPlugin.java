@@ -7,19 +7,16 @@ import cn.wecuit.robot.entity.RobotPlugin;
 import cn.wecuit.robot.entity.SubCmd;
 import cn.wecuit.robot.utils.unirun.UniRunMain;
 import cn.wecuit.robot.utils.unirun.entity.ResponseType.ClubInfo;
-import cn.wecuit.robot.utils.unirun.entity.ResponseType.JoinClubResult;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.mamoe.mirai.contact.Friend;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
 import net.mamoe.mirai.event.events.UserMessageEvent;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @Author jiyec
@@ -144,6 +141,9 @@ public class UniRunPlugin extends MsgPluginImpl {
         // 准备群提醒数据
         StringBuilder sb = new StringBuilder("俱乐部空余情况\n");
         List<ClubInfo> availableActivityList = UniRunMain.getAvailableActivityList(token);
+        // 无可用
+        if(availableActivityList.size() == 0)return;
+
         for (ClubInfo clubInfo : availableActivityList) {
             sb.append("活动名：").append(clubInfo.getActivityName()).append("\n");
             sb.append("报名人数：").append(clubInfo.getSignInStudent()).append("/").append(clubInfo.getMaxStudent()).append("\n");
@@ -160,40 +160,40 @@ public class UniRunPlugin extends MsgPluginImpl {
         }
 
         // 自动加入
-        Map<String, AutoJoin> autoJoinList = (Map<String, AutoJoin>) pluginData.get("autoJoinList");
-        if (autoJoinList != null) {
-            autoJoinList.forEach((qqid, autoJoin) -> {
-                // 过滤出包含关键词的俱乐部
-                String keyword1 = autoJoin.getKeyword1();
-                String keyword2 = autoJoin.getKeyword2();
-                List<ClubInfo> keyActList = availableActivityList.stream().filter(activity -> {
-                    boolean result = true;
-                    if (keyword1 != null)
-                        result = activity.getActivityName().contains(keyword1);
-                    if (keyword2 != null)
-                        result = result && activity.getActivityName().contains(keyword2);
-                    return result;
-                }).collect(Collectors.toList());
-
-                // 空
-                if (keyActList.size() == 0) return;
-
-                // 取第一个
-                Long activityId = keyActList.get(0).getClubActivityId();
-                // 加入
-                JoinClubResult joinClubResult = UniRunMain.joinClub(autoJoin.getPhone(), autoJoin.getPassword(), String.valueOf(activityId));
-                if (joinClubResult == null) return;
-
-                // 获取friend
-                Friend friend = RobotMain.getBot().getFriend(Long.parseLong(qqid));
-                if (friend != null)
-                    friend.sendMessage("俱乐部参加结果：" + joinClubResult.getMessage());
-            });
-            // 清空自动加入
-            autoJoinList.clear();
-        }
-        // 更新
-        new UniRunPlugin().updatePluginData(pluginData);
+        //Map<String, AutoJoin> autoJoinList = (Map<String, AutoJoin>) pluginData.get("autoJoinList");
+        //if (autoJoinList != null) {
+        //    autoJoinList.forEach((qqid, autoJoin) -> {
+        //        // 过滤出包含关键词的俱乐部
+        //        String keyword1 = autoJoin.getKeyword1();
+        //        String keyword2 = autoJoin.getKeyword2();
+        //        List<ClubInfo> keyActList = availableActivityList.stream().filter(activity -> {
+        //            boolean result = true;
+        //            if (keyword1 != null)
+        //                result = activity.getActivityName().contains(keyword1);
+        //            if (keyword2 != null)
+        //                result = result && activity.getActivityName().contains(keyword2);
+        //            return result;
+        //        }).collect(Collectors.toList());
+        //
+        //        // 空
+        //        if (keyActList.size() == 0) return;
+        //
+        //        // 取第一个
+        //        Long activityId = keyActList.get(0).getClubActivityId();
+        //        // 加入
+        //        JoinClubResult joinClubResult = UniRunMain.joinClub(autoJoin.getPhone(), autoJoin.getPassword(), String.valueOf(activityId));
+        //        if (joinClubResult == null) return;
+        //
+        //        // 获取friend
+        //        Friend friend = RobotMain.getBot().getFriend(Long.parseLong(qqid));
+        //        if (friend != null)
+        //            friend.sendMessage("俱乐部参加结果：" + joinClubResult.getMessage());
+        //    });
+        //    // 清空自动加入
+        //    autoJoinList.clear();
+        //}
+        //// 更新
+        //new UniRunPlugin().updatePluginData(pluginData);
     }
 
     @Override

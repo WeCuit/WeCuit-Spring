@@ -8,7 +8,9 @@ import cn.wecuit.robot.utils.unirun.entity.ResponseType.UserInfo;
 import cn.wecuit.robot.utils.unirun.run.Request;
 import lombok.extern.slf4j.Slf4j;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -23,7 +25,7 @@ import java.util.List;
 @Slf4j
 public class UniRunMain {
     public static void main(String[] args) {
-        String token = "";
+        String token = "1243489ade4c457702e7c9c7fe2698a0";
         AppConfig config = new AppConfig() {{
             setAppVersion("1.8.0");     // APP版本，一般不做修改
             setBrand("realme");         // 手机品牌
@@ -32,6 +34,14 @@ public class UniRunMain {
         }};
         Request request = new Request(token, config);
         //UserInfo userInfo = request.login("13107975658", "1222");
+        UserInfo userInfo = request.getUserInfo();
+
+        // 今天日期 年-月-日
+        SimpleDateFormat sdf = new SimpleDateFormat();
+        sdf.applyPattern("yyyy-MM-dd");
+        Date date = new Date();
+        String today = sdf.format(date);
+        List<ClubInfo> activityList = request.getActivityList(String.valueOf(userInfo.getStudentId()), today);
         List<SportsClassStudentLearnClockingV0> mySportsClassClocking = request.getMySportsClassClocking();
         log.info("{}", mySportsClassClocking);
     }
@@ -48,7 +58,15 @@ public class UniRunMain {
         long studentId = userInfo.getStudentId();
         List<ClubInfo> list = new ArrayList<>();
         if (studentId != -1) {
-            ClubInfo[] activityList = request.getActivityList(String.valueOf(studentId));
+
+            //TODO: 连续多天
+            // 今天日期 年-月-日
+            SimpleDateFormat sdf = new SimpleDateFormat();
+            sdf.applyPattern("yyyy-MM-dd");
+            Date date = new Date();
+            String today = sdf.format(date);
+            List<ClubInfo> activityList = request.getActivityList(String.valueOf(studentId), today);
+
             for (ClubInfo clubInfo : activityList) {
                 if(clubInfo.getSignInStudent() < clubInfo.getMaxStudent()){
                     list.add(clubInfo);

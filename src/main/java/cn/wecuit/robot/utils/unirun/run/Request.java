@@ -12,8 +12,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.hc.core5.http.ParseException;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -139,19 +137,14 @@ public class Request {
         return null;
     }
 
-    public ClubInfo[] getActivityList(String studentId){
+    public List<ClubInfo> getActivityList(String studentId, String date){
         String schoolId = "3680";
-        // 今天日期 年-月-日
-        SimpleDateFormat sdf = new SimpleDateFormat();
-        sdf.applyPattern("yyyy-MM-dd");
-        Date date = new Date();
-        String today = sdf.format(date);
 
-        String API = String.format(HOST + "v1/clubactivity/queryActivityList?queryTime=%s&studentId=%s&schoolId=%s&pageNo=1&pageSize=15", today, studentId, schoolId);
+        String API = String.format(HOST + "v1/clubactivity/queryActivityList?queryTime=%s&studentId=%s&schoolId=%s&pageNo=1&pageSize=15", date, studentId, schoolId);
         try {
             Map<String, String> headers = new HashMap<>();
             Map<String, String> params = new HashMap<>();
-            params.put("queryTime", today);
+            params.put("queryTime", date);
             params.put("studentId", studentId);
             params.put("schoolId", "3680");
             params.put("pageNo", "1");
@@ -166,7 +159,7 @@ public class Request {
 
             String tokenInfo = http.doGet2(API, headers);
 
-            Response<ClubInfo[]> standardResponse = JsonUtil.string2Obj(tokenInfo, new TypeReference<Response<ClubInfo[]>>() {});
+            Response<List<ClubInfo>> standardResponse = JsonUtil.string2Obj(tokenInfo, new TypeReference<Response<List<ClubInfo>>>() {});
             return standardResponse.getResponse();
         } catch (IOException e) {
             e.printStackTrace();
