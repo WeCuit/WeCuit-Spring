@@ -63,7 +63,7 @@ public class UniRunMain {
             // 今天日期 年-月-日
             SimpleDateFormat sdf = new SimpleDateFormat();
             sdf.applyPattern("yyyy-MM-dd");
-            Date date = new Date();
+            Date date = new Date(new Date().getTime() + 1000 * 6 * 24 * 60 * 60);
             String today = sdf.format(date);
             List<ClubInfo> activityList = request.getActivityList(String.valueOf(studentId), today);
 
