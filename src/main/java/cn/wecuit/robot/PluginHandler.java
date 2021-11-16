@@ -30,15 +30,8 @@ public class PluginHandler {
     // 全局调用插件 (在指令未匹配到插件时调用)   [Object[]{clazz, method}]
     public static final List<Method> cmd2plugin3 = new ArrayList<>();
 
-
     // 插件列表确保首字母大写
     private static final List<String> pluginList = new LinkedList<>();
-
-    // 插件主指令  [指令-类]
-    public static final Map<String, Class<?>> cmd2plugin1 = new HashMap<>();
-    // 插件的次级指令注册为主指令  [指令 - Object[]{clazz, method}]
-    public static final Map<String, Object[]> cmd2plugin2 = new HashMap<>();
-
 
     public static void register(){
         log.info("注册插件指令");
@@ -101,7 +94,9 @@ public class PluginHandler {
                             //method.getAnnotation();
                             if (method.isAnnotationPresent(RobotEventHandle.class)) {
                                 RobotEventHandle annotation = method.getAnnotation(RobotEventHandle.class);
-                                registeredEvent.put(annotation.event().name(), method);
+                                for (EventType eventType : annotation.event()) {
+                                    registeredEvent.put(eventType.name(), method);
+                                }
                             }
                         }
                     }

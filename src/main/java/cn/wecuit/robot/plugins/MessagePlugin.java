@@ -8,6 +8,7 @@ import cn.wecuit.robot.entity.RobotPlugin;
 import cn.wecuit.robot.plugins.msg.MsgPlugin;
 import lombok.extern.slf4j.Slf4j;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
+import net.mamoe.mirai.event.events.GroupTempMessageEvent;
 import net.mamoe.mirai.event.events.MessageEvent;
 
 import java.lang.reflect.InvocationTargetException;
@@ -28,7 +29,7 @@ import java.util.regex.PatternSyntaxException;
 @Slf4j
 @RobotPlugin
 public class MessagePlugin {
-    @RobotEventHandle(event = EventType.GroupMessageEvent)
+    @RobotEventHandle(event = {EventType.GroupMessageEvent, EventType.UserMessageEvent, EventType.GroupTempMessageEvent})
     public void handleMsg(MessageEvent event) {
         // 机器人发送，忽略
         if (event.getSender().getId() == event.getBot().getId()) return;
@@ -72,6 +73,7 @@ public class MessagePlugin {
             return;
         }
 
+        // 群消息，但被禁言
         if(event instanceof GroupMessageEvent){
             GroupMessageEvent ge = (GroupMessageEvent) event;
             if(ge.getGroup().getBotMuteRemaining() != 0)return;
@@ -85,12 +87,17 @@ public class MessagePlugin {
                 Object[] args = new Object[parameters.length];
                 for (int i = 0; i < parameters.length; i++) {
                     String name = parameters[i].getType().getSimpleName();
-                    if(EventType.GroupMessageEvent.name().equals(name)){
+                    if(EventType.MessageEvent.name().equals(name)
+                            || (event instanceof GroupMessageEvent && EventType.GroupMessageEvent.name().equals(name))
+                            || (event instanceof GroupTempMessageEvent && EventType.GroupTempMessageEvent.name().equals(name)))
+                    {
                         args[i] = event;
                     }else if("CmdList".equals(name)){
                         args[i] = cmdList;
-                    }else{
+                    }else {
                         log.info("无法识别的参数类型：{} - {}", name, parameters[i].getType().getName());
+                        event.getSubject().sendMessage("该指令只能通过如下渠道发送：" + EventType.valueOf(name).getMessage());
+                        return;
                     }
                 }
                 method.invoke(method.getDeclaringClass().newInstance(), args);
@@ -119,12 +126,17 @@ public class MessagePlugin {
                     Object[] args = new Object[parameters.length];
                     for (int i = 0; i < parameters.length; i++) {
                         String name = parameters[i].getType().getSimpleName();
-                        if(EventType.GroupMessageEvent.name().equals(name)){
+                        if(EventType.MessageEvent.name().equals(name)
+                                || (event instanceof GroupMessageEvent && EventType.GroupMessageEvent.name().equals(name))
+                                || (event instanceof GroupTempMessageEvent && EventType.GroupTempMessageEvent.name().equals(name)))
+                        {
                             args[i] = event;
                         }else if("CmdList".equals(name)){
                             args[i] = cmdList;
                         }else{
                             log.info("无法识别的参数类型：{} - {}", name, parameters[i].getType().getName());
+                            event.getSubject().sendMessage("该指令只能通过如下渠道发送：" + EventType.valueOf(name).getMessage());
+                            return;
                         }
                     }
                     MsgPlugin o = (MsgPlugin) method.getDeclaringClass().newInstance();
