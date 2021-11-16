@@ -100,10 +100,10 @@ public class UniRunPlugin extends MsgPluginImpl {
         String qqid = String.valueOf(event.getSender().getId());
         AutoJoin autoJoin = new AutoJoin(String.valueOf(event.getGroup().getId()), phone, password, location, keyword);
         String msg;
-        if(autoJoinList.containsKey(qqid)){
+        if (autoJoinList.containsKey(qqid)) {
             log.info("{}", autoJoinList.get(qqid).getPhone());
             msg = "更新成功";
-        }else{
+        } else {
             msg = "加入成功";
         }
         autoJoinList.put(qqid, autoJoin);
@@ -177,6 +177,7 @@ public class UniRunPlugin extends MsgPluginImpl {
                 // 过滤出包含关键词的俱乐部
                 String location = autoJoin.getLocation();
                 String keyword = autoJoin.getKeyword();
+                log.info("校区：{} - 关键词：{}", location, keyword);
                 List<ClubInfo> keyActList = availableActivityList.stream().filter(activity -> {
                     boolean result = activity.getActivityName().contains(location);
                     if (keyword != null)
@@ -184,23 +185,30 @@ public class UniRunPlugin extends MsgPluginImpl {
                     return result;
                 }).collect(Collectors.toList());
 
-                // 空
-                if (keyActList.size() == 0) return;
-
-                // 取第一个
-                Long activityId = keyActList.get(0).getClubActivityId();
                 String groupId = autoJoin.getGroupId();
                 Group group = RobotMain.getBot().getGroup(Long.parseLong(groupId));
-                // 加入
-                JoinClubResult joinClubResult = UniRunMain.joinClub(autoJoin.getPhone(), autoJoin.getPassword(), String.valueOf(activityId));
-
                 if (group != null) {
                     NormalMember normalMember = group.get(Long.parseLong(qqid));
-                    if (normalMember != null)
-                        if (joinClubResult == null) {
-                            normalMember.sendMessage("俱乐部参加结果：null\n" + "测试阶段，本次执行后您将被移出参加队列，如有需要请重新发送加入指令");
-                        } else
-                            normalMember.sendMessage("俱乐部参加结果：" + joinClubResult.getMessage() + "\n" + "测试阶段，本次执行后您将被移出参加队列，如有需要请重新发送加入指令");
+                    if (normalMember == null) return;
+
+                    // 空
+                    if (keyActList.size() == 0) {
+                        normalMember.sendMessage(String.format("没有找到可加入的俱乐部\n你的校区：%s\n你的关键词：%s\n测试阶段，本次执行后您将被移出参加队列，如有需要请重新发送加入指令", autoJoin.getLocation(), autoJoin.getKeyword()));
+                        return;
+                    }
+
+                    log.info("尝试加入：{}", keyActList.get(0));
+                    // 取第一个
+                    Long activityId = keyActList.get(0).getClubActivityId();
+                    // 加入
+                    JoinClubResult joinClubResult = UniRunMain.joinClub(autoJoin.getPhone(), autoJoin.getPassword(), String.valueOf(activityId));
+
+                    log.info("加入结果：{}", joinClubResult);
+                    if (joinClubResult == null) {
+                        normalMember.sendMessage("俱乐部参加结果：null\n测试阶段，本次执行后您将被移出参加队列，如有需要请重新发送加入指令");
+                    } else
+                        normalMember.sendMessage("俱乐部参加结果：" + joinClubResult.getMessage() + "\n" + "测试阶段，本次执行后您将被移出参加队列，如有需要请重新发送加入指令");
+
                 }
             });
             // 清空自动加入
@@ -212,8 +220,8 @@ public class UniRunPlugin extends MsgPluginImpl {
 
     @Override
     public void initPluginData(Map<String, Object> config) {
-        Map<String, AutoJoin> autoJoinList = (Map<String, AutoJoin>)config.get("autoJoinList");
-        if(autoJoinList != null){
+        Map<String, AutoJoin> autoJoinList = (Map<String, AutoJoin>) config.get("autoJoinList");
+        if (autoJoinList != null) {
             autoJoinList = JsonUtil.string2Obj(JsonUtil.obj2String(autoJoinList), new TypeReference<Map<String, AutoJoin>>() {
             });
         }
