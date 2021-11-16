@@ -137,7 +137,7 @@ public class UniRunPlugin extends MsgPluginImpl {
     public static void checkClub() {
         SimpleDateFormat sdf = new SimpleDateFormat();
         sdf.applyPattern("yyyy-MM-dd");
-        Date date = new Date();
+        Date date = new Date(new Date().getTime() + 1000 * 6 * 24 * 60 * 60);
         String today = sdf.format(date);
 
         // 今天提醒过了

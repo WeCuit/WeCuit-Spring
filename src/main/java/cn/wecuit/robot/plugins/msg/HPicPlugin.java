@@ -7,14 +7,12 @@ import cn.wecuit.robot.entity.MainCmd;
 import cn.wecuit.robot.entity.RobotPlugin;
 import cn.wecuit.robot.entity.SubCmd;
 import cn.wecuit.robot.mapper.RbPicMapper;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
 import net.mamoe.mirai.message.MessageReceipt;
 import net.mamoe.mirai.message.code.MiraiCode;
 import net.mamoe.mirai.message.data.MessageChain;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -109,7 +107,7 @@ public class HPicPlugin extends MsgPluginImpl {
         return true;
     }
 
-    @SubCmd(keyword = "抽(.*?)[点丶份张幅](.*?)的?(|r18)[纸色瑟涩\uD83D\uDC0D][片图圖\uD83E\uDD2E][|人]")
+    @SubCmd(keyword = "抽(.*?)[点丶份张幅](.*?)的?(|r18)[纸色瑟涩\uD83D\uDC0D][片图圖\uD83E\uDD2E][|人]", regAsMainCmd = true)
     public boolean randZprPic(GroupMessageEvent event){
         Contact subject = event.getSubject();
         String subjectId = Long.toString(subject.getId());
