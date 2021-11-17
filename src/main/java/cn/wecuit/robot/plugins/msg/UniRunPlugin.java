@@ -7,6 +7,7 @@ import cn.wecuit.robot.entity.MainCmd;
 import cn.wecuit.robot.entity.RobotPlugin;
 import cn.wecuit.robot.entity.SubCmd;
 import cn.wecuit.robot.utils.unirun.UniRunMain;
+import cn.wecuit.robot.utils.unirun.entity.Response;
 import cn.wecuit.robot.utils.unirun.entity.ResponseType.ClubInfo;
 import cn.wecuit.robot.utils.unirun.entity.ResponseType.JoinClubResult;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -18,10 +19,12 @@ import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.NormalMember;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
 import net.mamoe.mirai.event.events.GroupTempMessageEvent;
-import net.mamoe.mirai.event.events.UserMessageEvent;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -35,47 +38,18 @@ import java.util.stream.Collectors;
 public class UniRunPlugin extends MsgPluginImpl {
     private static final Map<String, Object> pluginData = new HashMap<>();
 
-    private static String lastNoticeDay = null;
+    private static String lastExecuteDay = null;
 
-    @SubCmd(keyword = "更新token", desc = "更新token")
+    @SubCmd(keyword = "更新account", desc = "更新account")
     public boolean updateToken(GroupMessageEvent event, CmdList cmdList) {
-        String token = cmdList.getFirst();
-        pluginData.put("token", token);
-        updatePluginData(pluginData);
-        event.getSubject().sendMessage("更新token成功！");
-        return true;
-    }
-
-    @SubCmd(keyword = "添加俱乐部提醒", desc = "在俱乐部有空余时会发送提醒")
-    public boolean addNotice(GroupMessageEvent event) {
-        List<String> noticeList = (List<String>) pluginData.get("noticeList");
-        if (noticeList == null) {
-            noticeList = new ArrayList<>();
-            pluginData.put("noticeList", noticeList);
-        }
-        String gid = String.valueOf(event.getSubject().getId());
-        if (noticeList.contains(gid)) {
-            event.getSubject().sendMessage("已存在！");
+        String account = cmdList.getFirst();
+        if(!account.contains(",")){
+            event.getSubject().sendMessage("格式不正确！\n手机号,密码");
             return true;
         }
-        noticeList.add(gid);
-
+        pluginData.put("token", account);
         updatePluginData(pluginData);
-        event.getSubject().sendMessage("添加俱乐部提醒成功！");
-        return true;
-    }
-
-    @SubCmd(keyword = "删除俱乐部提醒", desc = "删除俱乐部提醒")
-    public boolean delNotice(GroupMessageEvent event) {
-        List<String> noticeList = (List<String>) pluginData.get("noticeList");
-        if (noticeList == null) {
-            noticeList = new ArrayList<>();
-            pluginData.put("noticeList", noticeList);
-        }
-        noticeList.remove(String.valueOf(event.getSubject().getId()));
-
-        updatePluginData(pluginData);
-        event.getSubject().sendMessage("删除俱乐部提醒成功！");
+        event.getSubject().sendMessage("更新account成功！");
         return true;
     }
 
@@ -94,6 +68,10 @@ public class UniRunPlugin extends MsgPluginImpl {
         String phone = cmds.get(0);
         String password = cmds.get(1);
         String location = cmds.get(2);
+        if(!"龙泉".equals(location) && !"航空港".equals(location)){
+            event.getSubject().sendMessage("校区不对\n应该是：“龙泉”或“航空港”\n你输入的是：" + location);
+            return true;
+        }
         String keyword = null;
         if (cmds.size() > 3)
             keyword = cmds.get(3);
@@ -101,7 +79,6 @@ public class UniRunPlugin extends MsgPluginImpl {
         AutoJoin autoJoin = new AutoJoin(String.valueOf(event.getGroup().getId()), phone, password, location, keyword);
         String msg;
         if (autoJoinList.containsKey(qqid)) {
-            log.info("{}", autoJoinList.get(qqid).getPhone());
             msg = "更新成功";
         } else {
             msg = "加入成功";
@@ -117,7 +94,7 @@ public class UniRunPlugin extends MsgPluginImpl {
     }
 
     @SubCmd(keyword = "取消自动参与俱乐部", desc = "自动参与俱乐部 ")
-    public boolean delAutoJoin(UserMessageEvent event) {
+    public boolean delAutoJoin(GroupTempMessageEvent event) {
         Map<String, AutoJoin> autoJoinList = (Map<String, AutoJoin>) pluginData.get("autoJoinList");
         if (autoJoinList == null) return true;
         String qqid = String.valueOf(event.getSender().getId());
@@ -131,48 +108,35 @@ public class UniRunPlugin extends MsgPluginImpl {
         } else {
             event.getSender().sendMessage("删除成功");
         }
+
+        updatePluginData(pluginData);
         return true;
     }
 
-    public static void checkClub() {
+    public static void clubAutoJoin() {
         SimpleDateFormat sdf = new SimpleDateFormat();
         sdf.applyPattern("yyyy-MM-dd");
         Date date = new Date(new Date().getTime() + 1000 * 6 * 24 * 60 * 60);
         String today = sdf.format(date);
 
-        // 今天提醒过了
-        if (today.equals(lastNoticeDay)) return;
+        // 今天执行过了
+        if (today.equals(lastExecuteDay)) return;
 
-        List<String> noticeList = (List<String>) pluginData.get("noticeList");
-        if (noticeList == null) return;
-
-        String token = (String) pluginData.get("token");
-        if (token == null) return;
-
+        String account = (String) pluginData.get("token");
+        if (account == null) return;
+        String[] split = account.split(",");
         // 准备群提醒数据
-        StringBuilder sb = new StringBuilder("俱乐部空余情况\n");
-        List<ClubInfo> availableActivityList = UniRunMain.getAvailableActivityList(token);
+        List<ClubInfo> availableActivityList = UniRunMain.getAvailableActivityList(split[0], split[1]);
+
         // 无可用
         if (availableActivityList.size() == 0) return;
 
-        for (ClubInfo clubInfo : availableActivityList) {
-            sb.append("活动名：").append(clubInfo.getActivityName()).append("\n");
-            sb.append("报名人数：").append(clubInfo.getSignInStudent()).append("/").append(clubInfo.getMaxStudent()).append("\n");
-            sb.append("可取消(待确认)：").append(clubInfo.getCancelSign() == 1 ? "是\n" : "否\n");
-            sb.append("------\n");
-        }
-
-        // 群提醒
-        for (String gid : noticeList) {
-            Group group = RobotMain.getBot().getGroup(Long.parseLong(gid));
-            if (group != null)
-                group.sendMessage(sb.toString());
-            lastNoticeDay = today;
-        }
+        lastExecuteDay = today;
 
         // 自动加入
         Map<String, AutoJoin> autoJoinList = (Map<String, AutoJoin>) pluginData.get("autoJoinList");
-        if (autoJoinList != null) {
+        if (autoJoinList != null && autoJoinList.size() > 0) {
+
             autoJoinList.forEach((qqid, autoJoin) -> {
                 // 过滤出包含关键词的俱乐部
                 String location = autoJoin.getLocation();
@@ -205,17 +169,34 @@ public class UniRunPlugin extends MsgPluginImpl {
 
                     log.info("加入结果：{}", joinClubResult);
                     if (joinClubResult == null) {
-                        normalMember.sendMessage("俱乐部参加结果：null\n测试阶段，本次执行后您将被移出参加队列，如有需要请重新发送加入指令");
+                        normalMember.sendMessage("俱乐部参加结果：null");
                     } else
-                        normalMember.sendMessage("俱乐部参加结果：" + joinClubResult.getMessage() + "\n" + "测试阶段，本次执行后您将被移出参加队列，如有需要请重新发送加入指令");
+                        normalMember.sendMessage("俱乐部参加结果：" + joinClubResult.getMessage());
 
                 }
             });
-            // 清空自动加入
-            autoJoinList.clear();
         }
-        // 更新
-        new UniRunPlugin().updatePluginData(pluginData);
+    }
+
+    public static void signInOrSignBack() {
+
+        Map<String, AutoJoin> autoJoinList = (Map<String, AutoJoin>) pluginData.get("autoJoinList");
+        autoJoinList.forEach((qqid, autoJoin)->{
+            Response response = UniRunMain.signInOrSignBack(autoJoin.getPhone(), autoJoin.getPassword());
+
+            log.info("俱乐部签到结果：{}", response);
+            if (response == null)return;
+
+            String groupId = autoJoin.getGroupId();
+            Group group = RobotMain.getBot().getGroup(Long.parseLong(groupId));
+            if (group != null) {
+                NormalMember normalMember = group.get(Long.parseLong(qqid));
+                if (normalMember == null) return;
+
+                String msg = response.getMsg();
+                normalMember.sendMessage("俱乐部签到/签退结果：\n" + msg);
+            }
+        });
     }
 
     @Override

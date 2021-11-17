@@ -3,9 +3,9 @@ package cn.wecuit.robot.utils.unirun.run;
 import cn.wecuit.backen.utils.HTTP.HttpUtil2;
 import cn.wecuit.backen.utils.JsonUtil;
 import cn.wecuit.robot.utils.unirun.entity.AppConfig;
-import cn.wecuit.robot.utils.unirun.entity.NewRecordBody;
 import cn.wecuit.robot.utils.unirun.entity.Response;
 import cn.wecuit.robot.utils.unirun.entity.ResponseType.*;
+import cn.wecuit.robot.utils.unirun.entity.SignInOrSignBackBody;
 import cn.wecuit.robot.utils.unirun.utils.MD5Utils;
 import cn.wecuit.robot.utils.unirun.utils.SignUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -54,6 +54,7 @@ public class Request {
             headers.put("token", token);
             headers.put("appkey", appKey);
             headers.put("Content-Type", "application/json; charset=UTF-8");
+            headers.put("User-Agent", "okhttp/3.12.0");
             byte[] bytes = http.doPostJson2Byte(API, headers, bodyStr);
             Response<UserInfo> userInfoResponse = JsonUtil.string2Obj(new String(bytes), new TypeReference<Response<UserInfo>>() {});
             int code = userInfoResponse.getCode();
@@ -77,58 +78,13 @@ public class Request {
             headers.put("token", token);
             headers.put("appkey", appKey);
             headers.put("Content-Type", "application/json; charset=UTF-8");
+            headers.put("User-Agent", "okhttp/3.12.0");
             String tokenInfo = http.doGet2(API, headers);
             Response<UserInfo> userInfoResponse = JsonUtil.string2Obj(tokenInfo, new TypeReference<Response<UserInfo>>() {});
             int code = userInfoResponse.getCode();
             if(code == 10000){
                 return userInfoResponse.getResponse();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public SchoolBound[] getSchoolBound(){
-
-        String API = HOST + "v1/unirun/querySchoolBound?schoolId=3680";
-        try {
-            Map<String, String> headers = new HashMap<>();
-            Map<String, String> params = new HashMap<>();
-            params.put("schoolId", "3680");
-            String sign = SignUtils.get(params, null);
-            headers.put("sign", sign);
-            headers.put("token", token);
-            headers.put("appkey", appKey);
-            headers.put("Content-Type", "application/json; charset=UTF-8");
-            String tokenInfo = http.doGet2(API, headers);
-            Response<SchoolBound[]> standardResponse = JsonUtil.string2Obj(tokenInfo, new TypeReference<Response<SchoolBound[]>>() {});
-            return standardResponse.getResponse();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public RunStandard getRunStandard(){
-
-        String API = HOST + "v1/unirun/query/runStandard?schoolId=3680";
-        try {
-            Map<String, String> headers = new HashMap<>();
-            Map<String, String> params = new HashMap<>();
-            params.put("schoolId", "3680");
-            String sign = SignUtils.get(params, null);
-            headers.put("sign", sign);
-            headers.put("token", token);
-            headers.put("appkey", appKey);
-            headers.put("Content-Type", "application/json; charset=UTF-8");
-            String tokenInfo = http.doGet2(API, headers);
-            Response<RunStandard> standardResponse = JsonUtil.string2Obj(tokenInfo, new TypeReference<Response<RunStandard>>() {});
-            return standardResponse.getResponse();
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ParseException e) {
@@ -156,6 +112,7 @@ public class Request {
             headers.put("token", token);
             headers.put("appkey", appKey);
             headers.put("Content-Type", "application/json; charset=UTF-8");
+            headers.put("User-Agent", "okhttp/3.12.0");
 
             String tokenInfo = http.doGet2(API, headers);
 
@@ -184,6 +141,7 @@ public class Request {
             headers.put("token", token);
             headers.put("appkey", appKey);
             headers.put("Content-Type", "application/json; charset=UTF-8");
+            headers.put("User-Agent", "okhttp/3.12.0");
 
             String joinResult = http.doGet2(API, headers);
 
@@ -197,6 +155,59 @@ public class Request {
         return null;
     }
 
+    public SignInTf getSignInTf(String studentId){
+        String API = String.format(HOST + "v1/clubactivity/getSignInTf?studentId=%s", studentId);
+        try {
+            Map<String, String> headers = new HashMap<>();
+            Map<String, String> params = new HashMap<>();
+            params.put("studentId", studentId);
+
+            String sign = SignUtils.get(params, null);
+
+            headers.put("sign", sign);
+            headers.put("token", token);
+            headers.put("appkey", appKey);
+            headers.put("Content-Type", "application/json; charset=UTF-8");
+            headers.put("User-Agent", "okhttp/3.12.0");
+
+            String signInTf = http.doGet2(API, headers);
+
+            Response<SignInTf> joinClubResponse = JsonUtil.string2Obj(signInTf, new TypeReference<Response<SignInTf>>() {});
+            return joinClubResponse.getResponse();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public Response signInOrSignBack(SignInOrSignBackBody signInOrSignBackBody){
+        String API = HOST + "v1/clubactivity/signInOrSignBack";
+        try {
+            Map<String, String> headers = new HashMap<>();
+            Map<String, String> params = new HashMap<>();
+
+            String body = JsonUtil.obj2String(signInOrSignBackBody);
+
+            String sign = SignUtils.get(params, body);
+
+            headers.put("sign", sign);
+            headers.put("token", token);
+            headers.put("appkey", appKey);
+            headers.put("Content-Type", "application/json; charset=UTF-8");
+            headers.put("User-Agent", "okhttp/3.12.0");
+            byte[] bytes = http.doPostJson2Byte(API, headers, body);
+
+            String signInTf = new String(bytes);
+
+            Response joinClubResponse = JsonUtil.string2Obj(signInTf, new TypeReference<Response>() {});
+            return joinClubResponse;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     public List<SportsClassStudentLearnClockingV0> getMySportsClassClocking(){
 
@@ -211,6 +222,7 @@ public class Request {
             headers.put("token", token);
             headers.put("appkey", appKey);
             headers.put("Content-Type", "application/json; charset=UTF-8");
+            headers.put("User-Agent", "okhttp/3.12.0");
 
             String joinResult = http.doGet2(API, headers);
 
@@ -224,21 +236,4 @@ public class Request {
         return null;
     }
 
-    public String recordNew(NewRecordBody body){
-        String API = HOST + "v1/unirun/save/run/record/new";
-        try {
-            Map<String, String> headers = new HashMap<>();
-            String bodyStr = JsonUtil.obj2String(body);
-            String sign = SignUtils.get(null, bodyStr);
-            headers.put("sign", sign);
-            headers.put("token", token);
-            headers.put("appkey", appKey);
-            headers.put("Content-Type", "application/json; charset=UTF-8");
-            byte[] bytes = http.doPostJson2Byte(API, headers, bodyStr);
-            return new String(bytes);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
 }

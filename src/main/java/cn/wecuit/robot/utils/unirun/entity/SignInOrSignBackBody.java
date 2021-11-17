@@ -1,4 +1,4 @@
-package cn.wecuit.robot.utils.unirun.entity.ResponseType;
+package cn.wecuit.robot.utils.unirun.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,10 +15,21 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class SignBody {
+public class SignInOrSignBackBody {
     private Long activityId;
+    /**
+     * 纬度
+     */
     private String latitude;
+    /**
+     * 经度
+     */
     private String longitude;
+    /**
+     * 签到或签退
+     * 1：签到
+     * 2：签退
+     */
     private String signType;
     private Long studentId;
 }
