@@ -47,7 +47,7 @@ public class UniRunPlugin extends MsgPluginImpl {
             event.getSubject().sendMessage("格式不正确！\n手机号,密码");
             return true;
         }
-        pluginData.put("token", account);
+        pluginData.put("account", account);
         updatePluginData(pluginData);
         event.getSubject().sendMessage("更新account成功！");
         return true;
@@ -119,17 +119,25 @@ public class UniRunPlugin extends MsgPluginImpl {
         Date date = new Date(new Date().getTime() + 1000 * 6 * 24 * 60 * 60);
         String today = sdf.format(date);
 
+        log.info("今天：{}", today);
         // 今天执行过了
-        if (today.equals(lastExecuteDay)) return;
+        if (today.equals(lastExecuteDay)) {
+            log.info("执行过了");
+            return;
+        }
 
-        String account = (String) pluginData.get("token");
+        String account = (String) pluginData.get("account");
         if (account == null) return;
+
         String[] split = account.split(",");
         // 准备群提醒数据
         List<ClubInfo> availableActivityList = UniRunMain.getAvailableActivityList(split[0], split[1]);
 
         // 无可用
-        if (availableActivityList.size() == 0) return;
+        if (availableActivityList.size() == 0) {
+            log.info("没有可加入的俱乐部");
+            return;
+        }
 
         lastExecuteDay = today;
 
@@ -157,7 +165,7 @@ public class UniRunPlugin extends MsgPluginImpl {
 
                     // 空
                     if (keyActList.size() == 0) {
-                        normalMember.sendMessage(String.format("没有找到可加入的俱乐部\n你的校区：%s\n你的关键词：%s\n测试阶段，本次执行后您将被移出参加队列，如有需要请重新发送加入指令", autoJoin.getLocation(), autoJoin.getKeyword()));
+                        normalMember.sendMessage(String.format("没有找到可加入的俱乐部\n你的校区：%s\n你的关键词：%s", autoJoin.getLocation(), autoJoin.getKeyword()));
                         return;
                     }
 

@@ -26,7 +26,7 @@ public class UniRunMain {
     public static void main(String[] args) {
         String token = "1243489ade4c457702e7c9c7fe2698a0";
         AppConfig config = new AppConfig() {{
-            setAppVersion("1.8.0");     // APP版本，一般不做修改
+            setAppVersion("1.8.1");     // APP版本，一般不做修改
             setBrand("realme");         // 手机品牌
             setMobileType("RMX2117");   // 型号
             setSysVersion("10");        // 系统版本
@@ -47,7 +47,7 @@ public class UniRunMain {
 
     public static List<ClubInfo> getAvailableActivityList(String phone, String password){
         AppConfig config = new AppConfig() {{
-            setAppVersion("1.8.0");     // APP版本，一般不做修改
+            setAppVersion("1.8.1");     // APP版本，一般不做修改
             setBrand("realme");         // 手机品牌
             setMobileType("RMX2117");   // 型号
             setSysVersion("10");        // 系统版本
@@ -77,7 +77,7 @@ public class UniRunMain {
 
     public static JoinClubResult joinClub(String phone, String password, String activityId){
         AppConfig config = new AppConfig() {{
-            setAppVersion("1.8.0");     // APP版本，一般不做修改
+            setAppVersion("1.8.1");     // APP版本，一般不做修改
             setBrand("realme");         // 手机品牌
             setMobileType("RMX2117");   // 型号
             setSysVersion("10");        // 系统版本
@@ -95,7 +95,7 @@ public class UniRunMain {
 
     public static Response signInOrSignBack(String phone, String password){
         AppConfig config = new AppConfig() {{
-            setAppVersion("1.8.0");     // APP版本，一般不做修改
+            setAppVersion("1.8.1");     // APP版本，一般不做修改
             setBrand("realme");         // 手机品牌
             setMobileType("RMX2117");   // 型号
             setSysVersion("10");        // 系统版本
