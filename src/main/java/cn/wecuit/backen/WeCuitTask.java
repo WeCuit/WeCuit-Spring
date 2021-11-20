@@ -42,21 +42,23 @@ public class WeCuitTask {
         }
     }
 
-    // 从第20分钟开始每隔2分钟执行一次直到30分钟
+    // 周二到周五，每天7点从第20分钟开始每隔2分钟执行一次直到30分钟
     //@Scheduled(cron = "0/30 * * * * ?")
-    @Scheduled(cron = "0 20-30/2 7 * * ?")
+    @Scheduled(cron = "0 20-30/2 7 ? * 2,3,4,5")
     public void UNIRUN_clubAutoJoin(){
         log.info("clubAutoJoin");
         UniRunPlugin.clubAutoJoin();
     }
 
     //@Scheduled(cron = "0/30 * * * * ?")
-    @Scheduled(cron = "0 0,5,45,50 18 * * ?")
+    @Scheduled(cron = "0 0,5,45,50 18 ? * 1,2,3,4")
     public void UNIRUN_signInOrSignBack1(){
         log.info("signInOrSignBack1");
         UniRunPlugin.signInOrSignBack();
     }
-    @Scheduled(cron = "0 50,55 17 * * ?")
+
+    // 星期一到星期四
+    @Scheduled(cron = "0 50,55 17 ? * 1,2,3,4")
     public void UNIRUN_signInOrSignBack2(){
         log.info("signInOrSignBack2");
         UniRunPlugin.signInOrSignBack();
