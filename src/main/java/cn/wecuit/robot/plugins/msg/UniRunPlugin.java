@@ -116,7 +116,7 @@ public class UniRunPlugin extends MsgPluginImpl {
     public static void clubAutoJoin() {
         SimpleDateFormat sdf = new SimpleDateFormat();
         sdf.applyPattern("yyyy-MM-dd");
-        Date date = new Date(new Date().getTime() + 1000 * 6 * 24 * 60 * 60);
+        Date date = new Date();
         String today = sdf.format(date);
 
         log.info("今天：{}", today);
@@ -173,14 +173,19 @@ public class UniRunPlugin extends MsgPluginImpl {
                     // 取第一个
                     Long activityId = keyActList.get(0).getClubActivityId();
                     // 加入
-                    JoinClubResult joinClubResult = UniRunMain.joinClub(autoJoin.getPhone(), autoJoin.getPassword(), String.valueOf(activityId));
+                    Response joinClubResultResponse = UniRunMain.joinClub(autoJoin.getPhone(), autoJoin.getPassword(), String.valueOf(activityId));
 
-                    log.info("加入结果：{}", joinClubResult);
-                    if (joinClubResult == null) {
-                        normalMember.sendMessage("俱乐部参加结果：null");
-                    } else
-                        normalMember.sendMessage("俱乐部参加结果：" + joinClubResult.getMessage());
+                    if(joinClubResultResponse.getCode() == 10000) {
 
+                        JoinClubResult joinClubResult = (JoinClubResult)joinClubResultResponse.getResponse();
+                        log.info("加入结果：{}", joinClubResult);
+                        if (joinClubResult == null) {
+                            normalMember.sendMessage("俱乐部参加结果：" + joinClubResultResponse.getMsg());
+                        } else
+                            normalMember.sendMessage("俱乐部参加结果：" + joinClubResult.getMessage());
+                    }else{
+                        normalMember.sendMessage("俱乐部参加结果：" + joinClubResultResponse.getMsg());
+                    }
                 }
             });
         }
