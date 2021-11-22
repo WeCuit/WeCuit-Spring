@@ -33,7 +33,7 @@ public class Request {
         this.config = config;
     }
 
-    public UserInfo login(String phone, String password){
+    public Response<UserInfo> login(String phone, String password){
         String pass = MD5Utils.stringToMD5(password);
         String API = HOST + "v1/auth/login/password";
         try {
@@ -56,13 +56,8 @@ public class Request {
             headers.put("Content-Type", "application/json; charset=UTF-8");
             headers.put("User-Agent", "okhttp/3.12.0");
             byte[] bytes = http.doPostJson2Byte(API, headers, bodyStr);
-            Response<UserInfo> userInfoResponse = JsonUtil.string2Obj(new String(bytes), new TypeReference<Response<UserInfo>>() {});
-            int code = userInfoResponse.getCode();
-            if(code == 10000){
-                UserInfo userInfo = userInfoResponse.getResponse();
-                this.token = userInfo.getOauthToken().getToken();
-                return userInfo;
-            }
+            return JsonUtil.string2Obj(new String(bytes), new TypeReference<Response<UserInfo>>() {});
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -126,7 +121,7 @@ public class Request {
         return null;
     }
 
-    public JoinClubResult joinClub(String studentId, String activityId){
+    public Response<JoinClubResult> joinClub(String studentId, String activityId){
 
         String API = String.format(HOST + "v1/clubactivity/joinClubActivity?studentId=%s&activityId=%s", studentId, activityId);
         try {
@@ -145,8 +140,7 @@ public class Request {
 
             String joinResult = http.doGet2(API, headers);
 
-            Response<JoinClubResult> joinClubResponse = JsonUtil.string2Obj(joinResult, new TypeReference<Response<JoinClubResult>>() {});
-            return joinClubResponse.getResponse();
+            return JsonUtil.string2Obj(joinResult, new TypeReference<Response<JoinClubResult>>() {});
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ParseException e) {

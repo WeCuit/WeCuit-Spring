@@ -2,7 +2,10 @@ package cn.wecuit.robot.utils.unirun;
 
 import cn.wecuit.robot.utils.unirun.entity.AppConfig;
 import cn.wecuit.robot.utils.unirun.entity.Response;
-import cn.wecuit.robot.utils.unirun.entity.ResponseType.*;
+import cn.wecuit.robot.utils.unirun.entity.ResponseType.ClubInfo;
+import cn.wecuit.robot.utils.unirun.entity.ResponseType.SignInTf;
+import cn.wecuit.robot.utils.unirun.entity.ResponseType.SportsClassStudentLearnClockingV0;
+import cn.wecuit.robot.utils.unirun.entity.ResponseType.UserInfo;
 import cn.wecuit.robot.utils.unirun.entity.SignInOrSignBackBody;
 import cn.wecuit.robot.utils.unirun.run.Request;
 import lombok.extern.slf4j.Slf4j;
@@ -53,11 +56,11 @@ public class UniRunMain {
             setSysVersion("10");        // 系统版本
         }};
         Request request = new Request("", config);
-        UserInfo userInfo = request.login(phone, password);
-        long studentId = userInfo.getStudentId();
+        Response<UserInfo> userInfoResponse = request.login(phone, password);
+        UserInfo userInfo = userInfoResponse.getResponse();
         List<ClubInfo> list = new ArrayList<>();
-        if (studentId != -1) {
-
+        if (userInfo != null) {
+            long studentId = userInfo.getStudentId();
             SimpleDateFormat sdf = new SimpleDateFormat();
             sdf.applyPattern("yyyy-MM-dd");
             Date date = new Date(new Date().getTime() + 1000 * 6 * 24 * 60 * 60);
@@ -75,7 +78,7 @@ public class UniRunMain {
         return list;
     }
 
-    public static JoinClubResult joinClub(String phone, String password, String activityId){
+    public static Response joinClub(String phone, String password, String activityId){
         AppConfig config = new AppConfig() {{
             setAppVersion("1.8.1");     // APP版本，一般不做修改
             setBrand("realme");         // 手机品牌
@@ -83,14 +86,14 @@ public class UniRunMain {
             setSysVersion("10");        // 系统版本
         }};
         Request request = new Request("", config);
-        UserInfo userInfo = request.login(phone, password);
+        Response<UserInfo> userInfoResponse = request.login(phone, password);
+        UserInfo userInfo = userInfoResponse.getResponse();
         if (userInfo != null) {
             Long studentId = userInfo.getStudentId();
             return request.joinClub(String.valueOf(studentId), activityId);
         } else {
-            log.error("用户登录失败");
+            return userInfoResponse;
         }
-        return null;
     }
 
     public static Response signInOrSignBack(String phone, String password){
@@ -101,7 +104,9 @@ public class UniRunMain {
             setSysVersion("10");        // 系统版本
         }};
         Request request = new Request("", config);
-        UserInfo userInfo = request.login(phone, password);
+        Response<UserInfo> userInfoResponse = request.login(phone, password);
+        UserInfo userInfo = userInfoResponse.getResponse();
+
         if (userInfo != null) {
             Long studentId = userInfo.getStudentId();
             SignInTf signInTf = request.getSignInTf(String.valueOf(studentId));
@@ -110,14 +115,14 @@ public class UniRunMain {
             String signInStatus = signInTf.getSignInStatus();
             String signBackStatus = signInTf.getSignBackStatus();
 
-            // TODO: 已签到且已签退？
+            // TODO: 待确认已签到且已签退？
             if("1".equals(signInStatus) && "1".equals(signBackStatus))return null;
 
-            String signType = "";
+            String signType;
             if("1".equals(signStatus)){
             //    可签到
                 signType = "1";
-            }else if("2".equals(signStatus)){
+            }else if("1".equals(signInStatus) && "0".equals(signStatus)){
             //    可签退
                 signType = "2";
             }else{
@@ -134,8 +139,7 @@ public class UniRunMain {
 
             return request.signInOrSignBack(signInOrSignBackBody);
         } else {
-            log.error("用户登录失败");
+            return userInfoResponse;
         }
-        return null;
     }
 }
