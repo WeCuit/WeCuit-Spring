@@ -56,7 +56,14 @@ public class Request {
             headers.put("Content-Type", "application/json; charset=UTF-8");
             headers.put("User-Agent", "okhttp/3.12.0");
             byte[] bytes = http.doPostJson2Byte(API, headers, bodyStr);
-            return JsonUtil.string2Obj(new String(bytes), new TypeReference<Response<UserInfo>>() {});
+
+            Response<UserInfo> userInfoResponse = JsonUtil.string2Obj(new String(bytes), new TypeReference<Response<UserInfo>>() {
+            });
+            if(userInfoResponse.getCode() == 10000) {
+                UserInfo userInfo = userInfoResponse.getResponse();
+                this.token = userInfo.getOauthToken().getToken();
+            }
+            return userInfoResponse;
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -166,8 +173,8 @@ public class Request {
 
             String signInTf = http.doGet2(API, headers);
 
-            Response<SignInTf> joinClubResponse = JsonUtil.string2Obj(signInTf, new TypeReference<Response<SignInTf>>() {});
-            return joinClubResponse.getResponse();
+            Response<SignInTf> signInTfResponse = JsonUtil.string2Obj(signInTf, new TypeReference<Response<SignInTf>>() {});
+            return signInTfResponse.getResponse();
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ParseException e) {
