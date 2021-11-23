@@ -50,8 +50,9 @@ public class WeCuitTask {
         UniRunPlugin.clubAutoJoin();
     }
 
+    // 星期一到星期四
     //@Scheduled(cron = "0/30 * * * * ?")
-    @Scheduled(cron = "0 0,5,45,50 18 ? * 1,2,3,4")
+    @Scheduled(cron = "0 0,5,45,50,55 18 ? * 1,2,3,4")
     public void UNIRUN_signInOrSignBack1(){
         log.info("signInOrSignBack1");
         UniRunPlugin.signInOrSignBack();

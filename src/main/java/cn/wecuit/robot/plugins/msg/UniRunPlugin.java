@@ -127,7 +127,10 @@ public class UniRunPlugin extends MsgPluginImpl {
         }
 
         String account = (String) pluginData.get("account");
-        if (account == null) return;
+        if (account == null) {
+            log.info("account为空");
+            return;
+        }
 
         String[] split = account.split(",");
         // 准备群提醒数据
@@ -161,7 +164,10 @@ public class UniRunPlugin extends MsgPluginImpl {
                 Group group = RobotMain.getBot().getGroup(Long.parseLong(groupId));
                 if (group != null) {
                     NormalMember normalMember = group.get(Long.parseLong(qqid));
-                    if (normalMember == null) return;
+                    if (normalMember == null) {
+                        log.info("未找到该用户");
+                        return;
+                    }
 
                     // 空
                     if (keyActList.size() == 0) {
