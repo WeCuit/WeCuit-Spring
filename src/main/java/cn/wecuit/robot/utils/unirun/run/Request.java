@@ -98,7 +98,7 @@ public class Request {
     public List<ClubInfo> getActivityList(String studentId, String date){
         String schoolId = "3680";
 
-        String API = String.format(HOST + "v1/clubactivity/queryActivityList?queryTime=%s&studentId=%s&schoolId=%s&pageNo=1&pageSize=15", date, studentId, schoolId);
+        String API = String.format(HOST + "v1/clubactivity/queryActivityList?queryTime=%s&studentId=%s&schoolId=%s&pageNo=1&pageSize=30", date, studentId, schoolId);
         try {
             Map<String, String> headers = new HashMap<>();
             Map<String, String> params = new HashMap<>();
@@ -106,7 +106,7 @@ public class Request {
             params.put("studentId", studentId);
             params.put("schoolId", "3680");
             params.put("pageNo", "1");
-            params.put("pageSize", "15");
+            params.put("pageSize", "30");
 
             String sign = SignUtils.get(params, null);
 

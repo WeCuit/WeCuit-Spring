@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 /**
@@ -113,6 +114,15 @@ public class UniRunPlugin extends MsgPluginImpl {
         return true;
     }
 
+    @SubCmd(keyword = "测试加入俱乐部")
+    public void joinTest(){
+        clubAutoJoin();
+    }
+    @SubCmd(keyword = "测试签到")
+    public void signTest(){
+        signInOrSignBack();
+    }
+
     public static void clubAutoJoin() {
         SimpleDateFormat sdf = new SimpleDateFormat();
         sdf.applyPattern("yyyy-MM-dd");
@@ -133,11 +143,11 @@ public class UniRunPlugin extends MsgPluginImpl {
         }
 
         String[] split = account.split(",");
-        // 准备群提醒数据
-        List<ClubInfo> availableActivityList = UniRunMain.getAvailableActivityList(split[0], split[1]);
+
+        AtomicReference<List<ClubInfo>> availableActivityList = new AtomicReference<>(UniRunMain.getAvailableActivityList(split[0], split[1]));
 
         // 无可用
-        if (availableActivityList.size() == 0) {
+        if (availableActivityList.get().size() == 0) {
             log.info("没有可加入的俱乐部");
             return;
         }
@@ -153,7 +163,9 @@ public class UniRunPlugin extends MsgPluginImpl {
                 String location = autoJoin.getLocation();
                 String keyword = autoJoin.getKeyword();
                 log.info("校区：{} - 关键词：{}", location, keyword);
-                List<ClubInfo> keyActList = availableActivityList.stream().filter(activity -> {
+                availableActivityList.set(UniRunMain.getAvailableActivityList(autoJoin.getPhone(), autoJoin.getPassword()));
+
+                List<ClubInfo> keyActList = availableActivityList.get().stream().filter(activity -> {
                     boolean result = activity.getActivityName().contains(location);
                     if (keyword != null)
                         result = result && activity.getActivityName().contains(keyword);
