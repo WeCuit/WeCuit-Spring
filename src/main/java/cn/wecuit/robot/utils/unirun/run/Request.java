@@ -106,7 +106,7 @@ public class Request {
             params.put("studentId", studentId);
             params.put("schoolId", "3680");
             params.put("pageNo", "1");
-            params.put("pageSize", "15");
+            params.put("pageSize", "30");
 
             String sign = SignUtils.get(params, null);
 
