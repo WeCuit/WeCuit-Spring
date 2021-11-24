@@ -122,7 +122,7 @@ public class UniRunMain {
             if("1".equals(signStatus)){
             //    可签到
                 signType = "1";
-            }else if("1".equals(signInStatus) && "0".equals(signStatus)){
+            }else if("1".equals(signInStatus) && "2".equals(signStatus)){
             //    可签退
                 signType = "2";
             }else{
