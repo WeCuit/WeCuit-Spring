@@ -107,7 +107,6 @@ public class UniRunMain {
         Response<UserInfo> userInfoResponse = request.login(phone, password);
         UserInfo userInfo = userInfoResponse.getResponse();
 
-        log.info("用户信息：{}", userInfo);
         if (userInfo != null) {
             Long studentId = userInfo.getStudentId();
             SignInTf signInTf = request.getSignInTf(String.valueOf(studentId));

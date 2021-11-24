@@ -10,6 +10,7 @@ import cn.wecuit.robot.utils.unirun.UniRunMain;
 import cn.wecuit.robot.utils.unirun.entity.Response;
 import cn.wecuit.robot.utils.unirun.entity.ResponseType.ClubInfo;
 import cn.wecuit.robot.utils.unirun.entity.ResponseType.JoinClubResult;
+import cn.wecuit.robot.utils.unirun.entity.ResponseType.SignInTf;
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,10 +22,7 @@ import net.mamoe.mirai.event.events.GroupMessageEvent;
 import net.mamoe.mirai.event.events.GroupTempMessageEvent;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -40,6 +38,7 @@ public class UniRunPlugin extends MsgPluginImpl {
     private static final Map<String, Object> pluginData = new HashMap<>();
 
     private static String lastExecuteDay = null;
+    private static int sleepSecond = 5;
 
     @SubCmd(keyword = "更新account", desc = "更新account")
     public boolean updateToken(GroupMessageEvent event, CmdList cmdList) {
@@ -77,7 +76,7 @@ public class UniRunPlugin extends MsgPluginImpl {
         if (cmds.size() > 3)
             keyword = cmds.get(3);
         String qqid = String.valueOf(event.getSender().getId());
-        AutoJoin autoJoin = new AutoJoin(String.valueOf(event.getGroup().getId()), phone, password, location, keyword);
+        AutoJoin autoJoin = new AutoJoin(String.valueOf(event.getGroup().getId()), phone, password, location, keyword, null);
         String msg;
         if (autoJoinList.containsKey(qqid)) {
             msg = "更新成功";
@@ -115,11 +114,12 @@ public class UniRunPlugin extends MsgPluginImpl {
     }
 
     @SubCmd(keyword = "测试加入俱乐部")
-    public void joinTest(){
+    public void joinTest() {
         clubAutoJoin();
     }
+
     @SubCmd(keyword = "测试签到")
-    public void signTest(){
+    public void signTest() {
         signInOrSignBack();
     }
 
@@ -154,6 +154,8 @@ public class UniRunPlugin extends MsgPluginImpl {
 
         lastExecuteDay = today;
 
+        List<String[]> msgList = new ArrayList<>();
+
         // 自动加入
         Map<String, AutoJoin> autoJoinList = (Map<String, AutoJoin>) pluginData.get("autoJoinList");
         if (autoJoinList != null && autoJoinList.size() > 0) {
@@ -173,45 +175,65 @@ public class UniRunPlugin extends MsgPluginImpl {
                 }).collect(Collectors.toList());
 
                 String groupId = autoJoin.getGroupId();
-                Group group = RobotMain.getBot().getGroup(Long.parseLong(groupId));
-                if (group != null) {
-                    NormalMember normalMember = group.get(Long.parseLong(qqid));
-                    if (normalMember == null) {
-                        log.info("未找到该用户");
-                        return;
-                    }
+                // 空
+                if (keyActList.size() == 0) {
+                    msgList.add(new String[]{
+                            groupId + "," + qqid,
+                            String.format("没有找到可加入的俱乐部\n你的校区：%s\n你的关键词：%s", autoJoin.getLocation(), autoJoin.getKeyword())});
+                    //normalMember.sendMessage(String.format("没有找到可加入的俱乐部\n你的校区：%s\n你的关键词：%s", autoJoin.getLocation(), autoJoin.getKeyword()));
+                    return;
+                }
 
-                    // 空
-                    if (keyActList.size() == 0) {
-                        normalMember.sendMessage(String.format("没有找到可加入的俱乐部\n你的校区：%s\n你的关键词：%s", autoJoin.getLocation(), autoJoin.getKeyword()));
-                        return;
-                    }
+                log.info("尝试加入：{}", keyActList.get(0));
+                // 取第一个
+                Long activityId = keyActList.get(0).getClubActivityId();
+                // 加入
+                Response joinClubResultResponse = UniRunMain.joinClub(autoJoin.getPhone(), autoJoin.getPassword(), String.valueOf(activityId));
 
-                    log.info("尝试加入：{}", keyActList.get(0));
-                    // 取第一个
-                    Long activityId = keyActList.get(0).getClubActivityId();
-                    // 加入
-                    Response joinClubResultResponse = UniRunMain.joinClub(autoJoin.getPhone(), autoJoin.getPassword(), String.valueOf(activityId));
+                if (joinClubResultResponse.getCode() == 10000) {
 
-                    if (joinClubResultResponse.getCode() == 10000) {
-
-                        JoinClubResult joinClubResult = (JoinClubResult) joinClubResultResponse.getResponse();
-                        log.info("加入结果：{}", joinClubResult);
-                        if (joinClubResult == null) {
-                            normalMember.sendMessage("俱乐部参加结果：" + joinClubResultResponse.getMsg());
-                        } else
-                            normalMember.sendMessage("俱乐部参加结果：" + joinClubResult.getMessage());
+                    JoinClubResult joinClubResult = (JoinClubResult) joinClubResultResponse.getResponse();
+                    log.info("加入结果：{}", joinClubResult);
+                    if (joinClubResult == null) {
+                        msgList.add(new String[]{
+                                groupId + "," + qqid,
+                                "俱乐部参加结果：" + joinClubResultResponse.getMsg()});
+                        //normalMember.sendMessage("俱乐部参加结果：" + joinClubResultResponse.getMsg());
                     } else {
-                        normalMember.sendMessage("俱乐部参加结果：" + joinClubResultResponse.getMsg());
+                        msgList.add(new String[]{
+                                groupId + "," + qqid,
+                                "俱乐部参加结果：" + joinClubResult.getMessage()});
+                        //normalMember.sendMessage("俱乐部参加结果：" + joinClubResult.getMessage());
                     }
+                } else {
+                    msgList.add(new String[]{
+                            groupId + "," + qqid,
+                            "俱乐部参加结果：" + joinClubResultResponse.getMsg()});
+                    //normalMember.sendMessage("俱乐部参加结果：" + joinClubResultResponse.getMsg());
                 }
             });
+
+            // 统一发送消息
+            for (String[] msg : msgList) {
+                String[] group_qq = msg[0].split(",");
+                Group group = RobotMain.getBot().getGroup(Long.parseLong(group_qq[0]));
+                if (group == null) continue;
+                NormalMember normalMember = group.get(Long.parseLong(group_qq[1]));
+                if (normalMember == null) continue;
+                normalMember.sendMessage(msg[1]);
+                try {
+                    Thread.sleep(sleepSecond * 1000L);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
     public static void signInOrSignBack() {
 
         Map<String, AutoJoin> autoJoinList = (Map<String, AutoJoin>) pluginData.get("autoJoinList");
+        List<String[]> msgList = new ArrayList<>();
         autoJoinList.forEach((qqid, autoJoin) -> {
             try {
                 Response response = UniRunMain.signInOrSignBack(autoJoin.getPhone(), autoJoin.getPassword());
@@ -220,18 +242,37 @@ public class UniRunPlugin extends MsgPluginImpl {
                 if (response == null) return;
 
                 String groupId = autoJoin.getGroupId();
-                Group group = RobotMain.getBot().getGroup(Long.parseLong(groupId));
-                if (group != null) {
-                    NormalMember normalMember = group.get(Long.parseLong(qqid));
-                    if (normalMember == null) return;
 
-                    String msg = response.getMsg();
-                    normalMember.sendMessage("俱乐部签到/签退结果：\n" + msg);
+                String msg = response.getMsg();
+                msgList.add(new String[]{
+                        groupId + "," + qqid,
+                        "俱乐部签到/签退结果：\n" + msg
+                });
+                //normalMember.sendMessage("俱乐部签到/签退结果：\n" + msg);
+
+                try {
+                    Thread.sleep(2 * 1000L);
+                } catch (InterruptedException e) {
+                    log.info("睡眠发生异常");
+                    e.printStackTrace();
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
         });
+        for (String[] msgData : msgList) {
+            String[] ids = msgData[0].split(",");
+            Group group = RobotMain.getBot().getGroup(Long.parseLong(ids[0]));
+            if(group == null)continue;
+            NormalMember normalMember = group.get(Long.parseLong(ids[1]));
+            if(normalMember == null)continue;
+            normalMember.sendMessage(msgData[1]);
+            try {
+                Thread.sleep(sleepSecond * 1000L);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
@@ -255,4 +296,5 @@ class AutoJoin {
     private String password;
     private String location;
     private String keyword;
+    private SignInTf signInTf;
 }
