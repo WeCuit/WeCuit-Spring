@@ -84,23 +84,26 @@ public class MessagePlugin {
                 // 一级指令对应方法
                 Method method = (Method) action;
                 Parameter[] parameters = method.getParameters();
-                Object[] args = new Object[parameters.length];
-                for (int i = 0; i < parameters.length; i++) {
-                    String name = parameters[i].getType().getSimpleName();
-                    if(EventType.MessageEvent.name().equals(name)
-                            || (event instanceof GroupMessageEvent && EventType.GroupMessageEvent.name().equals(name))
-                            || (event instanceof GroupTempMessageEvent && EventType.GroupTempMessageEvent.name().equals(name)))
-                    {
-                        args[i] = event;
-                    }else if("CmdList".equals(name)){
-                        args[i] = cmdList;
-                    }else {
-                        log.info("无法识别的参数类型：{} - {}", name, parameters[i].getType().getName());
-                        event.getSubject().sendMessage("该指令只能通过如下渠道发送：" + EventType.valueOf(name).getMessage());
-                        return;
+                if(parameters.length > 0) {
+                    Object[] args = new Object[parameters.length];
+                    for (int i = 0; i < parameters.length; i++) {
+                        String name = parameters[i].getType().getSimpleName();
+                        if (EventType.MessageEvent.name().equals(name)
+                                || (event instanceof GroupMessageEvent && EventType.GroupMessageEvent.name().equals(name))
+                                || (event instanceof GroupTempMessageEvent && EventType.GroupTempMessageEvent.name().equals(name))) {
+                            args[i] = event;
+                        } else if ("CmdList".equals(name)) {
+                            args[i] = cmdList;
+                        } else {
+                            log.info("无法识别的参数类型：{} - {}", name, parameters[i].getType().getName());
+                            event.getSubject().sendMessage("该指令只能通过如下渠道发送：" + EventType.valueOf(name).getMessage());
+                            return;
+                        }
                     }
+                    method.invoke(method.getDeclaringClass().newInstance(), args);
+                }else{
+                    method.invoke(method.getDeclaringClass().newInstance());
                 }
-                method.invoke(method.getDeclaringClass().newInstance(), args);
             } else if (action instanceof Map) {
                 Map<String, Object> subCmd = ((Map<String, Object>) action);
                 String c = cmdList.get(0);
@@ -123,24 +126,27 @@ public class MessagePlugin {
                     // 指令对应方法
                     Method method = (Method) ac;
                     Parameter[] parameters = method.getParameters();
-                    Object[] args = new Object[parameters.length];
-                    for (int i = 0; i < parameters.length; i++) {
-                        String name = parameters[i].getType().getSimpleName();
-                        if(EventType.MessageEvent.name().equals(name)
-                                || (event instanceof GroupMessageEvent && EventType.GroupMessageEvent.name().equals(name))
-                                || (event instanceof GroupTempMessageEvent && EventType.GroupTempMessageEvent.name().equals(name)))
-                        {
-                            args[i] = event;
-                        }else if("CmdList".equals(name)){
-                            args[i] = cmdList;
-                        }else{
-                            log.info("无法识别的参数类型：{} - {}", name, parameters[i].getType().getName());
-                            event.getSubject().sendMessage("该指令只能通过如下渠道发送：" + EventType.valueOf(name).getMessage());
-                            return;
-                        }
-                    }
                     MsgPlugin o = (MsgPlugin) method.getDeclaringClass().newInstance();
-                    method.invoke(o, args);
+                    if(parameters.length > 0) {
+                        Object[] args = new Object[parameters.length];
+                        for (int i = 0; i < parameters.length; i++) {
+                            String name = parameters[i].getType().getSimpleName();
+                            if (EventType.MessageEvent.name().equals(name)
+                                    || (event instanceof GroupMessageEvent && EventType.GroupMessageEvent.name().equals(name))
+                                    || (event instanceof GroupTempMessageEvent && EventType.GroupTempMessageEvent.name().equals(name))) {
+                                args[i] = event;
+                            } else if ("CmdList".equals(name)) {
+                                args[i] = cmdList;
+                            } else {
+                                log.info("无法识别的参数类型：{} - {}", name, parameters[i].getType().getName());
+                                event.getSubject().sendMessage("该指令只能通过如下渠道发送：" + EventType.valueOf(name).getMessage());
+                                return;
+                            }
+                        }
+                        method.invoke(o, args);
+                    }else{
+                        method.invoke(o);
+                    }
                 }
             }
 

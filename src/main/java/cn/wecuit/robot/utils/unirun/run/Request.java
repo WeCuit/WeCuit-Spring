@@ -98,7 +98,7 @@ public class Request {
     public List<ClubInfo> getActivityList(String studentId, String date){
         String schoolId = "3680";
 
-        String API = String.format(HOST + "v1/clubactivity/queryActivityList?queryTime=%s&studentId=%s&schoolId=%s&pageNo=1&pageSize=15", date, studentId, schoolId);
+        String API = String.format(HOST + "v1/clubactivity/queryActivityList?queryTime=%s&studentId=%s&schoolId=%s&pageNo=1&pageSize=30", date, studentId, schoolId);
         try {
             Map<String, String> headers = new HashMap<>();
             Map<String, String> params = new HashMap<>();
