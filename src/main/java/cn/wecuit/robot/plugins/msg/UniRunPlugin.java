@@ -24,7 +24,6 @@ import net.mamoe.mirai.event.events.GroupTempMessageEvent;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 /**
  * @Author jiyec
@@ -38,7 +37,7 @@ public class UniRunPlugin extends MsgPluginImpl {
     private static final Map<String, Object> pluginData = new HashMap<>();
 
     private static String lastExecuteDay = null;
-    private static int sleepSecond = 5;
+    private static int sleepSecond = 10;
 
     @SubCmd(keyword = "更新account", desc = "更新account")
     public boolean updateToken(GroupMessageEvent event, CmdList cmdList) {
@@ -165,30 +164,12 @@ public class UniRunPlugin extends MsgPluginImpl {
                 String location = autoJoin.getLocation();
                 String keyword = autoJoin.getKeyword();
                 log.info("校区：{} - 关键词：{}", location, keyword);
-                availableActivityList.set(UniRunMain.getAvailableActivityList(autoJoin.getPhone(), autoJoin.getPassword()));
-
-                List<ClubInfo> keyActList = availableActivityList.get().stream().filter(activity -> {
-                    boolean result = activity.getActivityName().contains(location);
-                    if (keyword != null)
-                        result = result && activity.getActivityName().contains(keyword);
-                    return result;
-                }).collect(Collectors.toList());
 
                 String groupId = autoJoin.getGroupId();
-                // 空
-                if (keyActList.size() == 0) {
-                    msgList.add(new String[]{
-                            groupId + "," + qqid,
-                            String.format("没有找到可加入的俱乐部\n你的校区：%s\n你的关键词：%s", autoJoin.getLocation(), autoJoin.getKeyword())});
-                    //normalMember.sendMessage(String.format("没有找到可加入的俱乐部\n你的校区：%s\n你的关键词：%s", autoJoin.getLocation(), autoJoin.getKeyword()));
-                    return;
-                }
+                // 加入俱乐部
+                Response joinClubResultResponse = UniRunMain.autoJoinClub(autoJoin.getPhone(), autoJoin.getPassword(), location, keyword);
 
-                log.info("尝试加入：{}", keyActList.get(0));
-                // 取第一个
-                Long activityId = keyActList.get(0).getClubActivityId();
-                // 加入
-                Response joinClubResultResponse = UniRunMain.joinClub(autoJoin.getPhone(), autoJoin.getPassword(), String.valueOf(activityId));
+                if(joinClubResultResponse == null)return;
 
                 if (joinClubResultResponse.getCode() == 10000) {
 
@@ -198,18 +179,15 @@ public class UniRunPlugin extends MsgPluginImpl {
                         msgList.add(new String[]{
                                 groupId + "," + qqid,
                                 "俱乐部参加结果：" + joinClubResultResponse.getMsg()});
-                        //normalMember.sendMessage("俱乐部参加结果：" + joinClubResultResponse.getMsg());
                     } else {
                         msgList.add(new String[]{
                                 groupId + "," + qqid,
                                 "俱乐部参加结果：" + joinClubResult.getMessage()});
-                        //normalMember.sendMessage("俱乐部参加结果：" + joinClubResult.getMessage());
                     }
                 } else {
                     msgList.add(new String[]{
                             groupId + "," + qqid,
                             "俱乐部参加结果：" + joinClubResultResponse.getMsg()});
-                    //normalMember.sendMessage("俱乐部参加结果：" + joinClubResultResponse.getMsg());
                 }
             });
 
@@ -238,7 +216,7 @@ public class UniRunPlugin extends MsgPluginImpl {
             try {
                 Response response = UniRunMain.signInOrSignBack(autoJoin.getPhone(), autoJoin.getPassword());
 
-                log.info("俱乐部签到结果：{}", response);
+                log.info("俱乐部签到/签退结果：{}", response);
                 if (response == null) return;
 
                 String groupId = autoJoin.getGroupId();
