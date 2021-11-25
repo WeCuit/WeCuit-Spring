@@ -14,6 +14,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 运行主体
@@ -22,7 +23,6 @@ import java.util.List;
  * 本程序不提供后续更新服务。
  * 若由使用本程序造成包括但不限于校方警告、课程分数计0、封号、勒令退学等不良后果，一切责任由使用者承当。
  * 使用本程序即代表使用者同意以上条款。
- *
  */
 @Slf4j
 public class UniRunMain {
@@ -48,7 +48,7 @@ public class UniRunMain {
         log.info("{}", mySportsClassClocking);
     }
 
-    public static List<ClubInfo> getAvailableActivityList(String phone, String password){
+    public static List<ClubInfo> getAvailableActivityList(String phone, String password) {
         AppConfig config = new AppConfig() {{
             setAppVersion("1.8.1");     // APP版本，一般不做修改
             setBrand("realme");         // 手机品牌
@@ -68,7 +68,7 @@ public class UniRunMain {
             List<ClubInfo> activityList = request.getActivityList(String.valueOf(studentId), today);
 
             for (ClubInfo clubInfo : activityList) {
-                if(clubInfo.getSignInStudent() < clubInfo.getMaxStudent()){
+                if (clubInfo.getSignInStudent() < clubInfo.getMaxStudent()) {
                     list.add(clubInfo);
                 }
             }
@@ -78,7 +78,7 @@ public class UniRunMain {
         return list;
     }
 
-    public static Response joinClub(String phone, String password, String activityId){
+    public static Response autoJoinClub(String phone, String password, String location, String keyword) {
         AppConfig config = new AppConfig() {{
             setAppVersion("1.8.1");     // APP版本，一般不做修改
             setBrand("realme");         // 手机品牌
@@ -88,15 +88,53 @@ public class UniRunMain {
         Request request = new Request("", config);
         Response<UserInfo> userInfoResponse = request.login(phone, password);
         UserInfo userInfo = userInfoResponse.getResponse();
-        if (userInfo != null) {
-            Long studentId = userInfo.getStudentId();
-            return request.joinClub(String.valueOf(studentId), activityId);
-        } else {
+        if (userInfo == null) {
+            log.info("用户信息获取失败：{}", userInfoResponse);
             return userInfoResponse;
         }
+        SignInTf signInTf = request.getSignInTf(String.valueOf(userInfo.getStudentId()));
+        log.info("将要进行的俱乐部活动：{}", signInTf);
+        if (signInTf != null && signInTf.getActivityId() != null) {
+            log.info("有将要进行的俱乐部活动：{}", signInTf);
+            return null;
+        }
+
+        // 获取俱乐部列表
+        List<ClubInfo> availableActivityList = new ArrayList<>();
+        long studentId = userInfo.getStudentId();
+        SimpleDateFormat sdf = new SimpleDateFormat();
+        sdf.applyPattern("yyyy-MM-dd");
+        Date date = new Date(new Date().getTime() + 1000 * 6 * 24 * 60 * 60);
+        String today = sdf.format(date);
+        List<ClubInfo> activityList = request.getActivityList(String.valueOf(studentId), today);
+        for (ClubInfo clubInfo : activityList) {
+            if (clubInfo.getSignInStudent() < clubInfo.getMaxStudent()) {
+                availableActivityList.add(clubInfo);
+            }
+        }
+
+        // 筛选关键词俱乐部
+        List<ClubInfo> keyActList = availableActivityList.stream().filter(activity -> {
+            boolean result = activity.getActivityName().contains(location);
+            if (keyword != null)
+                result = result && activity.getActivityName().contains(keyword);
+            return result;
+        }).collect(Collectors.toList());
+        // 空
+        if (keyActList.size() == 0) {
+            return new Response() {{
+                setMsg(String.format("没有找到可加入的俱乐部\n你的校区：%s\n你的关键词：%s", location, keyword));
+            }};
+        }
+
+        log.info("尝试加入：{}", keyActList.get(0));
+        // 取第一个
+        Long activityId = keyActList.get(0).getClubActivityId();
+        // 加入
+        return request.joinClub(String.valueOf(studentId), String.valueOf(activityId));
     }
 
-    public static Response signInOrSignBack(String phone, String password){
+    public static Response signInOrSignBack(String phone, String password) {
         AppConfig config = new AppConfig() {{
             setAppVersion("1.8.1");     // APP版本，一般不做修改
             setBrand("realme");         // 手机品牌
@@ -116,16 +154,16 @@ public class UniRunMain {
             String signBackStatus = signInTf.getSignBackStatus();
 
             // TODO: 待确认已签到且已签退？
-            if("1".equals(signInStatus) && "1".equals(signBackStatus))return null;
+            if ("1".equals(signInStatus) && "1".equals(signBackStatus)) return null;
 
             String signType;
-            if("1".equals(signStatus)){
-            //    可签到
+            if ("1".equals(signStatus)) {
+                //    可签到
                 signType = "1";
-            }else if("1".equals(signInStatus) && "2".equals(signStatus)){
-            //    可签退
+            } else if ("1".equals(signInStatus) && "2".equals(signStatus)) {
+                //    可签退
                 signType = "2";
-            }else{
+            } else {
                 log.info("非可签到签退状态");
                 return null;
             }
