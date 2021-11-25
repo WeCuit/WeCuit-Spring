@@ -107,10 +107,16 @@ public class UniRunMain {
         Date date = new Date(new Date().getTime() + 1000 * 6 * 24 * 60 * 60);
         String today = sdf.format(date);
         List<ClubInfo> activityList = request.getActivityList(String.valueOf(studentId), today);
-        for (ClubInfo clubInfo : activityList) {
-            if (clubInfo.getSignInStudent() < clubInfo.getMaxStudent()) {
-                availableActivityList.add(clubInfo);
+        if(activityList != null)
+            for (ClubInfo clubInfo : activityList) {
+                if (clubInfo.getSignInStudent() < clubInfo.getMaxStudent()) {
+                    availableActivityList.add(clubInfo);
+                }
             }
+
+        // 空
+        if (availableActivityList.size() == 0) {
+            return null;
         }
 
         // 筛选关键词俱乐部
