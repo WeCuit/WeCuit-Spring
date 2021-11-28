@@ -1,10 +1,9 @@
 package cn.wecuit.backen.config;
 
 import cn.dev33.satoken.exception.NotLoginException;
-import cn.wecuit.backen.response.BaseResponse;
+import cn.wecuit.backen.exception.BaseException;
 import cn.wecuit.backen.response.ResponseCode;
 import cn.wecuit.backen.response.ResponseResult;
-import cn.wecuit.backen.exception.BaseException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -37,7 +36,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({BaseException.class})
     public ResponseResult handleBaseException(BaseException e) {
-        e.printStackTrace();
+        //e.printStackTrace();
         ResponseCode code = e.getCode2();
         if (code != null)
             return new ResponseResult(code.getCode(), code.getMsg(), null);

@@ -165,7 +165,7 @@ public class JwglServiceImpl implements JwglService {
         Map<String, ArrayList<Map<String, Object>>> sem = (Map<String, ArrayList<Map<String, Object>>>) map.get("semesters");
 
         // TODO: 粗暴的移除了2021-2022的数据
-        sem.remove("y9");
+        //sem.remove("y9");
 
         List<Map<String, Object>> s0 = new LinkedList<>();
         List<List<Map<String, Object>>> s1 = new LinkedList<>();
