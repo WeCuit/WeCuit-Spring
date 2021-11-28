@@ -67,6 +67,7 @@ public class PluginHandler {
                     if(clazz.isAnnotationPresent(MainCmd.class)){
                         // 有主指令
                         MainCmd mainCmd = clazz.getAnnotation(MainCmd.class);
+                        // 触发关键词
                         String keyword = mainCmd.keyword();
                         StringBuilder desc = new StringBuilder(mainCmd.desc()).append("\n");
                         cmd2plugin.put(keyword, cmdMap);
@@ -91,7 +92,6 @@ public class PluginHandler {
                     }else {
                         // 非指令类型插件
                         for (Method method : methods) {
-                            //method.getAnnotation();
                             if (method.isAnnotationPresent(RobotEventHandle.class)) {
                                 RobotEventHandle annotation = method.getAnnotation(RobotEventHandle.class);
                                 for (EventType eventType : annotation.event()) {

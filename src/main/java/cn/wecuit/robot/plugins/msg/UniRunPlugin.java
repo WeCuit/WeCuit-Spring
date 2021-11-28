@@ -39,7 +39,7 @@ public class UniRunPlugin extends MsgPluginImpl {
     private static String lastExecuteDay = null;
     private static int sleepSecond = 10;
 
-    @SubCmd(keyword = "更新account", desc = "更新account")
+    @SubCmd(keyword = "更新account", desc = "更新account", requireAdmin = true)
     public boolean updateToken(GroupMessageEvent event, CmdList cmdList) {
         String account = cmdList.getFirst();
         if (!account.contains(",")) {
@@ -112,12 +112,12 @@ public class UniRunPlugin extends MsgPluginImpl {
         return true;
     }
 
-    @SubCmd(keyword = "测试加入俱乐部")
+    @SubCmd(keyword = "测试加入俱乐部", requireAdmin = true)
     public void joinTest() {
         clubAutoJoin();
     }
 
-    @SubCmd(keyword = "测试签到")
+    @SubCmd(keyword = "测试签到", requireAdmin = true)
     public void signTest() {
         signInOrSignBack();
     }

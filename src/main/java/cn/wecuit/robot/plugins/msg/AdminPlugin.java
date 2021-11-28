@@ -26,12 +26,8 @@ public class AdminPlugin extends MsgPluginImpl {
         put("adminList", adminList);
     }};
 
-    @SubCmd(keyword = "添加管理", desc = "添加机器人管理员")
+    @SubCmd(keyword = "添加管理", desc = "添加机器人管理员", requireAdmin = true)
     public boolean addAdmin(GroupMessageEvent event, CmdList cmds){
-        if(!isSuperAdmin(event)){
-            event.getSubject().sendMessage("权限不足");
-            return true;
-        }
         String newAdmin = cmds.get(0);
         if(!adminList.contains(newAdmin)) {
             adminList.add(newAdmin);
@@ -42,24 +38,16 @@ public class AdminPlugin extends MsgPluginImpl {
         }
         return true;
     }
-    @SubCmd(keyword = "删除管理", desc = "删除指定机器人管理员")
+    @SubCmd(keyword = "删除管理", desc = "删除指定机器人管理员", requireAdmin = true)
     public boolean delAdmin(GroupMessageEvent event, CmdList cmds){
-        if(!isSuperAdmin(event)){
-            event.getSubject().sendMessage("权限不足");
-            return true;
-        }
         String newAdmin = cmds.get(0);
         adminList.remove(newAdmin);
         updatePluginData();
         event.getSubject().sendMessage("OK");
         return true;
     }
-    @SubCmd(keyword = "列出管理", desc = "列出所有机器人管理员")
+    @SubCmd(keyword = "列出管理", desc = "列出所有机器人管理员", requireAdmin = true)
     public boolean listAdmin(GroupMessageEvent event){
-        if(!isSuperAdmin(event)){
-            event.getSubject().sendMessage("权限不足");
-            return true;
-        }
         StringBuilder list = new StringBuilder();
         for (String s : adminList) {
             list.append(s).append("\n");
@@ -72,15 +60,20 @@ public class AdminPlugin extends MsgPluginImpl {
     public void initPluginData(Map<String, Object> config){
         List<String> al = (List<String>) config.get("adminList");
         if(al != null){
+            // 将默认管理员合并
+            al.addAll(adminList);
+            // 唯一化
             al = al.stream().distinct().collect(Collectors.toList());
+            // 清空默认
+            adminList.clear();
+            // 加入管理
             adminList.addAll(al);
         }
     }
     void updatePluginData(){
         updatePluginData(pluginData);
     }
-    private boolean isSuperAdmin(GroupMessageEvent event){
-        long id = event.getSender().getId();
-        return id == 1690127128L;
+    public static boolean isSuperAdmin(String id){
+        return adminList.contains(id);
     }
 }

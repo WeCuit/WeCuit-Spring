@@ -35,11 +35,8 @@ public class NewsPlugin extends MsgPluginImpl {
         put("enabledList", enabledList);
     }};
 
-    @SubCmd(keyword = "开启推送", desc = "开启对应群聊的新闻推送功能")
+    @SubCmd(keyword = "开启推送", desc = "开启对应群聊的新闻推送功能", requireAdmin = true)
     public boolean enablePush(GroupMessageEvent event){
-        long senderId = event.getSender().getId();
-        if(!checkAdmin(senderId))
-            event.getSubject().sendMessage("没有权限");
 
         String fromId = Long.toString(event.getSubject().getId());
         boolean newsNotice = enabledList.contains(fromId);
@@ -53,11 +50,8 @@ public class NewsPlugin extends MsgPluginImpl {
         return true;
     }
 
-    @SubCmd(keyword = "关闭推送", desc = "关闭对应群聊的新闻推送功能")
+    @SubCmd(keyword = "关闭推送", desc = "关闭对应群聊的新闻推送功能", requireAdmin = true)
     public boolean disablePush(GroupMessageEvent event){
-        long senderId = event.getSender().getId();
-        if(!checkAdmin(senderId))
-            event.getSubject().sendMessage("没有权限");
 
         String fromId = Long.toString(event.getSubject().getId());
         boolean newsNotice = enabledList.contains(fromId);
@@ -71,11 +65,8 @@ public class NewsPlugin extends MsgPluginImpl {
         return true;
     }
 
-    @SubCmd(keyword = "添加推送目标", desc = "参数[群号]，添加指定群号到推送列表")
+    @SubCmd(keyword = "添加推送目标", desc = "参数[群号]，添加指定群号到推送列表", requireAdmin = true)
     public boolean addPushTarget(GroupMessageEvent event, CmdList cmds){
-        long senderId = event.getSender().getId();
-        if(!checkAdmin(senderId))
-            event.getSubject().sendMessage("没有权限");
 
         if(cmds.size() != 1){
             event.getSubject().sendMessage("阁下的指令格式好像不太对呢(・∀・(・∀・(・∀・*)");
@@ -93,11 +84,8 @@ public class NewsPlugin extends MsgPluginImpl {
     }
 
     // 推送测试
-    @SubCmd(keyword = "推送测试", desc = "在当前群进行一次推送测试")
+    @SubCmd(keyword = "推送测试", desc = "在当前群进行一次推送测试", requireAdmin = true)
     public boolean pushTest(GroupMessageEvent event) throws IOException {
-        long senderId = event.getSender().getId();
-        if(!checkAdmin(senderId))
-            event.getSubject().sendMessage("没有权限");
         String subjectId = Long.toString(event.getSubject().getId());
         NewsService newsService = SpringUtil.getBean(NewsService.class);
         newsService.newsNotice(new ArrayList<String>(){{add(subjectId);}});
@@ -139,10 +127,6 @@ public class NewsPlugin extends MsgPluginImpl {
         }
         return true;
     }
-    public static boolean checkAdmin(Long id){
-        return id == 1690127128L;
-    }
-
     public void updatePluginData(){
         updatePluginData(pluginData);
     }

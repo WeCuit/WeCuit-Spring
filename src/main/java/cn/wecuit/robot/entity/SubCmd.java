@@ -27,4 +27,9 @@ public @interface SubCmd {
      * 是否注册为一级指令
      **/
     boolean regAsMainCmd() default false;
+
+    /**
+     * 是否需要管理员权限
+     */
+    boolean requireAdmin() default false;
 }

@@ -38,7 +38,5 @@ public class MenuPlugin extends MsgPluginImpl {
     }
 
     @Override
-    public void initPluginData(Map<String, Object> config) {
-
-    }
+    public void initPluginData(Map<String, Object> config) {}
 }
