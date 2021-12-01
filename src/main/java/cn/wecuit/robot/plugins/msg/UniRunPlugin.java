@@ -8,7 +8,6 @@ import cn.wecuit.robot.entity.RobotPlugin;
 import cn.wecuit.robot.entity.SubCmd;
 import cn.wecuit.robot.utils.unirun.UniRunMain;
 import cn.wecuit.robot.utils.unirun.entity.Response;
-import cn.wecuit.robot.utils.unirun.entity.ResponseType.ClubInfo;
 import cn.wecuit.robot.utils.unirun.entity.ResponseType.JoinClubResult;
 import cn.wecuit.robot.utils.unirun.entity.ResponseType.SignInTf;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -18,12 +17,10 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.NormalMember;
-import net.mamoe.mirai.event.events.GroupMessageEvent;
 import net.mamoe.mirai.event.events.GroupTempMessageEvent;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @Author jiyec
@@ -38,19 +35,6 @@ public class UniRunPlugin extends MsgPluginImpl {
 
     private static String lastExecuteDay = null;
     private static int sleepSecond = 10;
-
-    @SubCmd(keyword = "更新account", desc = "更新account")
-    public boolean updateToken(GroupMessageEvent event, CmdList cmdList) {
-        String account = cmdList.getFirst();
-        if (!account.contains(",")) {
-            event.getSubject().sendMessage("格式不正确！\n手机号,密码");
-            return true;
-        }
-        pluginData.put("account", account);
-        updatePluginData(pluginData);
-        event.getSubject().sendMessage("更新account成功！");
-        return true;
-    }
 
     @SubCmd(keyword = "自动参与俱乐部", desc = "自动参与俱乐部 手机号 密码 校区 关键词\n关键词可选")
     public boolean addAutoJoin(GroupTempMessageEvent event, CmdList cmds) {
@@ -74,8 +58,10 @@ public class UniRunPlugin extends MsgPluginImpl {
         String keyword = null;
         if (cmds.size() > 3)
             keyword = cmds.get(3);
+        // 检查账号密码
+        //UserInfo userInfo = UniRunMain.checkAccount(phone, password);
         String qqid = String.valueOf(event.getSender().getId());
-        AutoJoin autoJoin = new AutoJoin(String.valueOf(event.getGroup().getId()), phone, password, location, keyword, null);
+        AutoJoin autoJoin = new AutoJoin(String.valueOf(event.getGroup().getId()), "", phone, password, location, keyword, null);
         String msg;
         if (autoJoinList.containsKey(qqid)) {
             msg = "更新成功";
@@ -92,7 +78,7 @@ public class UniRunPlugin extends MsgPluginImpl {
         return true;
     }
 
-    @SubCmd(keyword = "取消自动参与俱乐部", desc = "自动参与俱乐部 ")
+    @SubCmd(keyword = "取消自动参与俱乐部", desc = "机器人不会自动参与俱乐部")
     public boolean delAutoJoin(GroupTempMessageEvent event) {
         Map<String, AutoJoin> autoJoinList = (Map<String, AutoJoin>) pluginData.get("autoJoinList");
         if (autoJoinList == null) return true;
@@ -112,14 +98,38 @@ public class UniRunPlugin extends MsgPluginImpl {
         return true;
     }
 
-    @SubCmd(keyword = "测试加入俱乐部")
+    @SubCmd(keyword = "测试加入俱乐部", requireAdmin = true, desc = "管理员操作")
     public void joinTest() {
         clubAutoJoin();
     }
 
-    @SubCmd(keyword = "测试签到")
+    @SubCmd(keyword = "测试签到", requireAdmin = true, desc = "管理员操作")
     public void signTest() {
         signInOrSignBack();
+    }
+
+    @SubCmd(keyword = "签到签退", desc = "立即执行一次签到/签退操作")
+    public void sign(GroupTempMessageEvent event) {
+        Map<String, AutoJoin> autoJoinList = (Map<String, AutoJoin>) pluginData.get("autoJoinList");
+        long id = event.getSender().getId();
+        AutoJoin autoJoin = autoJoinList.get(String.valueOf(id));
+
+        if(autoJoin == null){
+            event.getSubject().sendMessage("你没有加入过");
+            return;
+        }
+        String token = autoJoin.getToken();
+        if(token == null) token = "";
+        StringBuffer tokenSB = new StringBuffer(token);
+        Response response = UniRunMain.signInOrSignBack(tokenSB, autoJoin.getPhone(), autoJoin.getPassword());
+        autoJoin.setToken(tokenSB.toString());
+        if(response == null){
+            event.getSubject().sendMessage("非可签到签退状态,或没有可签到签退的项目");
+        }else{
+            event.getSubject().sendMessage(response.getMsg());
+        }
+        updatePluginData(pluginData);
+
     }
 
     public static void clubAutoJoin() {
@@ -135,30 +145,14 @@ public class UniRunPlugin extends MsgPluginImpl {
             return;
         }
 
-        String account = (String) pluginData.get("account");
-        if (account == null) {
-            log.info("account为空");
-            return;
-        }
-
-        String[] split = account.split(",");
-
-        AtomicReference<List<ClubInfo>> availableActivityList = new AtomicReference<>(UniRunMain.getAvailableActivityList(split[0], split[1]));
-
-        // 无可用
-        if (availableActivityList.get().size() == 0) {
-            log.info("没有可加入的俱乐部");
-            return;
-        }
-
-        lastExecuteDay = today;
-
+        // 待发送的消息列表
         List<String[]> msgList = new ArrayList<>();
 
         // 自动加入
         Map<String, AutoJoin> autoJoinList = (Map<String, AutoJoin>) pluginData.get("autoJoinList");
         if (autoJoinList != null && autoJoinList.size() > 0) {
 
+            List<String> removeList = new ArrayList<>();
             autoJoinList.forEach((qqid, autoJoin) -> {
                 // 过滤出包含关键词的俱乐部
                 String location = autoJoin.getLocation();
@@ -166,13 +160,18 @@ public class UniRunPlugin extends MsgPluginImpl {
                 log.info("校区：{} - 关键词：{}", location, keyword);
 
                 String groupId = autoJoin.getGroupId();
+                String token = autoJoin.getToken();
+                if(token == null) token = "";
+                StringBuffer tokenSB = new StringBuffer(token);
                 // 加入俱乐部
-                Response joinClubResultResponse = UniRunMain.autoJoinClub(autoJoin.getPhone(), autoJoin.getPassword(), location, keyword);
+                Response joinClubResultResponse = UniRunMain.autoJoinClub(tokenSB, autoJoin.getPhone(), autoJoin.getPassword(), location, keyword);
 
+                autoJoin.setToken(tokenSB.toString());
                 if(joinClubResultResponse == null)return;
 
                 if (joinClubResultResponse.getCode() == 10000) {
 
+                    lastExecuteDay = today;
                     JoinClubResult joinClubResult = (JoinClubResult) joinClubResultResponse.getResponse();
                     log.info("加入结果：{}", joinClubResult);
                     if (joinClubResult == null) {
@@ -184,26 +183,40 @@ public class UniRunPlugin extends MsgPluginImpl {
                                 groupId + "," + qqid,
                                 "俱乐部参加结果：" + joinClubResult.getMessage()});
                     }
-                } else {
+                } else if(joinClubResultResponse.getMsg().contains("密码")){
+                    removeList.add(qqid);
+                    msgList.add(new String[]{
+                            groupId + "," + qqid,
+                            "俱乐部参加结果：" + joinClubResultResponse.getMsg() + "\n您的账号将被移除"
+                    });
+                }else{
                     msgList.add(new String[]{
                             groupId + "," + qqid,
                             "俱乐部参加结果：" + joinClubResultResponse.getMsg()});
                 }
             });
 
+            for (String rm : removeList) {
+                autoJoinList.remove(rm);
+            }
+            updatePluginData(pluginData);
             // 统一发送消息
-            for (String[] msg : msgList) {
-                String[] group_qq = msg[0].split(",");
-                Group group = RobotMain.getBot().getGroup(Long.parseLong(group_qq[0]));
-                if (group == null) continue;
-                NormalMember normalMember = group.get(Long.parseLong(group_qq[1]));
-                if (normalMember == null) continue;
-                normalMember.sendMessage(msg[1]);
-                try {
-                    Thread.sleep(sleepSecond * 1000L);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+            sendMsg(msgList);
+        }
+    }
+
+    private static void sendMsg(List<String[]> msgList) {
+        for (String[] msg : msgList) {
+            String[] group_qq = msg[0].split(",");
+            Group group = RobotMain.getBot().getGroup(Long.parseLong(group_qq[0]));
+            if (group == null) continue;
+            NormalMember normalMember = group.get(Long.parseLong(group_qq[1]));
+            if (normalMember == null) continue;
+            normalMember.sendMessage(msg[1]);
+            try {
+                Thread.sleep(sleepSecond * 1000L);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
     }
@@ -214,8 +227,11 @@ public class UniRunPlugin extends MsgPluginImpl {
         List<String[]> msgList = new ArrayList<>();
         autoJoinList.forEach((qqid, autoJoin) -> {
             try {
-                Response response = UniRunMain.signInOrSignBack(autoJoin.getPhone(), autoJoin.getPassword());
-
+                String token = autoJoin.getToken();
+                if(token == null) token = "";
+                StringBuffer tokenSB = new StringBuffer(token);
+                Response response = UniRunMain.signInOrSignBack(tokenSB, autoJoin.getPhone(), autoJoin.getPassword());
+                autoJoin.setToken(tokenSB.toString());
                 log.info("俱乐部签到/签退结果：{}", response);
                 if (response == null) return;
 
@@ -226,7 +242,6 @@ public class UniRunPlugin extends MsgPluginImpl {
                         groupId + "," + qqid,
                         "俱乐部签到/签退结果：\n" + msg
                 });
-                //normalMember.sendMessage("俱乐部签到/签退结果：\n" + msg);
 
                 try {
                     Thread.sleep(2 * 1000L);
@@ -238,19 +253,8 @@ public class UniRunPlugin extends MsgPluginImpl {
                 e.printStackTrace();
             }
         });
-        for (String[] msgData : msgList) {
-            String[] ids = msgData[0].split(",");
-            Group group = RobotMain.getBot().getGroup(Long.parseLong(ids[0]));
-            if(group == null)continue;
-            NormalMember normalMember = group.get(Long.parseLong(ids[1]));
-            if(normalMember == null)continue;
-            normalMember.sendMessage(msgData[1]);
-            try {
-                Thread.sleep(sleepSecond * 1000L);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+        updatePluginData(pluginData);
+        sendMsg(msgList);
     }
 
     @Override
@@ -270,6 +274,7 @@ public class UniRunPlugin extends MsgPluginImpl {
 @NoArgsConstructor
 class AutoJoin {
     private String groupId;
+    private String token;
     private String phone;
     private String password;
     private String location;

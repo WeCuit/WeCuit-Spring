@@ -48,6 +48,12 @@ public class TestPlugin extends MsgPluginImpl {
         event.getGroup().get(senderId).sendMessage("测试");
         return true;
     }
+    @SubCmd(keyword = "管理员", desc = "临时", requireAdmin = true)
+    public boolean admin(GroupMessageEvent event){
+        long senderId = event.getSender().getId();
+        event.getSubject().sendMessage("测试");
+        return true;
+    }
 
     // 初始化插件数据[从外部到内部]
     public void initPluginData(Map<String, Object> config){

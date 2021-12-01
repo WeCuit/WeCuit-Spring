@@ -1,6 +1,5 @@
 package cn.wecuit.robot.plugins.msg;
 
-import cn.wecuit.robot.entity.CmdList;
 import cn.wecuit.robot.entity.MainCmd;
 import cn.wecuit.robot.entity.RobotPlugin;
 import cn.wecuit.robot.entity.SubCmd;
@@ -9,7 +8,6 @@ import kotlin.Unit;
 import kotlin.coroutines.Continuation;
 import kotlin.coroutines.CoroutineContext;
 import kotlin.coroutines.EmptyCoroutineContext;
-import lombok.Getter;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,14 +30,8 @@ public class StudyPlugin extends MsgPluginImpl {
         put("enabledList", enabledList);
     }};
 
-    @SubCmd(keyword = "开启")
+    @SubCmd(keyword = "开启", requireAdmin = true)
     public boolean enableMode(GroupMessageEvent event){
-
-        long senderId = event.getSender().getId();
-        if(!checkAdmin(senderId)) {
-            event.getSubject().sendMessage("没有权限");
-            return true;
-        }
 
         String subjectId = Long.toString(event.getSubject().getId());
         boolean allowStudy = enabledList.contains(subjectId);
@@ -53,14 +45,8 @@ public class StudyPlugin extends MsgPluginImpl {
         return true;
     }
 
-    @SubCmd(keyword = "关闭")
+    @SubCmd(keyword = "关闭", requireAdmin = true)
     public boolean disableMode(GroupMessageEvent event){
-
-        long senderId = event.getSender().getId();
-        if(!checkAdmin(senderId)) {
-            event.getSubject().sendMessage("没有权限");
-            return true;
-        }
 
         String subjectId = Long.toString(event.getSubject().getId());
         boolean allowStudy = enabledList.contains(subjectId);
@@ -94,10 +80,6 @@ public class StudyPlugin extends MsgPluginImpl {
             });
         else
             event.getSubject().sendMessage("未开启学习功能");
-    }
-
-    public static boolean checkAdmin(Long id){
-        return id == 1690127128L;
     }
 
     // 初始化插件数据[从外部到内部]

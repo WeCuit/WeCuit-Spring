@@ -1,6 +1,5 @@
 package cn.wecuit.robot.plugins.msg;
 
-import cn.wecuit.robot.data.DataHandle;
 import cn.wecuit.robot.entity.CmdList;
 import cn.wecuit.robot.entity.MainCmd;
 import cn.wecuit.robot.entity.RobotPlugin;
@@ -37,9 +36,8 @@ public class BanPlugin extends MsgPluginImpl {
         // put("enabledList", enabledList);
     }};
 
-    @SubCmd(keyword = "添加违禁表达式")
+    @SubCmd(keyword = "添加违禁表达式", requireAdmin = true)
     public void addRuleItem(GroupMessageEvent event, CmdList cmds){
-        if(!isAdmin(event))return;
 
         String cmd = cmds.get(0);
         String groupId = Long.toString(event.getSubject().getId());
@@ -55,9 +53,8 @@ public class BanPlugin extends MsgPluginImpl {
         }
     }
 
-    @SubCmd(keyword = "查看违禁表达式")
+    @SubCmd(keyword = "查看违禁表达式", requireAdmin = true)
     public void viewRuleItem(GroupMessageEvent event){
-        if(!isAdmin(event))return;
 
         List<String> list = banRuleItems.get(Long.toString(event.getSubject().getId()));
         StringBuilder msg = new StringBuilder("以下为违禁规则：\n");
@@ -67,9 +64,8 @@ public class BanPlugin extends MsgPluginImpl {
         event.getSubject().sendMessage(msg.toString());
     }
 
-    @SubCmd(keyword = "删除违禁表达式")
+    @SubCmd(keyword = "删除违禁表达式", requireAdmin = true)
     public void delRuleItem(GroupMessageEvent event, CmdList cmds){
-        if(!isAdmin(event))return;
 
         String id = cmds.get(0);
         String groupId = Long.toString(event.getSubject().getId());
@@ -90,9 +86,8 @@ public class BanPlugin extends MsgPluginImpl {
 
     }
 
-    @SubCmd(keyword = "清空违禁表达式")
+    @SubCmd(keyword = "清空违禁表达式", requireAdmin = true)
     public void clearRuleItem(GroupMessageEvent event){
-        if(!isAdmin(event))return;
 
         String groupId = Long.toString(event.getSubject().getId());
         banRuleItems.remove(groupId);
@@ -101,9 +96,8 @@ public class BanPlugin extends MsgPluginImpl {
 
     }
 
-    @SubCmd(keyword = "测试违禁表达式", desc = "测试违禁表达式 内容")
+    @SubCmd(keyword = "测试违禁表达式", desc = "测试违禁表达式 内容", requireAdmin = true)
     public void testRuleItem(GroupMessageEvent event){
-        if(!isAdmin(event))return;
 
         String s = event.getMessage().contentToString();
         String groupId = Long.toString(event.getSubject().getId());
@@ -156,9 +150,4 @@ public class BanPlugin extends MsgPluginImpl {
         updatePluginData(pluginData);
     }
 
-    private boolean isAdmin(GroupMessageEvent event){
-        String id = Long.toString(event.getSender().getId());
-        if(!DataHandle.isAdmin(id))event.getSubject().sendMessage("你的权限不够啊~(>_<。)＼");
-        return DataHandle.isAdmin(id);
-    }
 }

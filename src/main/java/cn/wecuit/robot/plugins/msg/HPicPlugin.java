@@ -46,7 +46,7 @@ public class HPicPlugin extends MsgPluginImpl {
         put("config", config);
     }};
 
-    @SubCmd(keyword = "开启")
+    @SubCmd(keyword = "开启", requireAdmin = true)
     public boolean enablePic(GroupMessageEvent event, CmdList cmds){
         Contact subject = event.getSubject();
         String subjectId = Long.toString(subject.getId());

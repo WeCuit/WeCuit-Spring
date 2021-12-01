@@ -9,6 +9,7 @@ import cn.wecuit.robot.utils.unirun.entity.SignInOrSignBackBody;
 import cn.wecuit.robot.utils.unirun.utils.MD5Utils;
 import cn.wecuit.robot.utils.unirun.utils.SignUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
+import lombok.Getter;
 import org.apache.hc.core5.http.ParseException;
 
 import java.io.IOException;
@@ -25,6 +26,7 @@ public class Request {
     private final HttpUtil2 http = new HttpUtil2();
     private final String appKey = "389885588s0648fa";
     private final String HOST = "https://run-lb.tanmasports.com/";
+    @Getter
     private String token;
     private AppConfig config;
 
@@ -71,7 +73,7 @@ public class Request {
         return null;
     }
 
-    public UserInfo getUserInfo(){
+    public Response<UserInfo> getUserInfo(){
         String API = HOST + "v1/auth/query/token";
         try {
             Map<String, String> headers = new HashMap<>();
@@ -82,11 +84,7 @@ public class Request {
             headers.put("Content-Type", "application/json; charset=UTF-8");
             headers.put("User-Agent", "okhttp/3.12.0");
             String tokenInfo = http.doGet2(API, headers);
-            Response<UserInfo> userInfoResponse = JsonUtil.string2Obj(tokenInfo, new TypeReference<Response<UserInfo>>() {});
-            int code = userInfoResponse.getCode();
-            if(code == 10000){
-                return userInfoResponse.getResponse();
-            }
+            return JsonUtil.string2Obj(tokenInfo, new TypeReference<Response<UserInfo>>() {});
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ParseException e) {

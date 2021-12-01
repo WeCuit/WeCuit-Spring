@@ -36,7 +36,7 @@ public class UniRunMain {
         }};
         Request request = new Request(token, config);
         //UserInfo userInfo = request.login("13107975658", "1222");
-        UserInfo userInfo = request.getUserInfo();
+        UserInfo userInfo = request.getUserInfo().getResponse();
 
         // 今天日期 年-月-日
         SimpleDateFormat sdf = new SimpleDateFormat();
@@ -48,7 +48,7 @@ public class UniRunMain {
         log.info("{}", mySportsClassClocking);
     }
 
-    public static List<ClubInfo> getAvailableActivityList(String phone, String password) {
+    public static UserInfo checkAccount(String phone, String password){
         AppConfig config = new AppConfig() {{
             setAppVersion("1.8.1");     // APP版本，一般不做修改
             setBrand("realme");         // 手机品牌
@@ -57,6 +57,24 @@ public class UniRunMain {
         }};
         Request request = new Request("", config);
         Response<UserInfo> userInfoResponse = request.login(phone, password);
+        return  userInfoResponse.getResponse();
+    }
+    public static List<ClubInfo> getAvailableActivityList(StringBuffer token, String phone, String password) {
+        AppConfig config = new AppConfig() {{
+            setAppVersion("1.8.1");     // APP版本，一般不做修改
+            setBrand("realme");         // 手机品牌
+            setMobileType("RMX2117");   // 型号
+            setSysVersion("10");        // 系统版本
+        }};
+        Request request = new Request(token.toString(), config);
+        Response<UserInfo> userInfoResponse = request.getUserInfo();
+        //更新token
+        if(userInfoResponse.getCode() != 10000) {
+            log.info("token无效，更新");
+            userInfoResponse = request.login(phone, password);
+            token.delete(0, token.length());
+            token.append(request.getToken());
+        }
         UserInfo userInfo = userInfoResponse.getResponse();
         List<ClubInfo> list = new ArrayList<>();
         if (userInfo != null) {
@@ -78,22 +96,29 @@ public class UniRunMain {
         return list;
     }
 
-    public static Response autoJoinClub(String phone, String password, String location, String keyword) {
+    public static Response autoJoinClub(StringBuffer token, String phone, String password, String location, String keyword) {
         AppConfig config = new AppConfig() {{
             setAppVersion("1.8.1");     // APP版本，一般不做修改
             setBrand("realme");         // 手机品牌
             setMobileType("RMX2117");   // 型号
             setSysVersion("10");        // 系统版本
         }};
-        Request request = new Request("", config);
-        Response<UserInfo> userInfoResponse = request.login(phone, password);
+        Request request = new Request(token.toString(), config);
+        Response<UserInfo> userInfoResponse = request.getUserInfo();
+        //更新token
+        if(userInfoResponse.getCode() != 10000) {
+            log.info("token无效，更新");
+            userInfoResponse = request.login(phone, password);
+            token.delete(0, token.length());
+            token.append(request.getToken());
+        }
         UserInfo userInfo = userInfoResponse.getResponse();
         if (userInfo == null) {
             log.info("用户信息获取失败：{}", userInfoResponse);
             return userInfoResponse;
         }
         SignInTf signInTf = request.getSignInTf(String.valueOf(userInfo.getStudentId()));
-        log.info("将要进行的俱乐部活动：{}", signInTf);
+        log.info("signInTf：{}", signInTf);
         if (signInTf != null && signInTf.getActivityId() != null) {
             log.info("有将要进行的俱乐部活动：{}", signInTf);
             return null;
@@ -112,6 +137,8 @@ public class UniRunMain {
                 availableActivityList.add(clubInfo);
             }
         }
+        //没有可以参加的俱乐部
+        if(availableActivityList.size() == 0)return null;
 
         // 筛选关键词俱乐部
         List<ClubInfo> keyActList = availableActivityList.stream().filter(activity -> {
@@ -134,15 +161,30 @@ public class UniRunMain {
         return request.joinClub(String.valueOf(studentId), String.valueOf(activityId));
     }
 
-    public static Response signInOrSignBack(String phone, String password) {
+    /**
+     * UniRun 签到签退
+     *
+     * @param token token
+     * @param phone 手机号
+     * @param password 密码
+     * @return null-非可签到签退状态 | Response
+     */
+    public static Response signInOrSignBack(StringBuffer token, String phone, String password) {
         AppConfig config = new AppConfig() {{
             setAppVersion("1.8.1");     // APP版本，一般不做修改
             setBrand("realme");         // 手机品牌
             setMobileType("RMX2117");   // 型号
             setSysVersion("10");        // 系统版本
         }};
-        Request request = new Request("", config);
-        Response<UserInfo> userInfoResponse = request.login(phone, password);
+        Request request = new Request(token.toString(), config);
+        Response<UserInfo> userInfoResponse = request.getUserInfo();
+        //更新token
+        if(userInfoResponse.getCode() != 10000) {
+            log.info("token无效，更新");
+            userInfoResponse = request.login(phone, password);
+            token.delete(0, token.length());
+            token.append(request.getToken());
+        }
         UserInfo userInfo = userInfoResponse.getResponse();
 
         if (userInfo != null) {
@@ -153,7 +195,6 @@ public class UniRunMain {
             String signInStatus = signInTf.getSignInStatus();
             String signBackStatus = signInTf.getSignBackStatus();
 
-            // TODO: 待确认已签到且已签退？
             if ("1".equals(signInStatus) && "1".equals(signBackStatus)) return null;
 
             String signType;
@@ -164,7 +205,7 @@ public class UniRunMain {
                 //    可签退
                 signType = "2";
             } else {
-                log.info("非可签到签退状态");
+                log.info("非可签到签退状态，或没有可签到项目");
                 return null;
             }
 

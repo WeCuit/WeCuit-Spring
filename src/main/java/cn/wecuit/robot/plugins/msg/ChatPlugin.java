@@ -1,17 +1,14 @@
 package cn.wecuit.robot.plugins.msg;
 
 import cn.wecuit.backen.utils.SpringUtil;
-import cn.wecuit.robot.entity.CmdList;
 import cn.wecuit.robot.entity.MainCmd;
 import cn.wecuit.robot.entity.RobotPlugin;
 import cn.wecuit.robot.entity.SubCmd;
 import cn.wecuit.robot.provider.WSeg;
 import cn.wecuit.robot.services.RbDictService;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
 import net.mamoe.mirai.message.code.MiraiCode;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,7 +42,6 @@ public class ChatPlugin extends MsgPluginImpl {
         // 是否开启聊天模式
         if(!enabledList.contains(subjectId))return false;
 
-
             log.info("开始分词");
             List<String> keys = WSeg.seg(msg);
 
@@ -64,7 +60,6 @@ public class ChatPlugin extends MsgPluginImpl {
             if(msgList.size() > 0) {
                 int i = (int) (Math.random() * (msgList.size()));
                 msg = msgList.get(i);
-
                 event.getSubject().sendMessage(MiraiCode.deserializeMiraiCode(msg));
             }
 

@@ -1,12 +1,10 @@
 package cn.wecuit.robot.plugins.msg;
 
-import cn.wecuit.robot.data.Storage;
 import cn.wecuit.robot.entity.CmdList;
 import cn.wecuit.robot.entity.MainCmd;
 import cn.wecuit.robot.entity.RobotPlugin;
 import cn.wecuit.robot.entity.SubCmd;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
@@ -24,21 +22,17 @@ public class SwitchPlugin extends MsgPluginImpl {
     public final static List<String> quitBanList = new LinkedList<>();
     private final static Map<String, List<String>> banUser = new HashMap<>();
 
-    @SubCmd(keyword = "退群提醒")
+    @SubCmd(keyword = "退群提醒", requireAdmin = true)
     public void quitNotice(GroupMessageEvent event, CmdList cmdList){
         quitHandle(event, cmdList, quitNoticeList);
     }
-    @SubCmd(keyword = "退群屏蔽")
+    @SubCmd(keyword = "退群屏蔽", requireAdmin = true)
     public void quitBan(GroupMessageEvent event, CmdList cmdList){
         quitHandle(event, cmdList, quitBanList);
     }
 
     private void quitHandle(GroupMessageEvent event, CmdList cmdList, List<String> list) {
         String id = Long.toString(event.getSender().getId());
-        if(!Storage.adminList.contains(id)){
-            event.getSubject().sendMessage("你没有权限。。。");
-            return;
-        }
         switch (cmdList.get(0)){
             case "开启":
                 list.add(Long.toString(event.getSubject().getId()));

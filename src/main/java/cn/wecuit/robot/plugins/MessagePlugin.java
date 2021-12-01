@@ -1,10 +1,8 @@
 package cn.wecuit.robot.plugins;
 
 import cn.wecuit.robot.PluginHandler;
-import cn.wecuit.robot.entity.CmdList;
-import cn.wecuit.robot.entity.EventType;
-import cn.wecuit.robot.entity.RobotEventHandle;
-import cn.wecuit.robot.entity.RobotPlugin;
+import cn.wecuit.robot.entity.*;
+import cn.wecuit.robot.plugins.msg.AdminPlugin;
 import cn.wecuit.robot.plugins.msg.MsgPlugin;
 import lombok.extern.slf4j.Slf4j;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
@@ -65,7 +63,7 @@ public class MessagePlugin {
             log.info("未找到指令，应该交给全局监听方法处理");
             cmd2plugin3.forEach(m->{
                 try {
-                    m.invoke(m.getDeclaringClass().newInstance(), event);
+                    callMethod(event, cmdList, m);
                 } catch (IllegalAccessException | InvocationTargetException | InstantiationException e) {
                     e.printStackTrace();
                 }
@@ -82,28 +80,7 @@ public class MessagePlugin {
         try {
             if (action instanceof Method) {
                 // 一级指令对应方法
-                Method method = (Method) action;
-                Parameter[] parameters = method.getParameters();
-                if(parameters.length > 0) {
-                    Object[] args = new Object[parameters.length];
-                    for (int i = 0; i < parameters.length; i++) {
-                        String name = parameters[i].getType().getSimpleName();
-                        if (EventType.MessageEvent.name().equals(name)
-                                || (event instanceof GroupMessageEvent && EventType.GroupMessageEvent.name().equals(name))
-                                || (event instanceof GroupTempMessageEvent && EventType.GroupTempMessageEvent.name().equals(name))) {
-                            args[i] = event;
-                        } else if ("CmdList".equals(name)) {
-                            args[i] = cmdList;
-                        } else {
-                            log.info("无法识别的参数类型：{} - {}", name, parameters[i].getType().getName());
-                            event.getSubject().sendMessage("该指令只能通过如下渠道发送：" + EventType.valueOf(name).getMessage());
-                            return;
-                        }
-                    }
-                    method.invoke(method.getDeclaringClass().newInstance(), args);
-                }else{
-                    method.invoke(method.getDeclaringClass().newInstance());
-                }
+                callMethod(event, cmdList, (Method) action);
             } else if (action instanceof Map) {
                 Map<String, Object> subCmd = ((Map<String, Object>) action);
                 String c = cmdList.get(0);
@@ -124,29 +101,7 @@ public class MessagePlugin {
                 // 指令匹配
                 if (ac instanceof Method) {
                     // 指令对应方法
-                    Method method = (Method) ac;
-                    Parameter[] parameters = method.getParameters();
-                    MsgPlugin o = (MsgPlugin) method.getDeclaringClass().newInstance();
-                    if(parameters.length > 0) {
-                        Object[] args = new Object[parameters.length];
-                        for (int i = 0; i < parameters.length; i++) {
-                            String name = parameters[i].getType().getSimpleName();
-                            if (EventType.MessageEvent.name().equals(name)
-                                    || (event instanceof GroupMessageEvent && EventType.GroupMessageEvent.name().equals(name))
-                                    || (event instanceof GroupTempMessageEvent && EventType.GroupTempMessageEvent.name().equals(name))) {
-                                args[i] = event;
-                            } else if ("CmdList".equals(name)) {
-                                args[i] = cmdList;
-                            } else {
-                                log.info("无法识别的参数类型：{} - {}", name, parameters[i].getType().getName());
-                                event.getSubject().sendMessage("该指令只能通过如下渠道发送：" + EventType.valueOf(name).getMessage());
-                                return;
-                            }
-                        }
-                        method.invoke(o, args);
-                    }else{
-                        method.invoke(o);
-                    }
+                    callMethod(event, cmdList, (Method) ac);
                 }
             }
 
@@ -154,6 +109,37 @@ public class MessagePlugin {
             e.printStackTrace();
         }
 
+    }
+
+    private void callMethod(MessageEvent event, CmdList cmdList, Method action) throws InstantiationException, IllegalAccessException, InvocationTargetException {
+        Method method = action;
+        Parameter[] parameters = method.getParameters();
+        SubCmd annotation = method.getAnnotation(SubCmd.class);
+        if(annotation.requireAdmin() && !AdminPlugin.isSuperAdmin(String.valueOf(event.getSender().getId()))){
+            event.getSubject().sendMessage("权限不足");
+            return;
+        }
+        MsgPlugin o = (MsgPlugin) method.getDeclaringClass().newInstance();
+        if(parameters.length > 0) {
+            Object[] args = new Object[parameters.length];
+            for (int i = 0; i < parameters.length; i++) {
+                String name = parameters[i].getType().getSimpleName();
+                if (EventType.MessageEvent.name().equals(name)
+                        || (event instanceof GroupMessageEvent && EventType.GroupMessageEvent.name().equals(name))
+                        || (event instanceof GroupTempMessageEvent && EventType.GroupTempMessageEvent.name().equals(name))) {
+                    args[i] = event;
+                } else if ("CmdList".equals(name)) {
+                    args[i] = cmdList;
+                } else {
+                    log.info("无法识别的参数类型：{} - {}", name, parameters[i].getType().getName());
+                    event.getSubject().sendMessage("该指令只能通过如下渠道发送：" + EventType.valueOf(name).getMessage());
+                    return;
+                }
+            }
+            method.invoke(o, args);
+        }else{
+            method.invoke(o);
+        }
     }
 
 }
