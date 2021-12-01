@@ -1,9 +1,7 @@
 package cn.wecuit.robot.plugins.msg;
 
-import net.mamoe.mirai.event.events.MessageEvent;
-import org.jetbrains.annotations.NotNull;
+import cn.wecuit.robot.data.DataHandle;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -17,5 +15,7 @@ public interface MsgPlugin {
     void initPluginData(Map<String, Object> config);
 
     // 更新插件数据[从内部到外部]
-    void updatePluginData(Map<String, Object> pluginData);
+    static void updatePluginData(Map<String, Object> pluginData) {
+        DataHandle.updatePluginData(pluginData);
+    }
 }

@@ -17,7 +17,7 @@ public abstract class MsgPluginImpl implements MsgPlugin {
     @Override
     public abstract void initPluginData(Map<String, Object> config);
 
-    public final void updatePluginData(Map<String, Object> pluginData){
+    public static void updatePluginData(Map<String, Object> pluginData){
         DataHandle.updatePluginData(pluginData);
     }
 }

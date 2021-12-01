@@ -63,7 +63,7 @@ public class MessagePlugin {
             log.info("未找到指令，应该交给全局监听方法处理");
             cmd2plugin3.forEach(m->{
                 try {
-                    m.invoke(m.getDeclaringClass().newInstance(), event);
+                    callMethod(event, cmdList, m);
                 } catch (IllegalAccessException | InvocationTargetException | InstantiationException e) {
                     e.printStackTrace();
                 }
