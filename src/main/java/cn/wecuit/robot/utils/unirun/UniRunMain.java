@@ -26,6 +26,13 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 public class UniRunMain {
+    private static final AppConfig config = new AppConfig() {{
+        setAppVersion("1.8.1");     // APP版本，一般不做修改
+        setBrand("realme");         // 手机品牌
+        setMobileType("RMX2117");   // 型号
+        setSysVersion("10");        // 系统版本
+    }};
+
     public static void main(String[] args) {
         String token = "1243489ade4c457702e7c9c7fe2698a0";
         AppConfig config = new AppConfig() {{
@@ -48,24 +55,13 @@ public class UniRunMain {
         log.info("{}", mySportsClassClocking);
     }
 
-    public static UserInfo checkAccount(String phone, String password){
-        AppConfig config = new AppConfig() {{
-            setAppVersion("1.8.1");     // APP版本，一般不做修改
-            setBrand("realme");         // 手机品牌
-            setMobileType("RMX2117");   // 型号
-            setSysVersion("10");        // 系统版本
-        }};
+    public static Response<UserInfo> checkAccount(String phone, String password){
+
         Request request = new Request("", config);
-        Response<UserInfo> userInfoResponse = request.login(phone, password);
-        return  userInfoResponse.getResponse();
+        return request.login(phone, password);
     }
     public static List<ClubInfo> getAvailableActivityList(StringBuffer token, String phone, String password) {
-        AppConfig config = new AppConfig() {{
-            setAppVersion("1.8.1");     // APP版本，一般不做修改
-            setBrand("realme");         // 手机品牌
-            setMobileType("RMX2117");   // 型号
-            setSysVersion("10");        // 系统版本
-        }};
+
         Request request = new Request(token.toString(), config);
         Response<UserInfo> userInfoResponse = request.getUserInfo();
         //更新token
@@ -97,12 +93,7 @@ public class UniRunMain {
     }
 
     public static Response autoJoinClub(StringBuffer token, String phone, String password, String location, String keyword) {
-        AppConfig config = new AppConfig() {{
-            setAppVersion("1.8.1");     // APP版本，一般不做修改
-            setBrand("realme");         // 手机品牌
-            setMobileType("RMX2117");   // 型号
-            setSysVersion("10");        // 系统版本
-        }};
+
         Request request = new Request(token.toString(), config);
         Response<UserInfo> userInfoResponse = request.getUserInfo();
         //更新token
@@ -170,12 +161,7 @@ public class UniRunMain {
      * @return null-非可签到签退状态 | Response
      */
     public static Response signInOrSignBack(StringBuffer token, String phone, String password) {
-        AppConfig config = new AppConfig() {{
-            setAppVersion("1.8.1");     // APP版本，一般不做修改
-            setBrand("realme");         // 手机品牌
-            setMobileType("RMX2117");   // 型号
-            setSysVersion("10");        // 系统版本
-        }};
+
         Request request = new Request(token.toString(), config);
         Response<UserInfo> userInfoResponse = request.getUserInfo();
         //更新token

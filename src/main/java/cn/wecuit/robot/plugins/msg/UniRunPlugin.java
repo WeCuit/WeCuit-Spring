@@ -10,6 +10,7 @@ import cn.wecuit.robot.utils.unirun.UniRunMain;
 import cn.wecuit.robot.utils.unirun.entity.Response;
 import cn.wecuit.robot.utils.unirun.entity.ResponseType.JoinClubResult;
 import cn.wecuit.robot.utils.unirun.entity.ResponseType.SignInTf;
+import cn.wecuit.robot.utils.unirun.entity.ResponseType.UserInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -37,8 +38,9 @@ public class UniRunPlugin extends MsgPluginImpl {
     private static int sleepSecond = 10;
 
     @SubCmd(keyword = "自动参与俱乐部", desc = "自动参与俱乐部 手机号 密码 校区 关键词\n关键词可选")
-    public boolean addAutoJoin(GroupTempMessageEvent event, CmdList cmds) {
-        if (event == null) return false;
+    public void addAutoJoin(GroupTempMessageEvent event, CmdList cmds) {
+        if (event == null) return;
+
         Map<String, AutoJoin> autoJoinList = (Map<String, AutoJoin>) pluginData.get("autoJoinList");
         if (autoJoinList == null) {
             autoJoinList = new HashMap<>();
@@ -46,39 +48,44 @@ public class UniRunPlugin extends MsgPluginImpl {
         }
         if (cmds.size() < 3) {
             event.getSubject().sendMessage("参数不够");
-            return true;
+            return;
         }
         String phone = cmds.get(0);
         String password = cmds.get(1);
         String location = cmds.get(2);
         if (!"龙泉".equals(location) && !"航空港".equals(location)) {
             event.getSubject().sendMessage("校区不对\n应该是：“龙泉”或“航空港”\n你输入的是：" + location);
-            return true;
+            return;
         }
         String keyword = null;
         if (cmds.size() > 3)
             keyword = cmds.get(3);
         // 检查账号密码
-        //UserInfo userInfo = UniRunMain.checkAccount(phone, password);
+        Response<UserInfo> userInfoResponse = UniRunMain.checkAccount(phone, password);
+        if(userInfoResponse.getCode() != 10000){
+            event.getSubject().sendMessage(userInfoResponse.getMsg());
+            return;
+        }
         String qqid = String.valueOf(event.getSender().getId());
         AutoJoin autoJoin = new AutoJoin(String.valueOf(event.getGroup().getId()), "", phone, password, location, keyword, null);
-        String msg;
+        String msg = "";
         if (autoJoinList.containsKey(qqid)) {
-            msg = "更新成功";
+            msg += "更新成功";
         } else {
-            msg = "加入成功";
+            msg += "加入成功";
         }
+
         autoJoinList.put(qqid, autoJoin);
         if (!autoJoinList.containsKey(qqid)) {
             msg = "加入失败";
         }
+        msg += "\n学号：" + userInfoResponse.getResponse().getRegisterCode();
         event.getSender().sendMessage(msg);
 
         updatePluginData(pluginData);
-        return true;
     }
 
-    @SubCmd(keyword = "取消自动参与俱乐部", desc = "机器人不会自动参与俱乐部")
+    @SubCmd(keyword = "删除", desc = "删除你的账号")
     public boolean delAutoJoin(GroupTempMessageEvent event) {
         Map<String, AutoJoin> autoJoinList = (Map<String, AutoJoin>) pluginData.get("autoJoinList");
         if (autoJoinList == null) return true;
