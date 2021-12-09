@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UniRunMain {
     private static final AppConfig config = new AppConfig() {{
-        setAppVersion("1.8.1");     // APP版本，一般不做修改
+        setAppVersion("1.8.2");     // APP版本，一般不做修改
         setBrand("realme");         // 手机品牌
         setMobileType("RMX2117");   // 型号
         setSysVersion("10");        // 系统版本
