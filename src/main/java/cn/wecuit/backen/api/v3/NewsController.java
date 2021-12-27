@@ -1,6 +1,5 @@
 package cn.wecuit.backen.api.v3;
 
-import cn.dev33.satoken.annotation.SaCheckRole;
 import cn.wecuit.backen.exception.BaseException;
 import cn.wecuit.backen.response.BaseResponse;
 import cn.wecuit.backen.services.NewsService;
@@ -174,7 +173,8 @@ public class NewsController {
                 }
                 downUrl = URLEncoder.encode(url, "utf-8");
                 cookie = URLEncoder.encode(cookie, "utf-8");
-                link = "https://test.cuit.api.jysafe.cn/v3/News/downFile/suffix." + suffix + "?url=" + downUrl + "&cookie=" + cookie;
+
+                link = request.getScheme() + "://" + request.getHeader("HOST") + "/v3/News/downFile/suffix." + suffix + "?url=" + downUrl + "&cookie=" + cookie;
 
                 return new HashMap<String, Object>() {{
                     put("link", link);
