@@ -174,7 +174,7 @@ public class NewsController {
                 downUrl = URLEncoder.encode(url, "utf-8");
                 cookie = URLEncoder.encode(cookie, "utf-8");
 
-                link = request.getScheme() + "://" + request.getHeader("HOST") + "/v3/News/downFile/suffix." + suffix + "?url=" + downUrl + "&cookie=" + cookie;
+                link = "https://" + request.getHeader("HOST") + "/v3/News/downFile/suffix." + suffix + "?url=" + downUrl + "&cookie=" + cookie;
 
                 return new HashMap<String, Object>() {{
                     put("link", link);
