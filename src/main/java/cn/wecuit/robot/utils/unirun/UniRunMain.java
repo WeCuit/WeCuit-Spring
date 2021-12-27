@@ -1,5 +1,6 @@
 package cn.wecuit.robot.utils.unirun;
 
+import cn.wecuit.backen.utils.SpringUtil;
 import cn.wecuit.robot.utils.unirun.entity.AppConfig;
 import cn.wecuit.robot.utils.unirun.entity.Response;
 import cn.wecuit.robot.utils.unirun.entity.ResponseType.ClubInfo;
@@ -27,7 +28,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UniRunMain {
     private static final AppConfig config = new AppConfig() {{
-        setAppVersion("1.8.2");     // APP版本，一般不做修改
+        setAppVersion(SpringUtil.getValue("unirun.version"));     // APP版本，一般不做修改
         setBrand("realme");         // 手机品牌
         setMobileType("RMX2117");   // 型号
         setSysVersion("10");        // 系统版本

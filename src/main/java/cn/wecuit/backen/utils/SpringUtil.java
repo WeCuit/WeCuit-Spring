@@ -41,7 +41,15 @@ public class SpringUtil implements ApplicationContextAware {
     }
 
     //通过name,以及Clazz返回指定的Bean
-    public static <T> T getBean(String name,Class<T> clazz){
+    public static <T> T getBean(String name, Class<T> clazz){
         return getApplicationContext().getBean(name, clazz);
+    }
+    //通过name,以及Clazz返回指定的Value
+    public static <T> T getValue(String name, Class<T> clazz){
+        return getApplicationContext().getEnvironment().getProperty(name, clazz);
+    }
+    //通过name,以及Clazz返回指定的Value
+    public static String getValue(String name){
+        return getApplicationContext().getEnvironment().getProperty(name);
     }
 }
