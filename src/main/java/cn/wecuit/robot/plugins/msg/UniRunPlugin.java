@@ -18,7 +18,9 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.contact.NormalMember;
+import net.mamoe.mirai.event.events.GroupMessageEvent;
 import net.mamoe.mirai.event.events.GroupTempMessageEvent;
+import net.mamoe.mirai.event.events.MessageEvent;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -35,10 +37,10 @@ public class UniRunPlugin extends MsgPluginImpl {
     private static final Map<String, Object> pluginData = new HashMap<>();
 
     private static String lastExecuteDay = null;
-    private static int sleepSecond = 10;
+    private static final int sleepSecond = 10;
 
     @SubCmd(keyword = "自动参与俱乐部", desc = "参数-> 手机号 密码 校区 [关键词]")
-    public void addAutoJoin(GroupTempMessageEvent event, CmdList cmds) {
+    public void addAutoJoin(MessageEvent event, CmdList cmds) {
         if (event == null) return;
 
         Map<String, AutoJoin> autoJoinList = (Map<String, AutoJoin>) pluginData.get("autoJoinList");
@@ -67,7 +69,8 @@ public class UniRunPlugin extends MsgPluginImpl {
             return;
         }
         String qqid = String.valueOf(event.getSender().getId());
-        AutoJoin autoJoin = new AutoJoin(String.valueOf(event.getGroup().getId()), "", phone, password, location, keyword, null);
+        String groupId = event instanceof GroupTempMessageEvent ? String.valueOf(((GroupTempMessageEvent) event).getGroup().getId()) : null;
+        AutoJoin autoJoin = new AutoJoin(groupId, "", phone, password, location, keyword, null);
         String msg = "";
         if (autoJoinList.containsKey(qqid)) {
             msg += "更新成功";
@@ -86,7 +89,7 @@ public class UniRunPlugin extends MsgPluginImpl {
     }
 
     @SubCmd(keyword = "删除", desc = "删除你的账号")
-    public boolean delAutoJoin(GroupTempMessageEvent event) {
+    public boolean delAutoJoin(GroupMessageEvent event) {
         Map<String, AutoJoin> autoJoinList = (Map<String, AutoJoin>) pluginData.get("autoJoinList");
         if (autoJoinList == null) return true;
         String qqid = String.valueOf(event.getSender().getId());
@@ -116,7 +119,7 @@ public class UniRunPlugin extends MsgPluginImpl {
     }
 
     @SubCmd(keyword = "签到签退", desc = "立即执行一次签到/签退操作")
-    public void sign(GroupTempMessageEvent event) {
+    public void sign(GroupMessageEvent event) {
         Map<String, AutoJoin> autoJoinList = (Map<String, AutoJoin>) pluginData.get("autoJoinList");
         long id = event.getSender().getId();
         AutoJoin autoJoin = autoJoinList.get(String.valueOf(id));
@@ -167,6 +170,7 @@ public class UniRunPlugin extends MsgPluginImpl {
                 log.info("校区：{} - 关键词：{}", location, keyword);
 
                 String groupId = autoJoin.getGroupId();
+                String sendTarget = qqid + (groupId == null ? "" : groupId);
                 String token = autoJoin.getToken();
                 if(token == null) token = "";
                 StringBuffer tokenSB = new StringBuffer(token);
@@ -183,22 +187,22 @@ public class UniRunPlugin extends MsgPluginImpl {
                     log.info("加入结果：{}", joinClubResult);
                     if (joinClubResult == null) {
                         msgList.add(new String[]{
-                                groupId + "," + qqid,
+                                sendTarget,
                                 "俱乐部参加结果：" + joinClubResultResponse.getMsg()});
                     } else {
                         msgList.add(new String[]{
-                                groupId + "," + qqid,
+                                sendTarget,
                                 "俱乐部参加结果：" + joinClubResult.getMessage()});
                     }
                 } else if(joinClubResultResponse.getMsg().contains("密码")){
                     removeList.add(qqid);
                     msgList.add(new String[]{
-                            groupId + "," + qqid,
+                            sendTarget,
                             "俱乐部参加结果：" + joinClubResultResponse.getMsg() + "\n您的账号将被移除"
                     });
                 }else{
                     msgList.add(new String[]{
-                            groupId + "," + qqid,
+                            sendTarget,
                             "俱乐部参加结果：" + joinClubResultResponse.getMsg()});
                 }
             });
@@ -215,9 +219,9 @@ public class UniRunPlugin extends MsgPluginImpl {
     private static void sendMsg(List<String[]> msgList) {
         for (String[] msg : msgList) {
             String[] group_qq = msg[0].split(",");
-            Group group = RobotMain.getBot().getGroup(Long.parseLong(group_qq[0]));
+            Group group = RobotMain.getBot().getGroup(Long.parseLong(group_qq[1]));
             if (group == null) continue;
-            NormalMember normalMember = group.get(Long.parseLong(group_qq[1]));
+            NormalMember normalMember = group.get(Long.parseLong(group_qq[0]));
             if (normalMember == null) continue;
             normalMember.sendMessage(msg[1]);
             try {
@@ -243,15 +247,16 @@ public class UniRunPlugin extends MsgPluginImpl {
                 if (response == null) return;
 
                 String groupId = autoJoin.getGroupId();
+                String sendTarget = qqid + (groupId == null ? "" : groupId);
 
                 String msg = response.getMsg();
                 msgList.add(new String[]{
-                        groupId + "," + qqid,
+                        sendTarget,
                         "俱乐部签到/签退结果：\n" + msg
                 });
 
                 try {
-                    Thread.sleep(2 * 1000L);
+                    Thread.sleep(sleepSecond * 1000L);
                 } catch (InterruptedException e) {
                     log.info("睡眠发生异常");
                     e.printStackTrace();
@@ -280,11 +285,30 @@ public class UniRunPlugin extends MsgPluginImpl {
 @AllArgsConstructor
 @NoArgsConstructor
 class AutoJoin {
+    /**
+     * null 好友， 否则临时群临时聊天
+     */
     private String groupId;
+
+    /**
+     * token存储
+     */
     private String token;
+    /**
+     * 手机号
+     */
     private String phone;
     private String password;
+    /**
+     * 校区
+     */
     private String location;
+    /**
+     * 关键词
+     */
     private String keyword;
+    /**
+     * 签到信息
+     */
     private SignInTf signInTf;
 }
