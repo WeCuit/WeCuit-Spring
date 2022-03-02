@@ -35,7 +35,7 @@ public class UniRunPlugin extends MsgPluginImpl {
     private static final Map<String, Object> pluginData = new HashMap<>();
 
     private static String lastExecuteDay = null;
-    private static int sleepSecond = 10;
+    private static int sleepSecond = 60;
 
     @SubCmd(keyword = "自动参与俱乐部", desc = "参数-> 手机号 密码 校区 [关键词]")
     public void addAutoJoin(GroupTempMessageEvent event, CmdList cmds) {
